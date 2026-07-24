@@ -1,0 +1,1328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mosaic — Meadow Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --forest:#1F3A2E;
+    --forest-deep:#142720;
+    --meadow:#6D8467;
+    --harvest:#C59D52;
+    --harvest-dark:#A9843F;
+    --cream:#F4F1E8;
+    --cream-soft:#FBF9F3;
+    --slate:#4A4A4A;
+    --line: rgba(31,58,46,0.12);
+    --shadow: 0 18px 40px rgba(20,39,32,0.22);
+  }
+
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; height:100%; }
+  html{ background:#0f1e17; }
+
+  body{
+    font-family:'Inter',sans-serif;
+    color:var(--slate);
+    background: radial-gradient(ellipse at 20% -10%, #2c4a3a 0%, var(--forest-deep) 55%, #0f1e17 100%);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:32px 16px;
+    overflow-x:hidden;
+  }
+
+  /* faint wheat motif in the backdrop corners */
+  body::before, body::after{
+    content:"";
+    position:fixed;
+    width:340px; height:340px;
+    background: repeating-linear-gradient(100deg, transparent 0 18px, rgba(197,157,82,0.05) 18px 20px);
+    pointer-events:none;
+    z-index:0;
+  }
+  body::before{ top:-60px; left:-80px; transform:rotate(8deg); }
+  body::after{ bottom:-90px; right:-70px; transform:rotate(-14deg); }
+
+  .frame{
+    position:relative;
+    z-index:1;
+    width:410px;
+    max-width:100%;
+    height:840px;
+    max-height:92vh;
+    background:var(--cream);
+    border-radius:34px;
+    box-shadow:var(--shadow), 0 0 0 1px rgba(255,255,255,0.04);
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* On an actual phone, the device itself is the frame — don't show a fake phone inside it */
+  @media (max-width: 480px){
+    body{ padding:0; align-items:stretch; }
+    body::before, body::after{ display:none; }
+    .frame{
+      width:100%;
+      max-width:100%;
+      height:100vh;
+      max-height:100vh;
+      border-radius:0;
+      box-shadow:none;
+    }
+  }
+
+  .screen{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    opacity:0;
+    transform:translateX(16px);
+    pointer-events:none;
+    transition: opacity .28s ease, transform .28s ease;
+  }
+  .screen.active{
+    opacity:1;
+    transform:translateX(0);
+    pointer-events:auto;
+    position:relative;
+    height:100%;
+    width:100%;
+  }
+  .stack{ position:relative; flex:1; }
+
+  h1,h2,h3{ font-family:'Fraunces', serif; margin:0; color:var(--forest); }
+  .eyebrow{
+    font-family:'Inter',sans-serif;
+    font-size:11px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--meadow);
+    font-weight:600;
+  }
+
+  /* ---------- SPLASH ---------- */
+  #splash{
+    background: linear-gradient(160deg, var(--forest) 0%, var(--forest-deep) 100%);
+    align-items:center;
+    justify-content:space-between;
+    text-align:center;
+    color:var(--cream);
+    padding:64px 40px 56px;
+  }
+  .splash-top, .splash-middle, .splash-bottom{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    width:100%;
+  }
+  .splash-middle{ flex:1; justify-content:center; }
+  .splash-mark{
+    font-family:'Fraunces', serif;
+    font-size:13px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--harvest);
+    margin-bottom:6px;
+  }
+  .splash-sub{
+    font-size:11px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:rgba(244,241,232,0.55);
+  }
+  .mosaic-word{
+    font-family:'Fraunces', serif;
+    font-weight:500;
+    font-size:56px;
+    letter-spacing:.02em;
+    color:var(--cream);
+    margin:0 0 14px;
+  }
+  .mosaic-tagline{
+    font-size:14px;
+    font-style:italic;
+    color:rgba(244,241,232,0.72);
+    max-width:260px;
+    margin:0 auto;
+    line-height:1.5;
+  }
+  .sprout{
+    width:46px; height:46px;
+    opacity:.9;
+  }
+  .splash-footnote{
+    font-size:10px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:rgba(244,241,232,0.35);
+    margin-top:18px;
+  }
+  .btn{
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    letter-spacing:.02em;
+    border:none;
+    border-radius:100px;
+    padding:14px 34px;
+    cursor:pointer;
+    transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+  .btn:active{ transform: scale(.96); }
+  .btn-primary{
+    background:var(--harvest);
+    color:var(--forest-deep);
+    box-shadow: 0 10px 24px rgba(197,157,82,0.35);
+  }
+  .btn-primary:hover{ background:#d3ad63; }
+  .btn-ghost{
+    background:transparent;
+    border:1.5px solid rgba(244,241,232,0.35);
+    color:var(--cream);
+  }
+
+  /* ---------- SHARED APP CHROME ---------- */
+  .app-header{
+    padding:22px 24px 16px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:var(--cream);
+    flex-shrink:0;
+  }
+  .app-header .back{
+    width:34px;height:34px;
+    border-radius:50%;
+    background:var(--cream-soft);
+    border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    color:var(--forest);
+    font-size:16px;
+    flex-shrink:0;
+  }
+  .app-header .back:hover{ background:#eee9db; }
+  .scroll-area{
+    flex:1;
+    overflow-y:auto;
+    padding:0 24px 24px;
+  }
+  .scroll-area::-webkit-scrollbar{ width:0; }
+
+  .bottom-nav{
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:space-around;
+    padding:12px 18px 20px;
+    background:var(--cream-soft);
+    border-top:1px solid var(--line);
+    position:relative;
+  }
+  .nav-item{
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    color:#9aa39a;
+    font-size:10px;
+    font-weight:600;
+    letter-spacing:.03em;
+    text-transform:uppercase;
+    cursor:pointer;
+    background:none; border:none;
+    padding:4px 10px;
+  }
+  .nav-item.active{ color:var(--forest); }
+  .nav-item svg{ width:20px; height:20px; }
+  .nav-fab{
+    width:52px; height:52px;
+    border-radius:50%;
+    background:var(--harvest);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 8px 18px rgba(197,157,82,0.5);
+    margin-top:-30px;
+    cursor:pointer;
+    border:4px solid var(--cream-soft);
+    transition: transform .15s ease;
+  }
+  .nav-fab:hover{ transform: scale(1.06) rotate(8deg); }
+  .nav-fab svg{ width:22px; height:22px; }
+
+  /* ---------- DASHBOARD ---------- */
+  .greeting{ margin-bottom:18px; }
+  .greeting h2{ font-size:24px; font-weight:500; }
+  .greeting p{ margin:4px 0 0; font-size:13px; color:var(--meadow); }
+
+  .continue-card{
+    background: linear-gradient(135deg, var(--forest) 0%, #24473a 100%);
+    border-radius:20px;
+    padding:20px;
+    color:var(--cream);
+    margin-bottom:26px;
+    position:relative;
+    overflow:hidden;
+  }
+  .continue-card .eyebrow{ color:var(--harvest); }
+  .continue-card h3{ color:var(--cream); font-size:19px; margin-top:6px; font-weight:500; }
+  .waveform{ display:flex; align-items:center; gap:3px; height:30px; margin:14px 0 16px; }
+  .waveform span{
+    width:3px; border-radius:2px;
+    background: rgba(244,241,232,0.55);
+    display:block;
+  }
+  .continue-card .btn-primary{ padding:9px 20px; font-size:12px; }
+
+  .section-title{
+    display:flex; align-items:baseline; justify-content:space-between;
+    margin-bottom:12px;
+  }
+  .section-title h3{ font-size:15px; font-weight:600; color:var(--forest); font-family:'Inter',sans-serif; }
+  .section-title span{ font-size:11px; color:var(--meadow); font-weight:600; }
+
+  .idea-row{
+    display:flex; gap:12px; overflow-x:auto; padding-bottom:6px; margin-bottom:28px;
+    scroll-snap-type:x proximity;
+  }
+  .idea-row .idea-card{ scroll-snap-align:start; }
+  .idea-row::-webkit-scrollbar{ height:0; }
+  .idea-card{
+    flex-shrink:0;
+    width:132px;
+    background:var(--cream-soft);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:14px 12px;
+    cursor:pointer;
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .idea-card:hover{ transform: translateY(-3px); box-shadow:0 10px 20px rgba(31,58,46,0.12); }
+  .idea-tag{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:26px; height:26px; border-radius:8px;
+    background:rgba(109,132,103,0.15);
+    color:var(--meadow);
+    font-size:13px;
+    margin-bottom:10px;
+  }
+  .idea-card h4{ font-family:'Inter',sans-serif; font-size:13px; font-weight:600; color:var(--forest); margin:0 0 4px; }
+  .idea-card p{ font-size:11px; color:#8b8b8b; margin:0; }
+
+  .song-list{ display:flex; flex-direction:column; gap:10px; margin-bottom:24px; }
+  .song-item{
+    display:flex; align-items:center; gap:12px;
+    background:var(--cream-soft);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:11px 14px;
+    cursor:pointer;
+  }
+  .song-item:hover{ background:#eee9db; }
+  .song-dot{ width:8px; height:8px; border-radius:50%; background:var(--harvest); flex-shrink:0; }
+  .song-item .meta{ flex:1; }
+  .song-item h4{ font-family:'Inter',sans-serif; font-size:13px; font-weight:600; color:var(--forest); margin:0; }
+  .song-item p{ font-size:11px; color:#8b8b8b; margin:2px 0 0; }
+  .song-item .count{ font-size:11px; color:var(--meadow); font-weight:600; }
+
+  .connections-strip{
+    border:1px dashed var(--line);
+    border-radius:14px;
+    padding:14px;
+    font-size:12px;
+    color:#8b8b8b;
+    text-align:center;
+    line-height:1.5;
+  }
+
+  .empty-state{
+    text-align:center;
+    padding:36px 12px;
+  }
+  .empty-state .sprout{ width:38px; height:38px; margin:0 auto 14px; opacity:.6; }
+  .empty-state h4{ font-family:'Fraunces', serif; font-size:16px; color:var(--forest); margin:0 0 6px; font-weight:500; }
+  .empty-state p{ font-size:12px; color:#9a9a9a; margin:0; }
+
+  /* ---------- CAPTURE ---------- */
+  .capture-grid{ display:flex; flex-direction:column; gap:12px; margin-top:6px; }
+  .capture-btn{
+    position:relative;
+    display:flex; align-items:center; gap:16px;
+    background:var(--cream-soft);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:18px;
+    cursor:pointer;
+    text-align:left;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  .capture-badge{
+    position:absolute; top:10px; right:12px;
+    font-size:9px; font-weight:700; letter-spacing:.05em; text-transform:uppercase;
+    color:var(--meadow); background:rgba(109,132,103,0.14);
+    padding:3px 8px; border-radius:100px;
+  }
+  .capture-btn:hover{
+    transform: translateY(-2px);
+    box-shadow:0 12px 24px rgba(31,58,46,0.12);
+    border-color: var(--meadow);
+  }
+  .capture-icon{
+    width:46px; height:46px; border-radius:13px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px;
+    flex-shrink:0;
+  }
+  .capture-btn h4{ font-family:'Inter',sans-serif; font-size:14px; font-weight:600; color:var(--forest); margin:0; }
+  .capture-btn p{ font-size:11.5px; color:#8b8b8b; margin:3px 0 0; }
+  .capture-intro{ margin-bottom:22px; }
+  .capture-intro h2{ font-size:21px; font-weight:500; }
+  .capture-intro p{ font-size:12.5px; color:var(--meadow); margin:6px 0 0; line-height:1.5; }
+
+  /* ---------- COMPOSE SCREENS ---------- */
+  .field-label{
+    font-size:11px; font-weight:700; letter-spacing:.07em; text-transform:uppercase;
+    color:var(--meadow); margin:18px 0 8px; display:block;
+  }
+  .field-input{
+    width:100%;
+    border:1px solid var(--line);
+    border-radius:14px;
+    background:var(--cream-soft);
+    padding:12px 14px;
+    font-family:'Inter',sans-serif;
+    font-size:13px;
+    color:var(--slate);
+    outline:none;
+  }
+  .field-input:focus{ border-color:var(--meadow); }
+  .lyrics-textarea{ min-height:200px; resize:vertical; line-height:1.6; }
+  .detail-meta.light .chip{
+    background:rgba(109,132,103,0.12);
+    color:var(--forest);
+    border:1px solid var(--line);
+  }
+  .detail-meta.light .chip.selected{
+    background:var(--harvest);
+    color:var(--forest-deep);
+    border-color:var(--harvest);
+  }
+  .detail-meta.light{ display:flex; gap:8px; flex-wrap:wrap; }
+  .chord-input-row{ display:flex; gap:8px; margin-bottom:14px; }
+  .chord-input-row .field-input{ flex:1; }
+  .btn-add{
+    background:var(--meadow);
+    color:#fff;
+    border:none;
+    border-radius:12px;
+    padding:0 18px;
+    font-weight:600;
+    font-size:13px;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+  }
+  .btn-add:hover{ background:#5c7256; }
+  .chord-chip-wrap{
+    display:flex; align-items:center; flex-wrap:wrap; gap:6px;
+    min-height:30px; margin-bottom:6px;
+  }
+  .chord-chip-wrap .chord{
+    background:rgba(197,157,82,0.18); color:var(--harvest-dark);
+    font-weight:700; font-size:13px; padding:6px 8px 6px 14px;
+    border-radius:100px; display:inline-flex; align-items:center; gap:8px;
+    cursor:grab; touch-action:none; user-select:none;
+  }
+  .chord-chip-wrap .chord.dragging{
+    cursor:grabbing; opacity:.85; box-shadow:0 8px 18px rgba(0,0,0,0.18); z-index:5;
+  }
+  .chord-chip-wrap .chord b{
+    cursor:pointer; font-weight:400; opacity:.55; font-size:14px; line-height:1;
+  }
+  .chord-chip-wrap .chord b:hover{ opacity:1; }
+  .chord-chip-wrap .arrow{ color:#c7c2b3; font-size:13px; }
+  .chip-empty-hint{ font-size:11.5px; color:#9a9a9a; margin:0; }
+
+  /* ---------- IDEA DETAIL ---------- */
+  .detail-hero{
+    background:var(--forest);
+    color:var(--cream);
+    padding:22px 24px 26px;
+    flex-shrink:0;
+  }
+  .detail-hero .eyebrow{ color:var(--harvest); }
+  .detail-title{
+    font-family:'Fraunces', serif;
+    font-size:23px;
+    font-weight:500;
+    margin:6px 0 12px;
+    background:transparent;
+    border:none;
+    color:var(--cream);
+    width:100%;
+    outline:none;
+  }
+  .detail-title::placeholder{ color:rgba(244,241,232,0.5); }
+  .detail-meta{ display:flex; gap:8px; flex-wrap:wrap; }
+  .chip{
+    font-size:11px;
+    font-weight:600;
+    padding:5px 12px;
+    border-radius:100px;
+    background:rgba(244,241,232,0.12);
+    color:var(--cream);
+    cursor:pointer;
+    border:1px solid rgba(244,241,232,0.18);
+    transition: background .15s ease;
+  }
+  .chip.selected{ background:var(--harvest); color:var(--forest-deep); border-color:var(--harvest); }
+
+  .detail-body-wave{ display:flex; align-items:center; gap:3px; height:44px; margin:16px 0 4px; }
+  .detail-body-wave span{ width:3px; border-radius:2px; background:rgba(244,241,232,0.5); display:block; }
+  .lyric-preview{
+    font-family:'Fraunces', serif; font-style:italic; font-size:13.5px; line-height:1.6;
+    color:rgba(244,241,232,0.85); white-space:pre-line; margin:16px 0 6px; min-height:44px;
+  }
+  .lyric-edit{
+    display:block;
+    width:100%;
+    font-family:'Fraunces', serif; font-style:italic; font-size:13.5px; line-height:1.6;
+    color:rgba(244,241,232,0.9);
+    background:transparent;
+    border:none;
+    border-bottom:1px dashed rgba(244,241,232,0.2);
+    outline:none;
+    resize:none;
+    overflow:hidden;
+    padding:0 0 6px;
+    margin:16px 0 6px;
+    min-height:44px;
+  }
+  .lyric-edit::placeholder{ color:rgba(244,241,232,0.4); font-style:italic; }
+  .lyric-edit:focus{ border-bottom-color:var(--harvest); }
+  .chord-progression{ display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin:16px 0 6px; min-height:44px; }
+  .chord-progression .chord{
+    background:rgba(197,157,82,0.18); color:var(--harvest); font-weight:700; font-size:13px;
+    padding:6px 12px; border-radius:8px; font-family:'Inter',sans-serif;
+  }
+  .chord-progression .arrow{ color:rgba(244,241,232,0.4); font-size:13px; }
+  .chord-progression-edit{ margin:16px 0 6px; }
+  .chord-progression-edit .chip-row{
+    display:flex; align-items:center; flex-wrap:wrap; gap:7px; min-height:32px; margin-bottom:10px;
+  }
+  .chord-progression-edit .chord{
+    background:rgba(197,157,82,0.18); color:var(--harvest); font-weight:700; font-size:13px;
+    padding:6px 8px 6px 14px; border-radius:100px; font-family:'Inter',sans-serif;
+    display:inline-flex; align-items:center; gap:7px;
+    cursor:grab; touch-action:none; user-select:none;
+  }
+  .chord-progression-edit .chord.dragging{
+    cursor:grabbing; opacity:.85; box-shadow:0 8px 18px rgba(0,0,0,0.3); z-index:5;
+  }
+  .chord-progression-edit .chord b{ cursor:pointer; font-weight:400; opacity:.6; font-size:14px; line-height:1; }
+  .chord-progression-edit .chord b:hover{ opacity:1; }
+  .chord-progression-edit .arrow{ color:rgba(244,241,232,0.35); font-size:13px; }
+  .chord-progression-edit .chip-empty-hint{ font-size:11.5px; color:rgba(244,241,232,0.45); }
+  .chord-add-row{ display:flex; gap:8px; }
+  .chord-add-row input{
+    flex:1;
+    background:rgba(244,241,232,0.08);
+    border:1px solid rgba(244,241,232,0.18);
+    border-radius:10px;
+    padding:8px 12px;
+    font-size:12.5px;
+    color:var(--cream);
+    outline:none;
+    font-family:'Inter',sans-serif;
+  }
+  .chord-add-row input::placeholder{ color:rgba(244,241,232,0.4); }
+  .chord-add-row input:focus{ border-color:var(--harvest); }
+  .chord-add-row button{
+    background:rgba(197,157,82,0.9);
+    color:var(--forest-deep);
+    border:none;
+    border-radius:10px;
+    padding:0 16px;
+    font-weight:700;
+    font-size:12.5px;
+    font-family:'Inter',sans-serif;
+    cursor:pointer;
+  }
+  .chord-add-row button:hover{ background:var(--harvest); }
+  .tab-line{
+    font-family:'Courier New', monospace; font-size:10.5px; line-height:1.55;
+    color:rgba(244,241,232,0.75); white-space:pre; margin:16px 0 6px; min-height:44px;
+    overflow-x:auto;
+  }
+
+  .detail-section{ margin-bottom:22px; }
+  .detail-section .label{
+    font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--meadow); margin-bottom:10px; display:block;
+  }
+  .notes-box{
+    width:100%;
+    min-height:70px;
+    border:1px solid var(--line);
+    border-radius:14px;
+    background:var(--cream-soft);
+    padding:12px 14px;
+    font-family:'Inter',sans-serif;
+    font-size:12.5px;
+    color:var(--slate);
+    resize:none;
+    outline:none;
+  }
+  .notes-box:focus{ border-color:var(--meadow); }
+  .tag-row{ display:flex; gap:8px; flex-wrap:wrap; }
+  .tag{
+    font-size:11px; font-weight:600;
+    padding:6px 13px; border-radius:100px;
+    background:rgba(109,132,103,0.14);
+    color:var(--meadow);
+  }
+  .version-item{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:9px 0;
+    border-bottom:1px solid var(--line);
+    font-size:12px;
+  }
+  .version-item:last-child{ border-bottom:none; }
+  .version-item span:first-child{ color:var(--forest); font-weight:600; }
+  .version-item span:last-child{ color:#9a9a9a; }
+
+  .detail-footer{
+    padding:16px 24px 22px;
+    border-top:1px solid var(--line);
+    background:var(--cream);
+    flex-shrink:0;
+  }
+  .detail-footer .btn-primary{ width:100%; padding:14px; font-size:14px; }
+
+  /* ---------- MODAL / TOAST ---------- */
+  .overlay{
+    position:absolute; inset:0;
+    background:rgba(20,39,32,0.55);
+    display:flex; align-items:flex-end; justify-content:center;
+    opacity:0; pointer-events:none;
+    transition:opacity .2s ease;
+    z-index:5;
+  }
+  .overlay.show{ opacity:1; pointer-events:auto; }
+  .sheet{
+    background:var(--cream);
+    border-radius:22px 22px 0 0;
+    width:100%;
+    padding:22px 22px 26px;
+    transform:translateY(100%);
+    transition:transform .25s ease;
+  }
+  .overlay.show .sheet{ transform:translateY(0); }
+  .sheet h3{ font-size:17px; margin-bottom:14px; }
+  .sheet .song-item{ margin-bottom:8px; }
+
+  .toast{
+    position:absolute;
+    bottom:96px; left:50%;
+    transform:translate(-50%, 12px);
+    background:var(--forest);
+    color:var(--cream);
+    font-size:12.5px;
+    font-weight:600;
+    padding:11px 20px;
+    border-radius:100px;
+    box-shadow:0 10px 24px rgba(20,39,32,0.35);
+    opacity:0;
+    pointer-events:none;
+    transition: opacity .25s ease, transform .25s ease;
+    z-index:6;
+    white-space:nowrap;
+  }
+  .toast.show{ opacity:1; transform:translate(-50%, 0); }
+</style>
+</head>
+<body>
+
+<div class="frame">
+
+  <!-- SPLASH -->
+  <div class="screen active" id="splash">
+    <div class="splash-top">
+      <div class="splash-mark">Meadow Works</div>
+      <div class="splash-sub">presents</div>
+    </div>
+    <div class="splash-middle">
+      <svg class="sprout" viewBox="0 0 24 24" fill="none" style="margin-bottom:24px;"><path d="M12 21V11" stroke="#C59D52" stroke-width="1.4" stroke-linecap="round"/><path d="M12 11C12 11 5 11.5 5 5C11.5 5 12 11 12 11Z" stroke="#C59D52" stroke-width="1.4"/><path d="M12 14C12 14 19 14.4 19 8.5C13 8.5 12 14 12 14Z" stroke="#C59D52" stroke-width="1.4"/></svg>
+      <h1 class="mosaic-word">Mosaic</h1>
+      <p class="mosaic-tagline">Every idea deserves room to grow.</p>
+    </div>
+    <div class="splash-bottom">
+      <button class="btn btn-primary" onclick="goTo('dashboard')">Begin</button>
+      <div class="splash-footnote">A Meadow Works product</div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="screen" id="dashboard">
+    <div class="app-header" style="justify-content:flex-start;">
+      <div>
+        <div class="eyebrow" style="color:var(--meadow);">Mosaic</div>
+      </div>
+    </div>
+    <div class="scroll-area">
+      <div class="greeting">
+        <h2 id="greetingText">Good evening, Richard</h2>
+        <p>Your meadow, as you left it.</p>
+      </div>
+
+      <div class="continue-card" onclick="openIdeaById('song-midnight')">
+        <div class="eyebrow">Continue working</div>
+        <h3>Midnight Drive</h3>
+        <div class="waveform" id="continueWave"></div>
+        <button class="btn btn-primary">Resume</button>
+      </div>
+
+      <div class="section-title">
+        <h3>Recent Ideas</h3>
+        <span onclick="showToast('Full idea library — coming next sprint')">See all</span>
+      </div>
+      <div class="idea-row" id="recentIdeas"></div>
+
+      <div class="section-title">
+        <h3>Recent Songs</h3>
+        <span onclick="showToast('Song Workspace — coming next sprint')">See all</span>
+      </div>
+      <div class="song-list" id="recentSongs"></div>
+
+      <div class="section-title"><h3>Connections</h3></div>
+      <div class="connections-strip">Ideas start forming connections once you have a few in your meadow.</div>
+    </div>
+
+    <div class="bottom-nav">
+      <button class="nav-item active" onclick="goTo('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9h14v-9"/></svg>
+        Home
+      </button>
+      <div class="nav-fab" onclick="goTo('capture')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#142720" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </div>
+      <button class="nav-item" onclick="showToast('Song Workspace — coming next sprint')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
+        Songs
+      </button>
+    </div>
+  </div>
+
+  <!-- CAPTURE -->
+  <div class="screen" id="capture">
+    <div class="app-header">
+      <div class="back" onclick="goTo('dashboard')">&#8592;</div>
+      <div class="eyebrow">Plant an idea</div>
+      <div style="width:34px;"></div>
+    </div>
+    <div class="scroll-area">
+      <div class="capture-intro">
+        <h2>What have you got?</h2>
+        <p>Capture it now, however it came to you. Lyrics and Chords let you put in the real thing — Audio, Video, and Tab are still previews for now.</p>
+      </div>
+      <div class="capture-grid">
+        <div class="capture-btn" onclick="createIdea('audio')">
+          <span class="capture-badge">Preview</span>
+          <div class="capture-icon" style="background:rgba(197,157,82,0.18); color:var(--harvest-dark);">&#127908;</div>
+          <div><h4>Audio</h4><p>Hum it, play it, record it</p></div>
+        </div>
+        <div class="capture-btn" onclick="createIdea('video')">
+          <span class="capture-badge">Preview</span>
+          <div class="capture-icon" style="background:rgba(109,132,103,0.18); color:var(--meadow);">&#128249;</div>
+          <div><h4>Video</h4><p>Capture the take in motion</p></div>
+        </div>
+        <div class="capture-btn" onclick="openCompose('lyrics')">
+          <div class="capture-icon" style="background:rgba(31,58,46,0.1); color:var(--forest);">&#128221;</div>
+          <div><h4>Lyrics</h4><p>Words before they slip away</p></div>
+        </div>
+        <div class="capture-btn" onclick="openCompose('chords')">
+          <div class="capture-icon" style="background:rgba(197,157,82,0.18); color:var(--harvest-dark);">&#127928;</div>
+          <div><h4>Chords</h4><p>Log the progression</p></div>
+        </div>
+        <div class="capture-btn" onclick="createIdea('tab')">
+          <span class="capture-badge">Preview</span>
+          <div class="capture-icon" style="background:rgba(109,132,103,0.18); color:var(--meadow);">&#127932;</div>
+          <div><h4>Tab</h4><p>Write out the exact line</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="goTo('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9h14v-9"/></svg>
+        Home
+      </button>
+      <div class="nav-fab" onclick="goTo('capture')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#142720" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </div>
+      <button class="nav-item active" onclick="showToast('Song Workspace — coming next sprint')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
+        Songs
+      </button>
+    </div>
+  </div>
+
+  <!-- COMPOSE: LYRICS -->
+  <div class="screen" id="composeLyrics">
+    <div class="app-header">
+      <div class="back" onclick="goTo('capture')">&#8592;</div>
+      <div class="eyebrow">New lyric idea</div>
+      <div style="width:34px;"></div>
+    </div>
+    <div class="scroll-area">
+      <div class="capture-intro">
+        <h2>Write it down.</h2>
+        <p>Before it slips away. You can always shape it later.</p>
+      </div>
+      <span class="field-label">Title</span>
+      <input class="field-input" id="composeLyricsTitle" placeholder="Untitled idea">
+
+      <span class="field-label">Lyrics</span>
+      <textarea class="field-input lyrics-textarea" id="composeLyricsText" placeholder="Start typing…"></textarea>
+
+      <span class="field-label">Mood</span>
+      <div class="detail-meta light" id="composeLyricsMood"></div>
+
+      <span class="field-label">Tags</span>
+      <div class="detail-meta light" id="composeLyricsTags"></div>
+    </div>
+    <div class="detail-footer">
+      <button class="btn btn-primary" onclick="plantLyricIdea()">&#127793; Plant Idea</button>
+    </div>
+  </div>
+
+  <!-- COMPOSE: CHORDS -->
+  <div class="screen" id="composeChords">
+    <div class="app-header">
+      <div class="back" onclick="goTo('capture')">&#8592;</div>
+      <div class="eyebrow">New chord idea</div>
+      <div style="width:34px;"></div>
+    </div>
+    <div class="scroll-area">
+      <div class="capture-intro">
+        <h2>Log the progression.</h2>
+        <p>Add each chord in order. You can always shape it later.</p>
+      </div>
+      <span class="field-label">Title</span>
+      <input class="field-input" id="composeChordsTitle" placeholder="Untitled idea">
+
+      <span class="field-label">Progression</span>
+      <div class="chord-input-row">
+        <input class="field-input" id="chordInputField" placeholder="e.g. Gmaj7" onkeydown="if(event.key==='Enter'){event.preventDefault();addChordChip();}">
+        <button class="btn-add" onclick="addChordChip()">Add</button>
+      </div>
+      <div class="chord-chip-wrap" id="chordChipsList"></div>
+
+      <span class="field-label">Mood</span>
+      <div class="detail-meta light" id="composeChordsMood"></div>
+
+      <span class="field-label">Tags</span>
+      <div class="detail-meta light" id="composeChordsTags"></div>
+    </div>
+    <div class="detail-footer">
+      <button class="btn btn-primary" onclick="plantChordIdea()">&#127793; Plant Idea</button>
+    </div>
+  </div>
+
+  <!-- IDEA DETAIL -->
+  <div class="screen" id="detail">
+    <div class="stack" style="display:flex; flex-direction:column; height:100%;">
+      <div class="detail-hero">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:2px;">
+          <div class="back" onclick="goTo('dashboard')" style="background:rgba(244,241,232,0.12); color:var(--cream); border-color:rgba(244,241,232,0.2);">&#8592;</div>
+          <div class="eyebrow" id="detailType">Audio idea</div>
+          <div style="width:34px;"></div>
+        </div>
+        <input class="detail-title" id="detailTitleInput" placeholder="Untitled idea">
+        <div class="detail-meta" id="moodChips"></div>
+        <div id="detailVisual"></div>
+      </div>
+
+      <div class="scroll-area">
+        <div class="detail-section">
+          <span class="label">Notes</span>
+          <textarea class="notes-box" id="detailNotes" placeholder="What were you thinking when this came to you?"></textarea>
+        </div>
+
+        <div class="detail-section">
+          <span class="label">Tags</span>
+          <div class="tag-row" id="detailTags"></div>
+        </div>
+
+        <div class="detail-section">
+          <span class="label">Connections</span>
+          <div class="connections-strip">Not connected to a song yet — try "Add to Song" below.</div>
+        </div>
+
+        <div class="detail-section">
+          <span class="label">Versions</span>
+          <div id="versionList"></div>
+        </div>
+      </div>
+
+      <div class="detail-footer">
+        <button class="btn btn-primary" onclick="openAddToSong()">Add to Song</button>
+      </div>
+
+      <div class="overlay" id="addToSongOverlay">
+        <div class="sheet">
+          <h3>Add to a song</h3>
+          <div id="sheetSongList"></div>
+          <button class="btn btn-ghost" style="width:100%; color:var(--forest); border-color:var(--line); margin-top:6px;" onclick="closeAddToSong()">Cancel</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+</div>
+
+<script>
+  // ---------- state ----------
+  const ideaTypes = {
+    audio:  { label:"Audio idea",  icon:"&#127908;" },
+    video:  { label:"Video idea",  icon:"&#128249;" },
+    lyrics: { label:"Lyric idea",  icon:"&#128221;" },
+    chords: { label:"Chord idea",  icon:"&#127928;" },
+    tab:    { label:"Tab idea",    icon:"&#127932;" },
+  };
+
+  const seedNames = {
+    audio:  ["Morning Riff", "Porch Groove", "Half-Awake Hook"],
+    video:  ["Backyard Take", "Amp Warmup Bit"],
+    lyrics: ["Verse — Change of Heart", "Chorus Fragment"],
+    chords: ["Drop C Sketch", "Gmaj7 Wander"],
+    tab:    ["Fast Descending Lick", "Open-String Idea"],
+  };
+
+  const chordPool = ["Gmaj7","Em9","Cadd9","A13","Dsus4","Fmaj9","Bm7","C6","G/B","Am7","D/F#","Esus4"];
+  const lyricPool = [
+    "Maybe I was wrong to wait\nmaybe the silence had a name",
+    "You keep the porch light on\nlong after I'm already gone",
+    "Every road looks like the last one\nuntil it doesn't",
+    "I practiced saying goodbye\nso it wouldn't sound so loud",
+    "The kitchen still smells like Sunday\neven on a Tuesday",
+    "We were louder than the static\nfor about a summer",
+  ];
+
+  function randomWave(n = 12){
+    return Array.from({ length: n }, () => Math.floor(Math.random() * 26) + 8);
+  }
+  function randomChordProgression(){
+    const chosen = [];
+    while(chosen.length < 3){
+      const c = chordPool[Math.floor(Math.random() * chordPool.length)];
+      if(!chosen.includes(c)) chosen.push(c);
+    }
+    return chosen;
+  }
+  function randomLyricSnippet(){
+    return lyricPool[Math.floor(Math.random() * lyricPool.length)];
+  }
+  function randomTabLine(){
+    const strings = ["e","B","G","D","A","E"];
+    return strings.map(s =>
+      s + "|" + Array.from({ length: 8 }, () => (Math.random() < 0.55 ? "-" : Math.floor(Math.random() * 12))).join("-") + "|"
+    ).join("\n");
+  }
+  function makeVisual(type){
+    if(type === "audio" || type === "video") return { kind:"wave", data:randomWave() };
+    if(type === "lyrics") return { kind:"lyric", data:randomLyricSnippet() };
+    if(type === "chords") return { kind:"chords", data:randomChordProgression() };
+    return { kind:"tab", data:randomTabLine() };
+  }
+
+  let ideaSeq = 0;
+  const lastUsedTitle = {};
+  let ideas = [
+    mkIdea("audio", "Morning Riff", "bright", ["riff","open-tuning"]),
+    mkIdea("lyrics", "Verse — Change of Heart", "reflective", ["verse","unfinished"]),
+    mkIdea("chords", "Drop C Sketch", "heavy", ["drop-c","riff"]),
+  ];
+
+  let songs = [
+    { id:"song-midnight", title:"Midnight Drive", count:4 },
+    { id:"song-slowburn", title:"Slow Burn", count:2 },
+  ];
+
+  let activeIdeaId = null;
+
+  function mkIdea(type, title, mood, tags, visualOverride){
+    ideaSeq++;
+    return { id:"idea-"+ideaSeq, type, title, mood, tags, notes:"", createdAt:"just now", visual: visualOverride || makeVisual(type) };
+  }
+
+  // ---------- navigation ----------
+  function goTo(screenId){
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    document.getElementById(screenId).classList.add("active");
+    if(screenId === "dashboard"){ renderDashboard(); }
+  }
+
+  function buildWave(container, heights, color){
+    container.innerHTML = "";
+    heights.forEach(h => {
+      const bar = document.createElement("span");
+      bar.style.height = h + "px";
+      if(color) bar.style.background = color;
+      container.appendChild(bar);
+    });
+  }
+
+  function autoGrow(el){
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }
+
+  function attachPillReorder(wrap, getArray, rerender){
+    let dragEl = null, dragIndex = null, startX = 0, startY = 0;
+
+    wrap.querySelectorAll(".chord").forEach((chip) => {
+      chip.addEventListener("pointerdown", (e) => {
+        if(e.target.tagName === "B") return; // don't start a drag from the remove button
+        dragEl = chip;
+        dragIndex = Number(chip.dataset.index);
+        startX = e.clientX;
+        startY = e.clientY;
+        chip.setPointerCapture(e.pointerId);
+        chip.classList.add("dragging");
+      });
+      chip.addEventListener("pointermove", (e) => {
+        if(!dragEl) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        dragEl.style.transform = `translate(${dx}px, ${dy}px)`;
+      });
+      chip.addEventListener("pointerup", (e) => {
+        if(!dragEl) return;
+        dragEl.style.transform = "";
+        dragEl.classList.remove("dragging");
+        const target = document.elementFromPoint(e.clientX, e.clientY);
+        const targetChip = target && target.closest(".chord");
+        if(targetChip && wrap.contains(targetChip)){
+          const targetIndex = Number(targetChip.dataset.index);
+          if(!Number.isNaN(targetIndex) && targetIndex !== dragIndex){
+            const arr = getArray();
+            const [moved] = arr.splice(dragIndex, 1);
+            arr.splice(targetIndex, 0, moved);
+          }
+        }
+        dragEl = null;
+        dragIndex = null;
+        rerender();
+      });
+      chip.addEventListener("pointercancel", () => {
+        if(dragEl){ dragEl.style.transform = ""; dragEl.classList.remove("dragging"); }
+        dragEl = null;
+        dragIndex = null;
+      });
+    });
+  }
+
+  function renderVisual(idea){
+    const box = document.getElementById("detailVisual");
+    const v = idea.visual;
+    if(v.kind === "wave"){
+      box.className = "detail-body-wave";
+      buildWave(box, v.data);
+    } else if(v.kind === "lyric"){
+      box.className = "";
+      box.innerHTML = `<textarea class="lyric-edit" id="lyricEditArea" placeholder="Start typing…"></textarea>`;
+      const ta = document.getElementById("lyricEditArea");
+      ta.value = v.data;
+      autoGrow(ta);
+      ta.addEventListener("input", () => {
+        idea.visual.data = ta.value;
+        autoGrow(ta);
+      });
+    } else if(v.kind === "chords"){
+      box.className = "chord-progression-edit";
+      box.innerHTML = `
+        <div class="chip-row" id="detailChordChips"></div>
+        <div class="chord-add-row">
+          <input type="text" id="detailChordInput" placeholder="Add a chord…" onkeydown="if(event.key==='Enter'){event.preventDefault();addDetailChord();}">
+          <button onclick="addDetailChord()">Add</button>
+        </div>
+      `;
+      renderDetailChordChips(idea);
+    } else if(v.kind === "tab"){
+      box.className = "tab-line";
+      box.textContent = v.data;
+    }
+  }
+
+  function renderDetailChordChips(idea){
+    const wrap = document.getElementById("detailChordChips");
+    if(!wrap) return;
+    const data = idea.visual.data;
+    if(data.length === 0){
+      wrap.innerHTML = '<span class="chip-empty-hint">No chords yet — add one below.</span>';
+      return;
+    }
+    wrap.innerHTML = data.map((c, i) =>
+      `<span class="chord" data-index="${i}">${c} <b onclick="removeDetailChord(${i})">&times;</b></span>` +
+      (i < data.length - 1 ? `<span class="arrow">&#8594;</span>` : "")
+    ).join("");
+    attachPillReorder(wrap, () => idea.visual.data, () => renderDetailChordChips(idea));
+  }
+
+  function addDetailChord(){
+    const input = document.getElementById("detailChordInput");
+    const val = input.value.trim();
+    if(!val) return;
+    const idea = ideas.find(i => i.id === activeIdeaId);
+    if(!idea) return;
+    idea.visual.data.push(val);
+    input.value = "";
+    renderDetailChordChips(idea);
+    input.focus();
+  }
+
+  function removeDetailChord(index){
+    const idea = ideas.find(i => i.id === activeIdeaId);
+    if(!idea) return;
+    idea.visual.data.splice(index, 1);
+    renderDetailChordChips(idea);
+  }
+
+  // ---------- dashboard ----------
+  function renderDashboard(){
+    const hour = new Date().getHours();
+    const g = hour < 12 ? "Good morning, Richard" : hour < 18 ? "Good afternoon, Richard" : "Good evening, Richard";
+    document.getElementById("greetingText").textContent = g;
+
+    buildWave(document.getElementById("continueWave"), [10,18,26,14,30,20,24,12,28,16,22,10]);
+
+    const row = document.getElementById("recentIdeas");
+    if(ideas.length === 0){
+      row.innerHTML = "";
+      row.style.display = "block";
+      row.innerHTML = `
+        <div class="empty-state" style="width:100%;">
+          <svg class="sprout" viewBox="0 0 24 24" fill="none"><path d="M12 21V11" stroke="#6D8467" stroke-width="1.4" stroke-linecap="round"/><path d="M12 11C12 11 5 11.5 5 5C11.5 5 12 11 12 11Z" stroke="#6D8467" stroke-width="1.4"/><path d="M12 14C12 14 19 14.4 19 8.5C13 8.5 12 14 12 14Z" stroke="#6D8467" stroke-width="1.4"/></svg>
+          <h4>Your meadow is waiting.</h4>
+          <p>Plant your first idea.</p>
+        </div>`;
+    } else {
+      row.style.display = "flex";
+      row.innerHTML = ideas.slice().reverse().map(idea => `
+        <div class="idea-card" onclick="openIdeaById('${idea.id}')">
+          <div class="idea-tag">${ideaTypes[idea.type].icon}</div>
+          <h4>${idea.title}</h4>
+          <p>${idea.createdAt}</p>
+        </div>
+      `).join("");
+    }
+
+    const list = document.getElementById("recentSongs");
+    list.innerHTML = songs.map(s => `
+      <div class="song-item" onclick="showToast('Song Workspace — coming next sprint')">
+        <div class="song-dot"></div>
+        <div class="meta"><h4>${s.title}</h4><p>${s.count} ideas connected</p></div>
+        <span class="count">${s.count}</span>
+      </div>
+    `).join("");
+  }
+
+  // ---------- capture ----------
+  function createIdea(type){
+    const names = seedNames[type];
+    let title = names[Math.floor(Math.random() * names.length)];
+    if(names.length > 1 && title === lastUsedTitle[type]){
+      title = names[(names.indexOf(title) + 1) % names.length];
+    }
+    lastUsedTitle[type] = title;
+    const moods = ["bright","reflective","heavy","restless","tender"];
+    const mood = moods[Math.floor(Math.random() * moods.length)];
+    const tagPool = ["riff","verse","chorus","unfinished","drop-c","open-tuning","bridge"];
+    const tags = [tagPool[Math.floor(Math.random()*tagPool.length)], tagPool[Math.floor(Math.random()*tagPool.length)]];
+    const idea = mkIdea(type, title, mood, [...new Set(tags)]);
+    ideas.push(idea);
+    openIdeaById(idea.id);
+  }
+
+  // ---------- compose (real input) ----------
+  const MOOD_OPTIONS = ["bright","reflective","heavy","restless","tender"];
+  const TAG_OPTIONS = ["riff","verse","chorus","bridge","hook","unfinished"];
+  let composeState = { type:null, mood:null, tags:new Set(), chords:[] };
+
+  function openCompose(type){
+    composeState = { type, mood:null, tags:new Set(), chords:[] };
+    if(type === "lyrics"){
+      document.getElementById("composeLyricsTitle").value = "";
+      document.getElementById("composeLyricsText").value = "";
+      renderComposeMood("composeLyricsMood");
+      renderComposeTags("composeLyricsTags");
+      goTo("composeLyrics");
+      document.getElementById("composeLyricsText").focus();
+    } else if(type === "chords"){
+      document.getElementById("composeChordsTitle").value = "";
+      document.getElementById("chordInputField").value = "";
+      renderChordChips();
+      renderComposeMood("composeChordsMood");
+      renderComposeTags("composeChordsTags");
+      goTo("composeChords");
+    }
+  }
+
+  function renderComposeMood(containerId){
+    document.getElementById(containerId).innerHTML = MOOD_OPTIONS.map(m =>
+      `<span class="chip ${composeState.mood === m ? 'selected' : ''}" onclick="selectComposeMood('${m}','${containerId}')">${m}</span>`
+    ).join("");
+  }
+  function selectComposeMood(m, containerId){
+    composeState.mood = composeState.mood === m ? null : m;
+    renderComposeMood(containerId);
+  }
+
+  function renderComposeTags(containerId){
+    document.getElementById(containerId).innerHTML = TAG_OPTIONS.map(t =>
+      `<span class="chip ${composeState.tags.has(t) ? 'selected' : ''}" onclick="toggleComposeTag('${t}','${containerId}')">#${t}</span>`
+    ).join("");
+  }
+  function toggleComposeTag(t, containerId){
+    if(composeState.tags.has(t)) composeState.tags.delete(t); else composeState.tags.add(t);
+    renderComposeTags(containerId);
+  }
+
+  function addChordChip(){
+    const input = document.getElementById("chordInputField");
+    const val = input.value.trim();
+    if(!val) return;
+    composeState.chords.push(val);
+    input.value = "";
+    renderChordChips();
+    input.focus();
+  }
+  function removeChordChip(i){
+    composeState.chords.splice(i, 1);
+    renderChordChips();
+  }
+  function renderChordChips(){
+    const wrap = document.getElementById("chordChipsList");
+    if(composeState.chords.length === 0){
+      wrap.innerHTML = '<p class="chip-empty-hint">No chords yet — add your first above.</p>';
+      return;
+    }
+    wrap.innerHTML = composeState.chords.map((c, i) =>
+      `<span class="chord" data-index="${i}">${c} <b onclick="removeChordChip(${i})">&times;</b></span>` +
+      (i < composeState.chords.length - 1 ? `<span class="arrow">&#8594;</span>` : "")
+    ).join("");
+    attachPillReorder(wrap, () => composeState.chords, renderChordChips);
+  }
+
+  function plantLyricIdea(){
+    const title = document.getElementById("composeLyricsTitle").value.trim() || "Untitled idea";
+    const text = document.getElementById("composeLyricsText").value.trim();
+    if(!text){ showToast("Write a line or two first"); return; }
+    const mood = composeState.mood || "reflective";
+    const tags = composeState.tags.size ? [...composeState.tags] : ["lyrics"];
+    const idea = mkIdea("lyrics", title, mood, tags, { kind:"lyric", data:text });
+    ideas.push(idea);
+    openIdeaById(idea.id);
+  }
+
+  function plantChordIdea(){
+    const title = document.getElementById("composeChordsTitle").value.trim() || "Untitled idea";
+    if(composeState.chords.length === 0){ showToast("Add at least one chord first"); return; }
+    const mood = composeState.mood || "reflective";
+    const tags = composeState.tags.size ? [...composeState.tags] : ["chords"];
+    const idea = mkIdea("chords", title, mood, tags, { kind:"chords", data:[...composeState.chords] });
+    ideas.push(idea);
+    openIdeaById(idea.id);
+  }
+
+  // ---------- idea detail ----------
+  function openIdeaById(id){
+    if(id.startsWith("song-")){
+      showToast("Song Workspace — coming next sprint");
+      return;
+    }
+    const idea = ideas.find(i => i.id === id);
+    if(!idea) return;
+    activeIdeaId = id;
+
+    const meta = ideaTypes[idea.type];
+    document.getElementById("detailType").textContent = meta.label + " · #" + idea.id.split("-")[1];
+    document.getElementById("detailTitleInput").value = idea.title;
+    document.getElementById("detailNotes").value = idea.notes || "";
+    renderVisual(idea);
+
+    const moods = ["bright","reflective","heavy","restless","tender"];
+    const chipsWrap = document.getElementById("moodChips");
+    chipsWrap.innerHTML = moods.map(m =>
+      `<span class="chip ${m === idea.mood ? 'selected' : ''}" onclick="setMood('${m}')">${m}</span>`
+    ).join("");
+
+    document.getElementById("detailTags").innerHTML = idea.tags.map(t => `<span class="tag">#${t}</span>`).join("");
+
+    document.getElementById("versionList").innerHTML = `
+      <div class="version-item"><span>v1</span><span>${idea.createdAt}</span></div>
+    `;
+
+    goTo("detail");
+  }
+
+  function setMood(m){
+    const idea = ideas.find(i => i.id === activeIdeaId);
+    if(!idea) return;
+    idea.mood = m;
+    openIdeaById(activeIdeaId);
+  }
+
+  document.addEventListener("input", (e) => {
+    if(e.target.id === "detailTitleInput"){
+      const idea = ideas.find(i => i.id === activeIdeaId);
+      if(idea) idea.title = e.target.value || "Untitled idea";
+    }
+    if(e.target.id === "detailNotes"){
+      const idea = ideas.find(i => i.id === activeIdeaId);
+      if(idea) idea.notes = e.target.value;
+    }
+  });
+
+  // ---------- add to song ----------
+  function openAddToSong(){
+    const wrap = document.getElementById("sheetSongList");
+    wrap.innerHTML = songs.map(s => `
+      <div class="song-item" onclick="addToSong('${s.id}')">
+        <div class="song-dot"></div>
+        <div class="meta"><h4>${s.title}</h4><p>${s.count} ideas connected</p></div>
+      </div>
+    `).join("");
+    document.getElementById("addToSongOverlay").classList.add("show");
+  }
+  function closeAddToSong(){
+    document.getElementById("addToSongOverlay").classList.remove("show");
+  }
+  function addToSong(songId){
+    const song = songs.find(s => s.id === songId);
+    if(song) song.count++;
+    closeAddToSong();
+    showToast(`Added to ${song ? song.title : "song"}`);
+  }
+
+  // ---------- toast ----------
+  let toastTimer;
+  function showToast(msg){
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
+  }
+
+  renderDashboard();
+</script>
+
+</body>
+</html>
