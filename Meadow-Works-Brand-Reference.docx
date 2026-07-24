@@ -1,0 +1,79 @@
+**Meadow Works — Brand Reference**
+
+*Thoughtful software for creative minds.*
+
+This is the working brand reference for Meadow Works and its first product, Mosaic. Keep this in the brand/ folder of the repo so every future product pulls from the same source.
+
+# Logo
+
+## Primary lockup
+
+- Wordmark: "MEADOW" in Forest green, "WORKS" in Harvest gold
+
+- Tagline: "Thoughtful software for creative minds"
+
+- Monogram: Stacked M / W — used as the standalone mark when the full wordmark won't fit
+
+## Monogram — chosen variant
+
+- Focused (boxed M/W) is the pick for the app icon and favicon. It holds its shape at small sizes better than the open or timeless variants.
+
+- Other variants (Balanced, Open, Simple, Bold, Timeless) are kept on file as alternates for merch, letterhead, or contexts where the boxed version feels too rigid.
+
+## Secondary / website mark
+
+- Deer + wheat illustration, paired with "MEADOW WORKS" and the sub-tagline "Software that grows ideas."
+
+- Three orientations available: left-facing, front-facing (circular, with meadow scene), right-facing.
+
+- Left-facing → implies forward motion / reading flow (good for headers, page-turn contexts)
+
+- Front-facing (circular) → most versatile; works as a favicon, loading mark, or stamp
+
+- Right-facing → use for balance/variety, e.g. mirrored layouts
+
+## App icon
+
+Three colorways tested: Forest background / cream monogram, cream background / forest monogram, Harvest gold background / cream monogram. Forest-on-cream is the strongest at small sizes.
+
+# Color Palette
+
+| **Name** | **Hex** | **Use** |
+| --- | --- | --- |
+| **Forest** | #1F3A2E | Primary — wordmark, dark backgrounds, primary buttons |
+| **Meadow** | #6D8467 | Secondary — muted accents, illustration greens |
+| **Harvest** | #C59D52 | Accent — "WORKS" text, highlights, CTAs |
+| **Cream** | #F4F1E8 | Backgrounds, light mode base, negative space |
+| **Slate** | #4A4A4A | Body text, secondary UI elements |
+
+## Pairing notes
+
+- Forest + Cream is the primary light-mode pairing (dark text/logo on light background).
+
+- Forest background + Cream/Harvest foreground works well for dark mode or merch.
+
+- Harvest should stay an accent, not a base — it's a small % of any layout (CTAs, highlights, the "WORKS" wordmark).
+
+# Typography
+
+- Wordmark / headings: Serif, wide letter-spacing, all-caps (as seen in "MEADOW WORKS" lockup) — gives the craftsman/editorial feel.
+
+- Body / UI: Not yet specified in the mockups — recommend a clean sans-serif (e.g. Inter or similar) for actual app UI so the serif stays special-purpose (headers, splash screen, marketing) rather than diluted into every label and button.
+
+# Brand Pillars
+
+**Growth · Craft · Purpose · Direction · Family**
+
+*"**We build software that helps people create, solve, and thrive.**"*
+
+# Usage Notes for Mosaic
+
+- Splash screen and marketing surfaces → full wordmark + tagline, Forest/Cream.
+
+- App icon → Focused monogram, Forest-on-Cream (or Cream-on-Forest for dark mode variant).
+
+- In-app accents (buttons, active states, the "Plant Idea" button) → Harvest gold against Cream or Forest backgrounds.
+
+- Empty states, loading states → lean into the Meadow Works voice ("Your meadow is waiting," etc.) rather than generic system copy.
+
+*Reference source: logo mockup sheet, Meadow Works brand exploration.*
