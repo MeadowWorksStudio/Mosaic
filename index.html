@@ -484,10 +484,20 @@
     background:var(--cream-soft); border:1px solid var(--line); border-radius:18px;
     padding:16px; margin-bottom:6px;
   }
+  .video-preview-wrap-inner{ position:relative; width:100%; max-width:260px; }
   .video-preview{
     width:100%; max-width:260px; aspect-ratio:3/4; object-fit:cover;
     border-radius:14px; background:#0d0d0d; display:block;
   }
+  .flip-cam-btn{
+    position:absolute; top:8px; right:8px;
+    width:34px; height:34px; border-radius:50%;
+    background:rgba(0,0,0,0.45); border:1px solid rgba(255,255,255,0.35);
+    color:#fff; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition:opacity .15s ease;
+  }
+  .flip-cam-btn:hover{ background:rgba(0,0,0,0.65); }
+  .flip-cam-btn:disabled{ opacity:.4; cursor:not-allowed; }
 
   /* ---------- TAB BUILDER ---------- */
   .tab-fret-inputs{ margin-bottom:4px; }
@@ -960,7 +970,12 @@
 
       <span class="field-label">Recording</span>
       <div class="video-record-panel">
-        <video id="videoLivePreview" class="video-preview" autoplay muted playsinline></video>
+        <div class="video-preview-wrap-inner">
+          <video id="videoLivePreview" class="video-preview" autoplay muted playsinline></video>
+          <button type="button" class="flip-cam-btn" id="videoFlipBtn" onclick="toggleCameraFacing()" title="Switch camera">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          </button>
+        </div>
         <div class="record-timer" id="videoTimer">0:00</div>
         <button type="button" class="record-btn" id="videoRecordBtn" onclick="toggleVideoRecording()">
           <span class="record-dot"></span>
@@ -1237,8 +1252,13 @@
     stopChordPlayback();
     document.querySelectorAll("audio").forEach(a => a.pause());
     document.querySelectorAll("video").forEach(v => v.pause());
-    if(screenId !== "composeVideo" && videoRecordState.mediaRecorder && videoRecordState.mediaRecorder.state === "recording"){
-      stopVideoRecording();
+    if(screenId !== "composeVideo"){
+      if(videoRecordState.mediaRecorder && videoRecordState.mediaRecorder.state === "recording"){
+        stopVideoRecording();
+      } else if(videoRecordState.stream){
+        videoRecordState.stream.getTracks().forEach(t => t.stop());
+        videoRecordState.stream = null;
+      }
     }
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
     document.getElementById(screenId).classList.add("active");
@@ -2097,6 +2117,7 @@
       renderComposeMood("composeVideoMood");
       renderComposeTags("composeVideoTags");
       goTo("composeVideo");
+      startVideoPreview();
     }
   }
 
@@ -2349,6 +2370,7 @@
 
   // ---------- real video recording ----------
   let videoRecordState = { mediaRecorder:null, stream:null, chunks:[], timerInterval:null, startTime:0, blob:null, blobUrl:null };
+  let videoFacingMode = "environment";
 
   function resetVideoRecordState(revoke){
     if(revoke && videoRecordState.blobUrl){
@@ -2359,6 +2381,46 @@
     videoRecordState = { mediaRecorder:null, stream:null, chunks:[], timerInterval:null, startTime:0, blob:null, blobUrl:null };
     const preview = document.getElementById("videoLivePreview");
     if(preview) preview.srcObject = null;
+    updateFlipButtonState();
+  }
+
+  function updateFlipButtonState(){
+    const btn = document.getElementById("videoFlipBtn");
+    if(!btn) return;
+    const recording = !!(videoRecordState.mediaRecorder && videoRecordState.mediaRecorder.state === "recording");
+    btn.disabled = recording;
+  }
+
+  async function startVideoPreview(){
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      showToast("Camera isn't supported in this browser");
+      return;
+    }
+    try{
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: videoFacingMode } },
+        audio: true,
+      });
+      videoRecordState.stream = stream;
+      const preview = document.getElementById("videoLivePreview");
+      if(preview) preview.srcObject = stream;
+    } catch(err){
+      showToast("Camera or microphone access was blocked");
+    }
+    updateFlipButtonState();
+  }
+
+  function toggleCameraFacing(){
+    if(videoRecordState.mediaRecorder && videoRecordState.mediaRecorder.state === "recording"){
+      showToast("Stop recording first to switch camera");
+      return;
+    }
+    videoFacingMode = videoFacingMode === "environment" ? "user" : "environment";
+    if(videoRecordState.stream){
+      videoRecordState.stream.getTracks().forEach(t => t.stop());
+      videoRecordState.stream = null;
+    }
+    startVideoPreview();
   }
 
   function toggleVideoRecording(){
@@ -2370,22 +2432,16 @@
   }
 
   async function startVideoRecording(){
-    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder){
+    if(!window.MediaRecorder){
       showToast("Video recording isn't supported in this browser");
       return;
     }
-    let stream;
-    try{
-      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: true });
-    } catch(err){
-      showToast("Camera or microphone access was blocked");
-      return;
+    if(!videoRecordState.stream){
+      await startVideoPreview();
+      if(!videoRecordState.stream) return; // permission was denied or unsupported
     }
-
-    videoRecordState.stream = stream;
+    const stream = videoRecordState.stream;
     videoRecordState.chunks = [];
-    const preview = document.getElementById("videoLivePreview");
-    preview.srcObject = stream;
 
     const mimeType = (window.MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported("video/webm")) ? "video/webm" : "";
     const mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
@@ -2399,6 +2455,7 @@
     document.getElementById("videoRecordHint").textContent = "Tap to stop";
     document.getElementById("videoPreviewWrap").style.display = "none";
     document.getElementById("plantVideoBtn").disabled = true;
+    updateFlipButtonState();
 
     videoRecordState.startTime = Date.now();
     document.getElementById("videoTimer").textContent = "0:00";
@@ -2415,17 +2472,13 @@
 
   function stopVideoRecording(){
     if(videoRecordState.mediaRecorder && videoRecordState.mediaRecorder.state === "recording"){
-      videoRecordState.mediaRecorder.stop();
-    }
-    if(videoRecordState.stream){
-      videoRecordState.stream.getTracks().forEach(t => t.stop());
+      videoRecordState.mediaRecorder.stop(); // onstop -> finalizeVideoRecording() handles cleanup
     }
     if(videoRecordState.timerInterval) clearInterval(videoRecordState.timerInterval);
 
     document.getElementById("videoRecordBtn").classList.remove("recording");
     document.getElementById("videoRecordHint").textContent = "Tap to re-record";
-    const preview = document.getElementById("videoLivePreview");
-    if(preview) preview.srcObject = null;
+    updateFlipButtonState();
   }
 
   function finalizeVideoRecording(){
@@ -2434,9 +2487,18 @@
     if(videoRecordState.blobUrl){ try{ URL.revokeObjectURL(videoRecordState.blobUrl); } catch(err){} }
     videoRecordState.blobUrl = URL.createObjectURL(blob);
 
+    // done capturing — release the camera now that we're showing the recorded playback instead
+    if(videoRecordState.stream){
+      videoRecordState.stream.getTracks().forEach(t => t.stop());
+      videoRecordState.stream = null;
+    }
+    const livePreview = document.getElementById("videoLivePreview");
+    if(livePreview) livePreview.srcObject = null;
+
     document.getElementById("videoPreviewWrap").style.display = "block";
     document.getElementById("videoPreviewPlayer").src = videoRecordState.blobUrl;
     document.getElementById("plantVideoBtn").disabled = false;
+    updateFlipButtonState();
   }
 
   function discardVideoRecording(){
@@ -2445,6 +2507,7 @@
     document.getElementById("plantVideoBtn").disabled = true;
     document.getElementById("videoTimer").textContent = "0:00";
     document.getElementById("videoRecordHint").textContent = "Tap to record";
+    startVideoPreview();
   }
 
   function plantVideoIdea(){
