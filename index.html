@@ -489,6 +489,18 @@
     width:100%; max-width:260px; aspect-ratio:3/4; object-fit:cover;
     border-radius:14px; background:#0d0d0d; display:block;
   }
+  .upload-dropzone{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:8px; padding:32px 16px; margin-bottom:14px;
+    border:1.5px dashed var(--line); border-radius:16px; background:var(--cream-soft);
+  }
+  .upload-btn{
+    display:inline-flex; align-items:center; gap:6px;
+    font-family:'Inter',sans-serif; font-size:12.5px; font-weight:600;
+    color:var(--meadow); border:1px solid var(--line); background:var(--cream-soft);
+    padding:9px 20px; border-radius:100px; cursor:pointer;
+  }
+  .upload-btn:hover{ background:#eee9db; }
   .flip-cam-btn{
     position:absolute; top:8px; right:8px;
     width:34px; height:34px; border-radius:50%;
@@ -888,6 +900,10 @@
           <div class="capture-icon" style="background:rgba(109,132,103,0.18); color:var(--meadow);">&#127932;</div>
           <div><h4>Tab</h4><p>Write out the exact line</p></div>
         </div>
+        <div class="capture-btn" onclick="openCompose('upload')">
+          <div class="capture-icon" style="background:rgba(31,58,46,0.1); color:var(--forest);">&#8593;</div>
+          <div><h4>Upload</h4><p>Add an audio or video file you've already got</p></div>
+        </div>
       </div>
     </div>
     <div class="bottom-nav">
@@ -950,6 +966,48 @@
     </div>
     <div class="detail-footer">
       <button class="btn btn-primary" id="plantTabBtn" onclick="plantTabIdea()" disabled>&#127793; Plant Idea</button>
+    </div>
+  </div>
+
+  <!-- COMPOSE: UPLOAD -->
+  <div class="screen" id="composeUpload">
+    <div class="app-header">
+      <div class="back" onclick="goTo('capture')">&#8592;</div>
+      <div class="eyebrow">Upload a file</div>
+      <div style="width:34px;"></div>
+    </div>
+    <div class="scroll-area">
+      <div class="capture-intro">
+        <h2>Add something you've got.</h2>
+        <p>Choose an audio or video file from your device — we'll figure out which.</p>
+      </div>
+      <span class="field-label">Title</span>
+      <input class="field-input" id="composeUploadTitle" placeholder="Untitled idea">
+
+      <span class="field-label">File</span>
+      <div class="upload-dropzone">
+        <label class="upload-btn" for="uploadFileInput">Choose a file</label>
+        <input type="file" accept="audio/*,video/*" id="uploadFileInput" style="display:none;" onchange="handleUploadFile(this.files[0])">
+      </div>
+
+      <div id="uploadAudioPreview" style="display:none;">
+        <div class="detail-body-wave" id="uploadAudioWave" style="margin:10px 0 8px;"></div>
+        <audio controls class="audio-player" id="uploadAudioPlayer"></audio>
+        <button type="button" class="btn btn-ghost" style="margin-top:10px; color:var(--forest); border-color:var(--line); width:100%;" onclick="discardUpload()">Choose a different file</button>
+      </div>
+      <div id="uploadVideoPreview" style="display:none;">
+        <video controls playsinline webkit-playsinline class="video-preview" id="uploadVideoPlayer"></video>
+        <button type="button" class="btn btn-ghost" style="margin-top:10px; color:var(--forest); border-color:var(--line); width:100%;" onclick="discardUpload()">Choose a different file</button>
+      </div>
+
+      <span class="field-label">Mood</span>
+      <div class="detail-meta light" id="composeUploadMood"></div>
+
+      <span class="field-label">Tags</span>
+      <div class="detail-meta light" id="composeUploadTags"></div>
+    </div>
+    <div class="detail-footer">
+      <button class="btn btn-primary" id="plantUploadBtn" onclick="plantUploadIdea()" disabled>&#127793; Plant Idea</button>
     </div>
   </div>
 
@@ -2118,6 +2176,16 @@
       renderComposeTags("composeVideoTags");
       goTo("composeVideo");
       startVideoPreview();
+    } else if(type === "upload"){
+      resetUploadState(true);
+      document.getElementById("composeUploadTitle").value = "";
+      document.getElementById("uploadFileInput").value = "";
+      document.getElementById("uploadAudioPreview").style.display = "none";
+      document.getElementById("uploadVideoPreview").style.display = "none";
+      document.getElementById("plantUploadBtn").disabled = true;
+      renderComposeMood("composeUploadMood");
+      renderComposeTags("composeUploadTags");
+      goTo("composeUpload");
     }
   }
 
@@ -2311,12 +2379,7 @@
     document.getElementById("audioRecordHint").textContent = "Tap to re-record";
   }
 
-  async function finalizeAudioRecording(){
-    const blob = new Blob(audioRecordState.chunks, { type: (audioRecordState.chunks[0] && audioRecordState.chunks[0].type) || "audio/webm" });
-    audioRecordState.blob = blob;
-    if(audioRecordState.blobUrl){ try{ URL.revokeObjectURL(audioRecordState.blobUrl); } catch(err){} }
-    audioRecordState.blobUrl = URL.createObjectURL(blob);
-
+  async function computeAudioPeaksFromBlob(blob){
     try{
       const arrayBuffer = await blob.arrayBuffer();
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -2335,11 +2398,82 @@
         }
         peaks.push(Math.max(6, Math.round(max * 34) + 6));
       }
-      audioRecordState.peaks = peaks;
       decodeCtx.close();
+      return peaks;
     } catch(err){
-      audioRecordState.peaks = randomWave(40);
+      return randomWave(40);
     }
+  }
+
+  // ---------- standalone upload (audio or video, auto-detected) ----------
+  let uploadState = { file:null, blobUrl:null, kind:null, peaks:null };
+
+  function resetUploadState(revoke){
+    if(revoke && uploadState.blobUrl){
+      try{ URL.revokeObjectURL(uploadState.blobUrl); } catch(err){}
+    }
+    uploadState = { file:null, blobUrl:null, kind:null, peaks:null };
+  }
+
+  async function handleUploadFile(file){
+    if(!file) return;
+    let kind;
+    if(file.type.startsWith("audio/")) kind = "audio";
+    else if(file.type.startsWith("video/")) kind = "video";
+    else { showToast("That doesn't look like an audio or video file"); return; }
+
+    if(uploadState.blobUrl){ try{ URL.revokeObjectURL(uploadState.blobUrl); } catch(err){} }
+    uploadState.file = file;
+    uploadState.kind = kind;
+    uploadState.blobUrl = URL.createObjectURL(file);
+
+    const audioPrev = document.getElementById("uploadAudioPreview");
+    const videoPrev = document.getElementById("uploadVideoPreview");
+
+    if(kind === "audio"){
+      uploadState.peaks = await computeAudioPeaksFromBlob(file);
+      videoPrev.style.display = "none";
+      audioPrev.style.display = "block";
+      buildWave(document.getElementById("uploadAudioWave"), uploadState.peaks);
+      document.getElementById("uploadAudioPlayer").src = uploadState.blobUrl;
+    } else {
+      audioPrev.style.display = "none";
+      videoPrev.style.display = "block";
+      document.getElementById("uploadVideoPlayer").src = uploadState.blobUrl;
+    }
+
+    document.getElementById("plantUploadBtn").disabled = false;
+    showToast(`Loaded a ${kind} file — review it below, then Plant Idea`);
+  }
+
+  function discardUpload(){
+    resetUploadState(true);
+    document.getElementById("uploadAudioPreview").style.display = "none";
+    document.getElementById("uploadVideoPreview").style.display = "none";
+    document.getElementById("plantUploadBtn").disabled = true;
+    document.getElementById("uploadFileInput").value = "";
+  }
+
+  function plantUploadIdea(){
+    const title = document.getElementById("composeUploadTitle").value.trim() || "Untitled idea";
+    if(!uploadState.blobUrl || !uploadState.kind){ showToast("Choose a file first"); return; }
+    const mood = composeState.mood || "reflective";
+    const tags = composeState.tags.size ? [...composeState.tags] : [uploadState.kind];
+    const visual = uploadState.kind === "audio"
+      ? { kind:"audio", url:uploadState.blobUrl, peaks:uploadState.peaks }
+      : { kind:"video", url:uploadState.blobUrl };
+    const idea = mkIdea(uploadState.kind, title, mood, tags, visual);
+    ideas.push(idea);
+    resetUploadState(false); // ownership of the blob URL transfers to the idea — don't revoke it
+    openIdeaById(idea.id);
+  }
+
+  async function finalizeAudioRecording(){
+    const blob = new Blob(audioRecordState.chunks, { type: (audioRecordState.chunks[0] && audioRecordState.chunks[0].type) || "audio/webm" });
+    audioRecordState.blob = blob;
+    if(audioRecordState.blobUrl){ try{ URL.revokeObjectURL(audioRecordState.blobUrl); } catch(err){} }
+    audioRecordState.blobUrl = URL.createObjectURL(blob);
+    audioRecordState.peaks = await computeAudioPeaksFromBlob(blob);
 
     const previewWrap = document.getElementById("audioPreviewWrap");
     previewWrap.style.display = "block";
