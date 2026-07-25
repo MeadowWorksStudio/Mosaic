@@ -478,6 +478,80 @@
   .record-hint{ font-size:11.5px; color:var(--meadow); font-weight:600; }
   .audio-player{ width:100%; margin-top:2px; }
 
+  /* ---------- VIDEO RECORDING ---------- */
+  .video-record-panel{
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+    background:var(--cream-soft); border:1px solid var(--line); border-radius:18px;
+    padding:16px; margin-bottom:6px;
+  }
+  .video-preview{
+    width:100%; max-width:260px; aspect-ratio:3/4; object-fit:cover;
+    border-radius:14px; background:#0d0d0d; display:block;
+  }
+
+  /* ---------- TAB BUILDER ---------- */
+  .tab-fret-inputs{ margin-bottom:4px; }
+  .fret-input-row{ display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+  .fret-input-label{
+    width:20px; text-align:center; font-weight:700; font-size:12px; font-family:'Inter',sans-serif;
+    color:var(--forest);
+  }
+  .fret-input{
+    width:64px; padding:6px 8px; border-radius:8px; border:1px solid var(--line);
+    background:var(--cream-soft); font-size:12.5px; color:var(--slate); font-family:'Inter',sans-serif;
+    outline:none;
+  }
+  .fret-input:focus{ border-color:var(--meadow); }
+  .tab-fret-inputs.dark .fret-input-label{ color:var(--cream); }
+  .tab-fret-inputs.dark .fret-input{
+    background:rgba(244,241,232,0.08); border-color:rgba(244,241,232,0.18); color:var(--cream);
+  }
+  .tab-fret-inputs.dark .fret-input:focus{ border-color:var(--harvest); }
+  .chip-empty-hint.dark{ color:rgba(244,241,232,0.45); }
+  .tab-preview{
+    font-family:'Courier New', monospace; font-size:10.5px; line-height:1.55;
+    white-space:pre; overflow-x:auto; margin:10px 0 6px; padding:10px 12px; border-radius:10px;
+    min-height:20px;
+  }
+  .tab-preview.light{ background:var(--cream-soft); color:var(--slate); border:1px solid var(--line); }
+  .tab-preview.dark{ background:rgba(244,241,232,0.06); color:rgba(244,241,232,0.75); border:1px solid rgba(244,241,232,0.15); }
+
+  /* ---------- CHORD PLAYBACK ---------- */
+  .chord-playback-bar{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    margin:2px 0 14px; padding:10px 12px; border-radius:12px;
+  }
+  .chord-playback-bar.light{ background:var(--cream-soft); border:1px solid var(--line); }
+  .chord-playback-bar.dark{ background:rgba(244,241,232,0.06); border:1px solid rgba(244,241,232,0.15); }
+  .chord-playback-bar .inst-toggle{
+    display:flex; border-radius:20px; overflow:hidden; border:1px solid var(--line);
+  }
+  .chord-playback-bar.dark .inst-toggle{ border-color:rgba(244,241,232,0.25); }
+  .chord-playback-bar .inst-toggle button{
+    padding:6px 14px; font-size:11.5px; font-weight:600; font-family:'Inter',sans-serif;
+    background:transparent; border:none; cursor:pointer; color:var(--slate);
+  }
+  .chord-playback-bar.dark .inst-toggle button{ color:var(--cream); }
+  .chord-playback-bar .inst-toggle button.active{ background:var(--meadow); color:#fff; }
+  .chord-playback-bar.dark .inst-toggle button.active{ background:var(--harvest); color:var(--forest-deep); }
+  .tempo-select-mini{
+    font-family:'Inter',sans-serif; font-size:11.5px; padding:6px 8px; border-radius:8px;
+    border:1px solid var(--line); background:var(--cream-soft); color:var(--slate);
+  }
+  .chord-playback-bar.dark .tempo-select-mini{
+    background:rgba(244,241,232,0.08); border-color:rgba(244,241,232,0.18); color:var(--cream);
+  }
+  .play-btn-mini{
+    font-family:'Inter',sans-serif; font-weight:600; font-size:11.5px;
+    padding:7px 16px; border-radius:20px; border:none; cursor:pointer;
+  }
+  .play-btn-mini.play{ background:var(--meadow); color:#fff; }
+  .play-btn-mini.play:hover{ background:#5c7256; }
+  .play-btn-mini.stop{ background:#c0453f; color:#fff; }
+  .play-btn-mini.stop:hover{ background:#a13a34; }
+  .chord-playback-bar.dark .play-btn-mini.play{ background:var(--harvest); color:var(--forest-deep); }
+  .chord.playing{ box-shadow:0 0 0 2px var(--harvest) inset; }
+
   /* ---------- IDEA DETAIL ---------- */
   .detail-hero{
     background:var(--forest);
@@ -781,15 +855,14 @@
     <div class="scroll-area">
       <div class="capture-intro">
         <h2>What have you got?</h2>
-        <p>Capture it now, however it came to you. Lyrics, Chords, and Audio let you put in the real thing — Video and Tab are still previews for now.</p>
+        <p>Capture it now, however it came to you. You can shape it later.</p>
       </div>
       <div class="capture-grid">
         <div class="capture-btn" onclick="openCompose('audio')">
           <div class="capture-icon" style="background:rgba(197,157,82,0.18); color:var(--harvest-dark);">&#127908;</div>
           <div><h4>Audio</h4><p>Hum it, play it, record it</p></div>
         </div>
-        <div class="capture-btn" onclick="createIdea('video')">
-          <span class="capture-badge">Preview</span>
+        <div class="capture-btn" onclick="openCompose('video')">
           <div class="capture-icon" style="background:rgba(109,132,103,0.18); color:var(--meadow);">&#128249;</div>
           <div><h4>Video</h4><p>Capture the take in motion</p></div>
         </div>
@@ -801,8 +874,7 @@
           <div class="capture-icon" style="background:rgba(197,157,82,0.18); color:var(--harvest-dark);">&#127928;</div>
           <div><h4>Chords</h4><p>Log the progression</p></div>
         </div>
-        <div class="capture-btn" onclick="createIdea('tab')">
-          <span class="capture-badge">Preview</span>
+        <div class="capture-btn" onclick="openCompose('tab')">
           <div class="capture-icon" style="background:rgba(109,132,103,0.18); color:var(--meadow);">&#127932;</div>
           <div><h4>Tab</h4><p>Write out the exact line</p></div>
         </div>
@@ -820,6 +892,94 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
         Songs
       </button>
+    </div>
+  </div>
+
+  <!-- COMPOSE: TAB -->
+  <div class="screen" id="composeTab">
+    <div class="app-header">
+      <div class="back" onclick="goTo('capture')">&#8592;</div>
+      <div class="eyebrow">New tab idea</div>
+      <div style="width:34px;"></div>
+    </div>
+    <div class="scroll-area">
+      <div class="capture-intro">
+        <h2>Build the line.</h2>
+        <p>Tap the strings that ring, set each fret, then add the note. Select more than one string to build a chord shape.</p>
+      </div>
+      <span class="field-label">Title</span>
+      <input class="field-input" id="composeTabTitle" placeholder="Untitled idea">
+
+      <span class="field-label">Strings</span>
+      <div class="detail-meta light" id="composeTabStringToggles"></div>
+      <div class="tab-fret-inputs" id="composeTabFretInputs"></div>
+      <button type="button" class="btn-add" style="width:100%; margin:4px 0 14px;" onclick="addTabStep()">Add Note</button>
+
+      <span class="field-label">Line</span>
+      <div class="chord-chip-wrap" id="composeTabStepsList"></div>
+      <div class="tab-preview light" id="composeTabPreview"></div>
+      <div class="chord-playback-bar light">
+        <div class="inst-toggle">
+          <button type="button" data-inst="piano" class="active" onclick="setChordInstrument('piano')">Piano</button>
+          <button type="button" data-inst="guitar" onclick="setChordInstrument('guitar')">Guitar</button>
+        </div>
+        <select class="tempo-select-mini" onchange="chordPlaybackTempo = Number(this.value)">
+          <option value="1.6">Slow</option>
+          <option value="1.0" selected>Medium</option>
+          <option value="0.6">Fast</option>
+        </select>
+        <button type="button" class="play-btn-mini play" onclick="playTabProgression('compose')">&#9654; Play</button>
+        <button type="button" class="play-btn-mini stop" onclick="stopChordPlayback()">&#9632; Stop</button>
+      </div>
+
+      <span class="field-label">Mood</span>
+      <div class="detail-meta light" id="composeTabMood"></div>
+
+      <span class="field-label">Tags</span>
+      <div class="detail-meta light" id="composeTabTags"></div>
+    </div>
+    <div class="detail-footer">
+      <button class="btn btn-primary" id="plantTabBtn" onclick="plantTabIdea()" disabled>&#127793; Plant Idea</button>
+    </div>
+  </div>
+
+  <!-- COMPOSE: VIDEO -->
+  <div class="screen" id="composeVideo">
+    <div class="app-header">
+      <div class="back" onclick="goTo('capture')">&#8592;</div>
+      <div class="eyebrow">New video idea</div>
+      <div style="width:34px;"></div>
+    </div>
+    <div class="scroll-area">
+      <div class="capture-intro">
+        <h2>Capture the take.</h2>
+        <p>Point, play, and stop whenever you're done.</p>
+      </div>
+      <span class="field-label">Title</span>
+      <input class="field-input" id="composeVideoTitle" placeholder="Untitled idea">
+
+      <span class="field-label">Recording</span>
+      <div class="video-record-panel">
+        <video id="videoLivePreview" class="video-preview" autoplay muted playsinline></video>
+        <div class="record-timer" id="videoTimer">0:00</div>
+        <button type="button" class="record-btn" id="videoRecordBtn" onclick="toggleVideoRecording()">
+          <span class="record-dot"></span>
+        </button>
+        <div class="record-hint" id="videoRecordHint">Tap to record</div>
+      </div>
+      <div id="videoPreviewWrap" style="display:none;">
+        <video controls class="video-preview" id="videoPreviewPlayer"></video>
+        <button type="button" class="btn btn-ghost" style="margin-top:10px; color:var(--forest); border-color:var(--line); width:100%;" onclick="discardVideoRecording()">Re-record</button>
+      </div>
+
+      <span class="field-label">Mood</span>
+      <div class="detail-meta light" id="composeVideoMood"></div>
+
+      <span class="field-label">Tags</span>
+      <div class="detail-meta light" id="composeVideoTags"></div>
+    </div>
+    <div class="detail-footer">
+      <button class="btn btn-primary" id="plantVideoBtn" onclick="plantVideoIdea()" disabled>&#127793; Plant Idea</button>
     </div>
   </div>
 
@@ -917,6 +1077,19 @@
         <button class="btn-add" onclick="addChordChip()">Add</button>
       </div>
       <div class="chord-chip-wrap" id="chordChipsList"></div>
+      <div class="chord-playback-bar light">
+        <div class="inst-toggle" id="composeChordsInstToggle">
+          <button type="button" data-inst="piano" class="active" onclick="setChordInstrument('piano')">Piano</button>
+          <button type="button" data-inst="guitar" onclick="setChordInstrument('guitar')">Guitar</button>
+        </div>
+        <select class="tempo-select-mini" onchange="chordPlaybackTempo = Number(this.value)">
+          <option value="1.6">Slow</option>
+          <option value="1.0" selected>Medium</option>
+          <option value="0.6">Fast</option>
+        </select>
+        <button type="button" class="play-btn-mini play" onclick="playChordProgression('compose')">&#9654; Play</button>
+        <button type="button" class="play-btn-mini stop" onclick="stopChordPlayback()">&#9632; Stop</button>
+      </div>
 
       <span class="field-label">Mood</span>
       <div class="detail-meta light" id="composeChordsMood"></div>
@@ -1061,6 +1234,12 @@
 
   // ---------- navigation ----------
   function goTo(screenId){
+    stopChordPlayback();
+    document.querySelectorAll("audio").forEach(a => a.pause());
+    document.querySelectorAll("video").forEach(v => v.pause());
+    if(screenId !== "composeVideo" && videoRecordState.mediaRecorder && videoRecordState.mediaRecorder.state === "recording"){
+      stopVideoRecording();
+    }
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
     document.getElementById(screenId).classList.add("active");
     if(screenId === "dashboard"){ renderDashboard(); }
@@ -1202,6 +1381,383 @@
     });
   }
 
+  // ---------- chord progression playback (ported from the Chord DNA prototype) ----------
+  // Full chord-symbol parser: handles 7ths/9ths/11ths/13ths, sus, dim, aug, add9/11/13,
+  // m7b5, minor-major7, altered dominants (7b9/#11/etc or 7alt), slash chords, power chords,
+  // polychords, six-nine chords, and common jazz shorthand (CΔ, Cø, C°, C-7, CM7).
+  const CHORD_NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  const CHORD_NOTE_INDEX = {C:0,'C#':1,Db:1,D:2,'D#':3,Eb:3,E:4,F:5,'F#':6,Gb:6,G:7,'G#':8,Ab:8,A:9,'A#':10,Bb:10,B:11};
+  const CHORD_LETTERS = ['C','D','E','F','G','A','B'];
+  const CHORD_NATURAL_SEMITONE = {C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+  const CHORD_INTERVAL_STEP = {0:0, 2:1, 3:2, 4:2, 5:3, 6:4, 7:4, 8:4, 9:5, 10:6, 11:6, 13:1, 14:1, 15:1, 17:3, 18:3, 20:5, 21:5};
+
+  function chordSpellInterval(rootName, iv){
+    const rootIndex = CHORD_NOTE_INDEX[rootName];
+    const step = CHORD_INTERVAL_STEP[iv];
+    if(step === undefined) return CHORD_NOTE_NAMES[(rootIndex + iv) % 12];
+    const rootLetterIdx = CHORD_LETTERS.indexOf(rootName[0]);
+    const targetLetter = CHORD_LETTERS[(rootLetterIdx + step) % 7];
+    const actualPitch = (rootIndex + iv) % 12;
+    const naturalTarget = CHORD_NATURAL_SEMITONE[targetLetter];
+    let diff = (actualPitch - naturalTarget + 12) % 12;
+    if(diff > 6) diff -= 12;
+    const accSymbol = diff === 0 ? '' : diff > 0 ? '#'.repeat(diff) : 'b'.repeat(-diff);
+    return targetLetter + accSymbol;
+  }
+
+  const CHORD_SYMBOL_TYPES = [
+    {suffix:'5',     intervals:[0,7]},
+    {suffix:'m7b5',  intervals:[0,3,6,10]},
+    {suffix:'m6',    intervals:[0,3,7,9]},
+    {suffix:'madd9', intervals:[0,3,7,14]},
+    {suffix:'add11', intervals:[0,4,7,17]},
+    {suffix:'madd11',intervals:[0,3,7,17]},
+    {suffix:'add13', intervals:[0,4,7,21]},
+    {suffix:'add2',  intervals:[0,2,4,7]},
+    {suffix:'dim7',  intervals:[0,3,6,9]},
+    {suffix:'dim',   intervals:[0,3,6]},
+    {suffix:'aug',   intervals:[0,4,8]},
+    {suffix:'add9',  intervals:[0,4,7,14]},
+    {suffix:'sus2',  intervals:[0,2,7]},
+    {suffix:'sus4',  intervals:[0,5,7]},
+    {suffix:'6',     intervals:[0,4,7,9]},
+    {suffix:'m',     intervals:[0,3,7]},
+    {suffix:'',      intervals:[0,4,7]},
+  ];
+  const CHORD_ALT_TENSION_LABELS = {13:'b9', 15:'#9', 18:'#11', 20:'b13', 14:'9th', 17:'11th', 21:'13th'};
+  const CHORD_ALT_TOKENS = ['sus4','sus2','sus','no3','no5','b5','#5','b9','#9','#11','b13'];
+  const CHORD_SUFFIX_ALIASES = {'o':'dim', 'o7':'dim7'};
+
+  function parseAlteredChord(rest){
+    if(rest === '7alt' || rest === 'alt'){
+      return { intervals:[0,4,10,13,15,18,20] };
+    }
+    let s = rest, family = 'dom';
+    if(s.startsWith('mmaj')){ family = 'minMaj'; s = s.slice(4); }
+    else if(s.startsWith('maj')){ family = 'maj'; s = s.slice(3); }
+    else if(s.startsWith('m') && !s.startsWith('maj')){ family = 'min'; s = s.slice(1); }
+
+    const degreeMatch = s.match(/^(13|11|9|7|6)/);
+    let degree = degreeMatch ? degreeMatch[1] : '';
+    if(degreeMatch) s = s.slice(degreeMatch[0].length);
+
+    const BASE = {
+      dom:{'6':[0,4,7,9],'7':[0,4,7,10],'9':[0,4,7,10,14],'11':[0,4,7,10,14,17],'13':[0,4,7,10,14,17,21]},
+      maj:{'7':[0,4,7,11],'9':[0,4,7,11,14],'11':[0,4,7,11,14,17],'13':[0,4,7,11,14,17,21]},
+      min:{'6':[0,3,7,9],'7':[0,3,7,10],'9':[0,3,7,10,14],'11':[0,3,7,10,14,17],'13':[0,3,7,10,14,17,21]},
+      minMaj:{'7':[0,3,7,11],'9':[0,3,7,11,14],'11':[0,3,7,11,14,17],'13':[0,3,7,11,14,17,21]},
+    };
+
+    let intervals;
+    if(degree && BASE[family][degree]) intervals = BASE[family][degree].slice();
+    else if(!degree && (family === 'dom' || family === 'maj')) intervals = [0,4,7];
+    else if(!degree && family === 'min') intervals = [0,3,7];
+    else if(!degree && family === 'minMaj'){ intervals = BASE.minMaj['7'].slice(); }
+    else return null;
+
+    let alterations = [], remainder = s, progress = true;
+    while(remainder.length && progress){
+      progress = false;
+      for(const tok of CHORD_ALT_TOKENS){
+        if(remainder.startsWith(tok)){ alterations.push(tok); remainder = remainder.slice(tok.length); progress = true; break; }
+      }
+    }
+    if(remainder.length) return null;
+    if(!degree && alterations.length === 0) return null;
+    if(!degree && alterations.every(a => ['sus4','sus2','sus'].includes(a))) return null;
+
+    alterations.forEach(tok => {
+      if(tok === 'sus4' || tok === 'sus'){ intervals = intervals.filter(iv => ![3,4].includes(iv)); intervals.push(5); }
+      else if(tok === 'sus2'){ intervals = intervals.filter(iv => ![3,4].includes(iv)); intervals.push(2); }
+      else if(tok === 'no3'){ intervals = intervals.filter(iv => ![3,4].includes(iv)); }
+      else if(tok === 'no5'){ intervals = intervals.filter(iv => ![6,7,8].includes(iv)); }
+      else if(tok === 'b5'){ intervals = intervals.filter(iv => ![6,7,8].includes(iv)); intervals.push(6); }
+      else if(tok === '#5'){ intervals = intervals.filter(iv => ![6,7,8].includes(iv)); intervals.push(8); }
+      else if(tok === 'b9'){ intervals = intervals.filter(iv => iv !== 14); intervals.push(13); }
+      else if(tok === '#9'){ intervals = intervals.filter(iv => iv !== 14); intervals.push(15); }
+      else if(tok === '#11'){ intervals = intervals.filter(iv => iv !== 17); intervals.push(18); }
+      else if(tok === 'b13'){ intervals = intervals.filter(iv => ![9,21].includes(iv)); intervals.push(20); }
+    });
+
+    return { intervals };
+  }
+
+  function parseChord(raw){
+    const fullSymbol = raw.trim();
+
+    const sixNine = fullSymbol.match(/^([A-Ga-g])(#|b)?(m)?(6\/9|69)$/);
+    if(sixNine){
+      const rootName = sixNine[1].toUpperCase() + (sixNine[2] || '');
+      const rootIndex = CHORD_NOTE_INDEX[rootName];
+      if(rootIndex === undefined) return null;
+      const isMin = !!sixNine[3];
+      const intervals = isMin ? [0,3,7,9,14] : [0,4,7,9,14];
+      const notesIdx = intervals.map(iv => (rootIndex + iv) % 12);
+      return { symbol:fullSymbol, rootIndex, isMinor:isMin, unique:[...new Set(notesIdx)], bassIndex:null };
+    }
+
+    let mainStr = fullSymbol, bassIndex = null, polyLower = null;
+    const slashIdx = fullSymbol.indexOf('/');
+    if(slashIdx !== -1){
+      mainStr = fullSymbol.slice(0, slashIdx).trim();
+      const bassStr = fullSymbol.slice(slashIdx + 1).trim();
+      const bm = bassStr.match(/^([A-Ga-g])(#|b)?$/);
+      if(bm){
+        const bassName = bm[1].toUpperCase() + (bm[2] || '');
+        bassIndex = CHORD_NOTE_INDEX[bassName];
+        if(bassIndex === undefined) return null;
+      } else {
+        polyLower = parseChord(bassStr);
+        if(!polyLower) return null;
+      }
+    }
+
+    const m = mainStr.match(/^([A-Ga-g])(#|b)?/);
+    if(!m) return null;
+    const rootName = m[1].toUpperCase() + (m[2] || '');
+    const rootIndex = CHORD_NOTE_INDEX[rootName];
+    if(rootIndex === undefined) return null;
+
+    let restOriginal = mainStr.slice(m[0].length).trim();
+    restOriginal = restOriginal.replace(/Δ/g, 'maj').replace(/\^/g, 'maj').replace(/ø/g, 'm7b5').replace(/°/g, 'dim');
+    if(/^-/.test(restOriginal)) restOriginal = 'm' + restOriginal.slice(1);
+    if(/^M(?![a-z])/.test(restOriginal)) restOriginal = 'maj' + restOriginal.slice(1);
+    let restRaw = restOriginal.toLowerCase().replace(/[\s(),]/g, '');
+    if(CHORD_SUFFIX_ALIASES[restRaw]) restRaw = CHORD_SUFFIX_ALIASES[restRaw];
+
+    let intervals;
+    const exact = CHORD_SYMBOL_TYPES.find(t => t.suffix === restRaw);
+    const altered = exact ? null : parseAlteredChord(restRaw);
+
+    if(exact) intervals = exact.intervals;
+    else if(altered) intervals = altered.intervals;
+    else intervals = [0,4,7]; // unrecognized suffix — fall back to a plain major so playback never hard-fails
+
+    const isMinor = intervals.includes(3);
+    let notesIdx = intervals.map(iv => (rootIndex + iv) % 12);
+    if(bassIndex !== null) notesIdx = [bassIndex, ...notesIdx];
+    const unique = [...new Set(notesIdx)];
+
+    if(polyLower){
+      const combinedUnique = [...new Set([...polyLower.unique, ...unique])];
+      return { symbol:fullSymbol, rootIndex:polyLower.rootIndex, isMinor:polyLower.isMinor, unique:combinedUnique, bassIndex:null };
+    }
+
+    return { symbol:fullSymbol, rootIndex, isMinor, unique, bassIndex };
+  }
+
+  // ---------- tone synthesis (ported from the Chord DNA prototype) ----------
+  let chordPlaybackCtx = null;
+  let chordActiveSources = [];
+  let chordHighlightTimers = [];
+  let chordPlaybackInstrument = 'piano';
+  let chordPlaybackTempo = 1.0;
+  let currentDetailChordsIdea = null;
+
+  const CHORD_PLAYBACK_IDS = {
+    compose: { chipsWrap:"chordChipsList" },
+    detail:  { chipsWrap:"detailChordChips" },
+  };
+
+  function getChordPlaybackCtx(){
+    if(!chordPlaybackCtx){
+      chordPlaybackCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if(chordPlaybackCtx.state === 'suspended') chordPlaybackCtx.resume();
+    return chordPlaybackCtx;
+  }
+
+  function chordMidiToFreq(midi){ return 440 * Math.pow(2, (midi - 69) / 12); }
+
+  // Spread voicing: bass note (or root, if no slash bass) sits low; the rest stack upward.
+  function voiceChordForPlayback(chord){
+    const bassPc = chord.bassIndex !== null ? chord.bassIndex : chord.rootIndex;
+    const bassMidi = 48 + bassPc;
+    const upperPcs = chord.unique.filter(pc => pc !== bassPc);
+    const rootPc = chord.rootIndex;
+    const ordered = upperPcs.slice().sort((a, b) => ((a - rootPc + 12) % 12) - ((b - rootPc + 12) % 12));
+    const midis = [];
+    ordered.forEach(pc => {
+      let midi = 60 + pc;
+      while(midis.length && midi <= midis[midis.length - 1]) midi += 12;
+      midis.push(midi);
+    });
+    return [bassMidi, ...midis];
+  }
+
+  function playPianoTone(ctx, freq, startTime, duration, destination){
+    const fundamental = ctx.createOscillator();
+    fundamental.type = 'triangle';
+    fundamental.frequency.value = freq;
+    const overtone = ctx.createOscillator();
+    overtone.type = 'sine';
+    overtone.frequency.value = freq * 2;
+    const overtoneGain = ctx.createGain();
+    overtoneGain.gain.value = 0.12;
+    const envelope = ctx.createGain();
+    envelope.gain.setValueAtTime(0.0001, startTime);
+    envelope.gain.linearRampToValueAtTime(0.75, startTime + 0.012);
+    envelope.gain.exponentialRampToValueAtTime(0.0005, startTime + duration);
+    fundamental.connect(envelope);
+    overtone.connect(overtoneGain);
+    overtoneGain.connect(envelope);
+    envelope.connect(destination);
+    fundamental.start(startTime); fundamental.stop(startTime + duration + 0.05);
+    overtone.start(startTime); overtone.stop(startTime + duration + 0.05);
+    chordActiveSources.push(fundamental, overtone);
+  }
+
+  // Karplus-Strong plucked-string synthesis for a rougher, guitar-like tone.
+  function playGuitarTone(ctx, freq, startTime, duration, destination){
+    const sampleRate = ctx.sampleRate;
+    const totalLen = Math.floor(sampleRate * (duration + 0.4));
+    const buffer = ctx.createBuffer(1, totalLen, sampleRate);
+    const data = buffer.getChannelData(0);
+    const period = Math.max(2, Math.round(sampleRate / freq));
+    const ring = new Float32Array(period);
+    for(let i = 0; i < period; i++) ring[i] = Math.random() * 2 - 1;
+    const damping = 0.994;
+    let idx = 0;
+    for(let i = 0; i < totalLen; i++){
+      const cur = ring[idx];
+      const next = ring[(idx + 1) % period];
+      data[i] = cur;
+      ring[idx] = damping * 0.5 * (cur + next);
+      idx = (idx + 1) % period;
+    }
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.8, startTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration + 0.3);
+    src.connect(gain);
+    gain.connect(destination);
+    src.start(startTime);
+    chordActiveSources.push(src);
+  }
+
+  function playChordAt(ctx, chord, instrument, startTime, duration, destination){
+    voiceChordForPlayback(chord).forEach(m => {
+      const freq = chordMidiToFreq(m);
+      if(instrument === 'guitar') playGuitarTone(ctx, freq, startTime, duration, destination);
+      else playPianoTone(ctx, freq, startTime, duration, destination);
+    });
+  }
+
+  function stopChordPlayback(){
+    chordActiveSources.forEach(node => { try{ node.stop(); } catch(err){} });
+    chordActiveSources = [];
+    chordHighlightTimers.forEach(t => clearTimeout(t));
+    chordHighlightTimers = [];
+    document.querySelectorAll('.chord.playing').forEach(el => el.classList.remove('playing'));
+  }
+
+  function syncInstrumentToggles(){
+    document.querySelectorAll('.inst-toggle button').forEach(b => b.classList.toggle('active', b.dataset.inst === chordPlaybackInstrument));
+  }
+
+  function setChordInstrument(inst){
+    chordPlaybackInstrument = inst;
+    syncInstrumentToggles();
+  }
+
+  function playChordProgression(context){
+    stopChordPlayback();
+    const chipStrings = context === 'detail'
+      ? (currentDetailChordsIdea ? currentDetailChordsIdea.visual.data : [])
+      : composeState.chords;
+
+    if(!chipStrings || chipStrings.length === 0){
+      showToast('Add some chords first');
+      return;
+    }
+
+    const ids = CHORD_PLAYBACK_IDS[context];
+    const chipEls = [...document.querySelectorAll(`#${ids.chipsWrap} .chord`)];
+
+    const ctx = getChordPlaybackCtx();
+    const master = ctx.createGain();
+    master.gain.value = 0.5;
+    master.connect(ctx.destination);
+
+    const dur = chordPlaybackTempo;
+    const startBase = ctx.currentTime + 0.05;
+    let stepIndex = 0, playableCount = 0, skippedCount = 0;
+
+    chipStrings.forEach((sym, i) => {
+      const chord = parseChord(sym);
+      if(!chord){ skippedCount++; return; }
+      const startTime = startBase + stepIndex * dur;
+      playChordAt(ctx, chord, chordPlaybackInstrument, startTime, dur * 0.92, master);
+      const delayMs = Math.max(0, (startTime - ctx.currentTime) * 1000);
+      const el = chipEls[i];
+      if(el){
+        chordHighlightTimers.push(setTimeout(() => {
+          document.querySelectorAll(`#${ids.chipsWrap} .chord.playing`).forEach(c => c.classList.remove('playing'));
+          el.classList.add('playing');
+        }, delayMs));
+        chordHighlightTimers.push(setTimeout(() => el.classList.remove('playing'), delayMs + dur * 920));
+      }
+      stepIndex++;
+      playableCount++;
+    });
+
+    if(playableCount === 0){
+      showToast("Couldn't recognize any of these as playable chords");
+      return;
+    }
+    if(skippedCount > 0){
+      showToast(`Playing ${playableCount} of ${chipStrings.length} — ${skippedCount} weren't recognized`);
+    }
+  }
+
+  // ---------- tab playback (exact pitches from standard tuning — no guessing needed) ----------
+  const STRING_OPEN_MIDI = { e:64, B:59, G:55, D:50, A:45, E:40 };
+
+  function tabStepFrequencies(step){
+    return Object.keys(step).map(s => chordMidiToFreq(STRING_OPEN_MIDI[s] + step[s]));
+  }
+
+  function playTabProgression(context){
+    stopChordPlayback();
+    const steps = context === 'detail'
+      ? (activeTabIdea ? activeTabIdea.visual.data : [])
+      : composeState.tabSteps;
+
+    if(!steps || steps.length === 0){
+      showToast('Add some notes first');
+      return;
+    }
+
+    const ids = TAB_IDS[context];
+    const chipEls = [...document.querySelectorAll(`#${ids.stepsList} .chord`)];
+
+    const ctx = getChordPlaybackCtx();
+    const master = ctx.createGain();
+    master.gain.value = 0.5;
+    master.connect(ctx.destination);
+
+    const dur = chordPlaybackTempo;
+    const startBase = ctx.currentTime + 0.05;
+
+    steps.forEach((step, i) => {
+      const startTime = startBase + i * dur;
+      tabStepFrequencies(step).forEach(freq => {
+        if(chordPlaybackInstrument === 'guitar') playGuitarTone(ctx, freq, startTime, dur * 0.92, master);
+        else playPianoTone(ctx, freq, startTime, dur * 0.92, master);
+      });
+      const delayMs = Math.max(0, (startTime - ctx.currentTime) * 1000);
+      const el = chipEls[i];
+      if(el){
+        chordHighlightTimers.push(setTimeout(() => {
+          document.querySelectorAll(`#${ids.stepsList} .chord.playing`).forEach(c => c.classList.remove('playing'));
+          el.classList.add('playing');
+        }, delayMs));
+        chordHighlightTimers.push(setTimeout(() => el.classList.remove('playing'), delayMs + dur * 920));
+      }
+    });
+  }
+
   // ---------- voice dictation ----------
   // NOTE: not currently wired to any UI buttons — phone keyboards already provide
   // a built-in mic/dictation button on every text field, so this was redundant there.
@@ -1331,6 +1887,9 @@
         <audio controls class="audio-player" src="${v.url}"></audio>
       `;
       buildWave(document.getElementById("audioDetailWave"), v.peaks);
+    } else if(v.kind === "video"){
+      box.className = "";
+      box.innerHTML = `<video controls class="video-preview" style="max-width:100%;" src="${v.url}"></video>`;
     } else if(v.kind === "lyric"){
       box.className = "";
       box.innerHTML = `<textarea class="lyric-edit" id="lyricEditArea" placeholder="Start typing…"></textarea>`;
@@ -1352,12 +1911,48 @@
           </button>
           <button onclick="addDetailChord()">Add</button>
         </div>
+        <div class="chord-playback-bar dark">
+          <div class="inst-toggle" id="detailChordsInstToggle">
+            <button type="button" data-inst="piano" onclick="setChordInstrument('piano')">Piano</button>
+            <button type="button" data-inst="guitar" onclick="setChordInstrument('guitar')">Guitar</button>
+          </div>
+          <select class="tempo-select-mini" onchange="chordPlaybackTempo = Number(this.value)">
+            <option value="1.6" ${chordPlaybackTempo === 1.6 ? "selected" : ""}>Slow</option>
+            <option value="1.0" ${chordPlaybackTempo === 1.0 ? "selected" : ""}>Medium</option>
+            <option value="0.6" ${chordPlaybackTempo === 0.6 ? "selected" : ""}>Fast</option>
+          </select>
+          <button type="button" class="play-btn-mini play" onclick="playChordProgression('detail')">&#9654; Play</button>
+          <button type="button" class="play-btn-mini stop" onclick="stopChordPlayback()">&#9632; Stop</button>
+        </div>
       `;
       renderDetailChordChips(idea);
       attachChordListenButton("detailChordListen", "detailChordInput");
+      currentDetailChordsIdea = idea;
+      syncInstrumentToggles();
     } else if(v.kind === "tab"){
-      box.className = "tab-line";
-      box.textContent = v.data;
+      box.className = "";
+      box.innerHTML = `
+        <div class="detail-meta" id="detailTabStringToggles"></div>
+        <div class="tab-fret-inputs dark" id="detailTabFretInputs"></div>
+        <button type="button" class="mic-btn dark" style="width:auto; border-radius:10px; padding:0 14px; height:30px; font-size:12px; font-weight:600; font-family:'Inter',sans-serif;" onclick="addTabStep()">Add Note</button>
+        <div class="chord-chip-wrap" id="detailTabChips" style="margin-top:12px;"></div>
+        <div class="tab-preview dark" id="detailTabPreview"></div>
+        <div class="chord-playback-bar dark">
+          <div class="inst-toggle">
+            <button type="button" data-inst="piano" onclick="setChordInstrument('piano')">Piano</button>
+            <button type="button" data-inst="guitar" onclick="setChordInstrument('guitar')">Guitar</button>
+          </div>
+          <select class="tempo-select-mini" onchange="chordPlaybackTempo = Number(this.value)">
+            <option value="1.6" ${chordPlaybackTempo === 1.6 ? "selected" : ""}>Slow</option>
+            <option value="1.0" ${chordPlaybackTempo === 1.0 ? "selected" : ""}>Medium</option>
+            <option value="0.6" ${chordPlaybackTempo === 0.6 ? "selected" : ""}>Fast</option>
+          </select>
+          <button type="button" class="play-btn-mini play" onclick="playTabProgression('detail')">&#9654; Play</button>
+          <button type="button" class="play-btn-mini stop" onclick="stopChordPlayback()">&#9632; Stop</button>
+        </div>
+      `;
+      resetTabBuilder("detail", idea);
+      syncInstrumentToggles();
     }
   }
 
@@ -1454,10 +2049,10 @@
   // ---------- compose (real input) ----------
   const MOOD_OPTIONS = ["bright","reflective","heavy","restless","tender"];
   const TAG_OPTIONS = ["riff","verse","chorus","bridge","hook","unfinished"];
-  let composeState = { type:null, mood:null, tags:new Set(), chords:[] };
+  let composeState = { type:null, mood:null, tags:new Set(), chords:[], tabSteps:[] };
 
   function openCompose(type){
-    composeState = { type, mood:null, tags:new Set(), chords:[] };
+    composeState = { type, mood:null, tags:new Set(), chords:[], tabSteps:[] };
     if(type === "lyrics"){
       document.getElementById("composeLyricsTitle").value = "";
       document.getElementById("composeLyricsText").value = "";
@@ -1484,6 +2079,24 @@
       renderComposeMood("composeAudioMood");
       renderComposeTags("composeAudioTags");
       goTo("composeAudio");
+    } else if(type === "tab"){
+      document.getElementById("composeTabTitle").value = "";
+      document.getElementById("plantTabBtn").disabled = true;
+      resetTabBuilder("compose", null);
+      renderComposeMood("composeTabMood");
+      renderComposeTags("composeTabTags");
+      goTo("composeTab");
+    } else if(type === "video"){
+      resetVideoRecordState(true);
+      document.getElementById("composeVideoTitle").value = "";
+      document.getElementById("videoTimer").textContent = "0:00";
+      document.getElementById("videoRecordHint").textContent = "Tap to record";
+      document.getElementById("videoRecordBtn").classList.remove("recording");
+      document.getElementById("videoPreviewWrap").style.display = "none";
+      document.getElementById("plantVideoBtn").disabled = true;
+      renderComposeMood("composeVideoMood");
+      renderComposeTags("composeVideoTags");
+      goTo("composeVideo");
     }
   }
 
@@ -1731,6 +2344,254 @@
     const idea = mkIdea("audio", title, mood, tags, { kind:"audio", url:audioRecordState.blobUrl, peaks:audioRecordState.peaks });
     ideas.push(idea);
     resetAudioRecordState(false); // ownership of the blob URL transfers to the idea — don't revoke it
+    openIdeaById(idea.id);
+  }
+
+  // ---------- real video recording ----------
+  let videoRecordState = { mediaRecorder:null, stream:null, chunks:[], timerInterval:null, startTime:0, blob:null, blobUrl:null };
+
+  function resetVideoRecordState(revoke){
+    if(revoke && videoRecordState.blobUrl){
+      try{ URL.revokeObjectURL(videoRecordState.blobUrl); } catch(err){}
+    }
+    if(videoRecordState.timerInterval) clearInterval(videoRecordState.timerInterval);
+    if(videoRecordState.stream){ videoRecordState.stream.getTracks().forEach(t => t.stop()); }
+    videoRecordState = { mediaRecorder:null, stream:null, chunks:[], timerInterval:null, startTime:0, blob:null, blobUrl:null };
+    const preview = document.getElementById("videoLivePreview");
+    if(preview) preview.srcObject = null;
+  }
+
+  function toggleVideoRecording(){
+    if(videoRecordState.mediaRecorder && videoRecordState.mediaRecorder.state === "recording"){
+      stopVideoRecording();
+    } else {
+      startVideoRecording();
+    }
+  }
+
+  async function startVideoRecording(){
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder){
+      showToast("Video recording isn't supported in this browser");
+      return;
+    }
+    let stream;
+    try{
+      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: true });
+    } catch(err){
+      showToast("Camera or microphone access was blocked");
+      return;
+    }
+
+    videoRecordState.stream = stream;
+    videoRecordState.chunks = [];
+    const preview = document.getElementById("videoLivePreview");
+    preview.srcObject = stream;
+
+    const mimeType = (window.MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported("video/webm")) ? "video/webm" : "";
+    const mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+    videoRecordState.mediaRecorder = mediaRecorder;
+
+    mediaRecorder.ondataavailable = (e) => { if(e.data && e.data.size > 0) videoRecordState.chunks.push(e.data); };
+    mediaRecorder.onstop = () => finalizeVideoRecording();
+    mediaRecorder.start();
+
+    document.getElementById("videoRecordBtn").classList.add("recording");
+    document.getElementById("videoRecordHint").textContent = "Tap to stop";
+    document.getElementById("videoPreviewWrap").style.display = "none";
+    document.getElementById("plantVideoBtn").disabled = true;
+
+    videoRecordState.startTime = Date.now();
+    document.getElementById("videoTimer").textContent = "0:00";
+    videoRecordState.timerInterval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - videoRecordState.startTime) / 1000);
+      const m = Math.floor(elapsed / 60), s = elapsed % 60;
+      document.getElementById("videoTimer").textContent = m + ":" + String(s).padStart(2, "0");
+      if(elapsed >= 60){
+        showToast("Stopped at 1 minute — video takes up a lot more memory than audio");
+        stopVideoRecording();
+      }
+    }, 250);
+  }
+
+  function stopVideoRecording(){
+    if(videoRecordState.mediaRecorder && videoRecordState.mediaRecorder.state === "recording"){
+      videoRecordState.mediaRecorder.stop();
+    }
+    if(videoRecordState.stream){
+      videoRecordState.stream.getTracks().forEach(t => t.stop());
+    }
+    if(videoRecordState.timerInterval) clearInterval(videoRecordState.timerInterval);
+
+    document.getElementById("videoRecordBtn").classList.remove("recording");
+    document.getElementById("videoRecordHint").textContent = "Tap to re-record";
+    const preview = document.getElementById("videoLivePreview");
+    if(preview) preview.srcObject = null;
+  }
+
+  function finalizeVideoRecording(){
+    const blob = new Blob(videoRecordState.chunks, { type: (videoRecordState.chunks[0] && videoRecordState.chunks[0].type) || "video/webm" });
+    videoRecordState.blob = blob;
+    if(videoRecordState.blobUrl){ try{ URL.revokeObjectURL(videoRecordState.blobUrl); } catch(err){} }
+    videoRecordState.blobUrl = URL.createObjectURL(blob);
+
+    document.getElementById("videoPreviewWrap").style.display = "block";
+    document.getElementById("videoPreviewPlayer").src = videoRecordState.blobUrl;
+    document.getElementById("plantVideoBtn").disabled = false;
+  }
+
+  function discardVideoRecording(){
+    resetVideoRecordState(true);
+    document.getElementById("videoPreviewWrap").style.display = "none";
+    document.getElementById("plantVideoBtn").disabled = true;
+    document.getElementById("videoTimer").textContent = "0:00";
+    document.getElementById("videoRecordHint").textContent = "Tap to record";
+  }
+
+  function plantVideoIdea(){
+    const title = document.getElementById("composeVideoTitle").value.trim() || "Untitled idea";
+    if(!videoRecordState.blobUrl){ showToast("Record something first"); return; }
+    const mood = composeState.mood || "reflective";
+    const tags = composeState.tags.size ? [...composeState.tags] : ["video"];
+    const idea = mkIdea("video", title, mood, tags, { kind:"video", url:videoRecordState.blobUrl });
+    ideas.push(idea);
+    resetVideoRecordState(false); // ownership of the blob URL transfers to the idea — don't revoke it
+    openIdeaById(idea.id);
+  }
+
+  // ---------- tab builder (string + fret note entry) ----------
+  const STRING_NAMES = ["e", "B", "G", "D", "A", "E"];
+  const TAB_IDS = {
+    compose: { toggles:"composeTabStringToggles", frets:"composeTabFretInputs", stepsList:"composeTabStepsList", preview:"composeTabPreview" },
+    detail:  { toggles:"detailTabStringToggles",  frets:"detailTabFretInputs",  stepsList:"detailTabChips",      preview:"detailTabPreview"  },
+  };
+  let currentTabStep = {};
+  let activeTabContext = "compose";
+  let activeTabIdea = null;
+
+  function getTabIds(){ return activeTabContext === "detail" ? TAB_IDS.detail : TAB_IDS.compose; }
+  function getTabSteps(){ return activeTabContext === "detail" ? activeTabIdea.visual.data : composeState.tabSteps; }
+
+  function resetTabBuilder(context, idea){
+    activeTabContext = context;
+    activeTabIdea = idea || null;
+    currentTabStep = {};
+    renderTabToggles();
+    renderTabFretInputs();
+    renderTabSteps();
+    renderTabPreview();
+  }
+
+  function renderTabToggles(){
+    const ids = getTabIds();
+    const el = document.getElementById(ids.toggles);
+    if(!el) return;
+    el.innerHTML = STRING_NAMES.map(s => {
+      const active = currentTabStep.hasOwnProperty(s);
+      return `<span class="chip ${active ? "selected" : ""}" onclick="toggleTabString('${s}')">${s}</span>`;
+    }).join("");
+  }
+
+  function toggleTabString(s){
+    if(currentTabStep.hasOwnProperty(s)) delete currentTabStep[s];
+    else currentTabStep[s] = 0;
+    renderTabToggles();
+    renderTabFretInputs();
+  }
+
+  function renderTabFretInputs(){
+    const ids = getTabIds();
+    const el = document.getElementById(ids.frets);
+    if(!el) return;
+    el.className = "tab-fret-inputs" + (activeTabContext === "detail" ? " dark" : "");
+    const selected = STRING_NAMES.filter(s => currentTabStep.hasOwnProperty(s));
+    if(selected.length === 0){
+      el.innerHTML = `<p class="chip-empty-hint${activeTabContext === "detail" ? " dark" : ""}">Tap a string above to set its fret</p>`;
+      return;
+    }
+    el.innerHTML = selected.map(s => `
+      <div class="fret-input-row">
+        <span class="fret-input-label">${s}</span>
+        <input type="number" min="0" max="24" class="fret-input" value="${currentTabStep[s]}" onchange="setTabFret('${s}', this.value)">
+      </div>
+    `).join("");
+  }
+
+  function setTabFret(s, val){
+    const n = Math.max(0, Math.min(24, parseInt(val, 10) || 0));
+    currentTabStep[s] = n;
+  }
+
+  function addTabStep(){
+    if(Object.keys(currentTabStep).length === 0){
+      showToast("Select at least one string first");
+      return;
+    }
+    const steps = getTabSteps();
+    steps.push({ ...currentTabStep });
+    currentTabStep = {};
+    renderTabToggles();
+    renderTabFretInputs();
+    renderTabSteps();
+    renderTabPreview();
+    if(activeTabContext === "compose"){
+      document.getElementById("plantTabBtn").disabled = false;
+    }
+  }
+
+  function removeTabStep(index){
+    getTabSteps().splice(index, 1);
+    renderTabSteps();
+    renderTabPreview();
+    if(activeTabContext === "compose"){
+      document.getElementById("plantTabBtn").disabled = getTabSteps().length === 0;
+    }
+  }
+
+  function tabStepLabel(step){
+    return STRING_NAMES.filter(s => step.hasOwnProperty(s)).map(s => s + step[s]).join("\u00b7");
+  }
+
+  function renderTabSteps(){
+    const ids = getTabIds();
+    const wrap = document.getElementById(ids.stepsList);
+    if(!wrap) return;
+    const steps = getTabSteps();
+    if(steps.length === 0){
+      wrap.innerHTML = `<span class="chip-empty-hint${activeTabContext === "detail" ? " dark" : ""}">No notes yet — build one above.</span>`;
+      return;
+    }
+    wrap.innerHTML = steps.map((step, i) =>
+      `<span class="chord" data-index="${i}">${tabStepLabel(step)} <b onclick="removeTabStep(${i})">&times;</b></span>` +
+      (i < steps.length - 1 ? `<span class="arrow">&#8594;</span>` : "")
+    ).join("");
+    attachPillReorder(wrap, getTabSteps, () => { renderTabSteps(); renderTabPreview(); });
+  }
+
+  function tabCell(step, s){
+    if(!step.hasOwnProperty(s)) return "----";
+    const digits = String(step[s]);
+    const padding = Math.max(0, 4 - 1 - digits.length);
+    return "-" + digits + "-".repeat(padding);
+  }
+
+  function renderTabPreview(){
+    const ids = getTabIds();
+    const el = document.getElementById(ids.preview);
+    if(!el) return;
+    const steps = getTabSteps();
+    if(steps.length === 0){ el.textContent = ""; return; }
+    el.textContent = STRING_NAMES.map(s =>
+      s + "|" + steps.map(step => tabCell(step, s)).join("") + "|"
+    ).join("\n");
+  }
+
+  function plantTabIdea(){
+    const title = document.getElementById("composeTabTitle").value.trim() || "Untitled idea";
+    if(composeState.tabSteps.length === 0){ showToast("Add at least one note first"); return; }
+    const mood = composeState.mood || "reflective";
+    const tags = composeState.tags.size ? [...composeState.tags] : ["tab"];
+    const idea = mkIdea("tab", title, mood, tags, { kind:"tab", data:[...composeState.tabSteps] });
+    ideas.push(idea);
     openIdeaById(idea.id);
   }
 
