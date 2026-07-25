@@ -983,7 +983,7 @@
         <div class="record-hint" id="videoRecordHint">Tap to record</div>
       </div>
       <div id="videoPreviewWrap" style="display:none;">
-        <video controls class="video-preview" id="videoPreviewPlayer"></video>
+        <video controls playsinline webkit-playsinline class="video-preview" id="videoPreviewPlayer"></video>
         <button type="button" class="btn btn-ghost" style="margin-top:10px; color:var(--forest); border-color:var(--line); width:100%;" onclick="discardVideoRecording()">Re-record</button>
       </div>
 
@@ -1909,7 +1909,7 @@
       buildWave(document.getElementById("audioDetailWave"), v.peaks);
     } else if(v.kind === "video"){
       box.className = "";
-      box.innerHTML = `<video controls class="video-preview" style="max-width:100%;" src="${v.url}"></video>`;
+      box.innerHTML = `<video controls playsinline webkit-playsinline class="video-preview" style="max-width:100%;" src="${v.url}"></video>`;
     } else if(v.kind === "lyric"){
       box.className = "";
       box.innerHTML = `<textarea class="lyric-edit" id="lyricEditArea" placeholder="Start typing…"></textarea>`;
