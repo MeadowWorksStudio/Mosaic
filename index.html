@@ -939,6 +939,7 @@
     </div>
     <div class="scroll-area">
       <input class="song-title-input" id="songWorkspaceTitle" placeholder="Untitled song" oninput="renameCurrentSong(this.value)">
+      <p id="songWorkspaceDate" style="font-size:11.5px; color:var(--meadow); margin:-14px 0 18px;"></p>
 
       <div class="section-title"><h3>Ideas in this song</h3></div>
       <div id="songIdeaList"></div>
@@ -972,6 +973,7 @@
       <div style="width:34px;"></div>
     </div>
     <div class="scroll-area">
+      <input type="text" id="ideaSearchInput" class="field-input" placeholder="Search titles, tags, mood, lyrics, chords…" style="margin-bottom:14px;" oninput="renderAllIdeasList()">
       <div id="allIdeasList"></div>
     </div>
   </div>
@@ -984,6 +986,7 @@
       <div style="width:34px;"></div>
     </div>
     <div class="scroll-area">
+      <input type="text" id="songSearchInput" class="field-input" placeholder="Search song titles, tags, mood…" style="margin-bottom:14px;" oninput="renderAllSongsList()">
       <div id="allSongsList"></div>
     </div>
     <div class="detail-footer">
@@ -1420,6 +1423,8 @@
     return { kind:"tab", data:randomTabLine() };
   }
 
+  function daysAgoIso(n){ return new Date(Date.now() - n * 86400000).toISOString(); }
+
   let ideaSeq = 0;
   const lastUsedTitle = {};
   let ideas = [
@@ -1427,17 +1432,20 @@
     mkIdea("lyrics", "Verse — Change of Heart", "reflective", ["verse","unfinished"]),
     mkIdea("chords", "Drop C Sketch", "heavy", ["drop-c","riff"]),
   ];
+  ideas[0].createdAt = daysAgoIso(5);
+  ideas[1].createdAt = daysAgoIso(2);
+  ideas[2].createdAt = daysAgoIso(1);
 
   let songs = [
-    { id:"song-midnight", title:"Midnight Drive", ideaIds:["idea-1","idea-3"] },
-    { id:"song-slowburn", title:"Slow Burn", ideaIds:["idea-2"] },
+    { id:"song-midnight", title:"Midnight Drive", ideaIds:["idea-1","idea-3"], createdAt: daysAgoIso(6) },
+    { id:"song-slowburn", title:"Slow Burn", ideaIds:["idea-2"], createdAt: daysAgoIso(3) },
   ];
 
   let activeIdeaId = null;
 
   function mkIdea(type, title, mood, tags, visualOverride){
     ideaSeq++;
-    return { id:"idea-"+ideaSeq, type, title, mood, tags, notes:"", createdAt:"just now", visual: visualOverride || makeVisual(type) };
+    return { id:"idea-"+ideaSeq, type, title, mood, tags, notes:"", createdAt:new Date().toISOString(), visual: visualOverride || makeVisual(type) };
   }
 
   // ---------- navigation ----------
@@ -2252,7 +2260,7 @@
         <div class="idea-card" onclick="openIdeaById('${idea.id}')">
           <div class="idea-tag">${ideaTypes[idea.type].icon}</div>
           <h4>${idea.title}</h4>
-          <p>${idea.createdAt}</p>
+          <p>${formatRelativeDate(idea.createdAt)}</p>
         </div>
       `).join("");
     }
@@ -2263,7 +2271,7 @@
         <div class="song-dot"></div>
         <div class="meta">
           <h4>${s.title}</h4>
-          <p>${s.ideaIds.length} ideas connected</p>
+          <p>${s.ideaIds.length} ideas connected${s.createdAt ? " · " + formatRelativeDate(s.createdAt) : ""}</p>
           ${songSummaryBadgesHtml(s)}
         </div>
         <span class="count">${s.ideaIds.length}</span>
@@ -2290,7 +2298,54 @@
   }
 
   // ---------- all ideas ----------
+  // ---------- dates ----------
+  function formatRelativeDate(iso){
+    const date = new Date(iso);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMin = Math.floor(diffMs / 60000);
+    const diffHr = Math.floor(diffMs / 3600000);
+    const diffDay = Math.floor(diffMs / 86400000);
+
+    if(diffMin < 1) return "just now";
+    if(diffMin < 60) return `${diffMin} minute${diffMin === 1 ? "" : "s"} ago`;
+    if(diffHr < 24) return `${diffHr} hour${diffHr === 1 ? "" : "s"} ago`;
+    if(diffDay === 1) return "yesterday";
+    if(diffDay < 7) return `${diffDay} days ago`;
+    return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  }
+
+  function dateSearchTerms(iso){
+    const date = new Date(iso);
+    const now = new Date();
+    const diffDay = Math.floor((now - date) / 86400000);
+    const terms = [];
+    if(diffDay === 0) terms.push("today");
+    else if(diffDay === 1) terms.push("yesterday");
+    if(diffDay >= 0 && diffDay < 7) terms.push("this week");
+    terms.push(date.toLocaleDateString("en-US", { month: "long" }));   // "July"
+    terms.push(date.toLocaleDateString("en-US", { month: "short" }));  // "Jul"
+    terms.push(date.toLocaleDateString("en-US", { weekday: "long" })); // "Saturday"
+    terms.push(String(date.getFullYear()));
+    terms.push(String(date.getDate()));
+    return terms.join(" ").toLowerCase();
+  }
+
+  function ideaSearchableText(idea){
+    const parts = [idea.title, idea.mood, ...(idea.tags || []), idea.notes || ""];
+    if(idea.visual){
+      if(idea.visual.kind === "lyric") parts.push(idea.visual.data || "");
+      if(idea.visual.kind === "chords") parts.push((idea.visual.data || []).join(" "));
+      if(idea.visual.kind === "tab"){
+        parts.push((idea.visual.data || []).flatMap(step => Object.keys(step)).join(" "));
+      }
+    }
+    if(idea.createdAt) parts.push(dateSearchTerms(idea.createdAt));
+    return parts.join(" ").toLowerCase();
+  }
+
   function openAllIdeas(){
+    document.getElementById("ideaSearchInput").value = "";
     renderAllIdeasList();
     goTo("allIdeas");
   }
@@ -2306,7 +2361,20 @@
         </div>`;
       return;
     }
-    wrap.innerHTML = ideas.slice().reverse().map(idea => {
+    const query = (document.getElementById("ideaSearchInput")?.value || "").trim().toLowerCase();
+    let filtered = ideas.slice().reverse();
+    if(query){
+      filtered = filtered.filter(idea => ideaSearchableText(idea).includes(query));
+    }
+    if(filtered.length === 0){
+      wrap.innerHTML = `
+        <div class="empty-state">
+          <h4>No matches.</h4>
+          <p>Try a different word — search checks titles, tags, mood, notes, lyrics, and chords.</p>
+        </div>`;
+      return;
+    }
+    wrap.innerHTML = filtered.map(idea => {
       const meta = ideaTypes[idea.type];
       const tagChips = (idea.tags || []).map(t => `<span class="mini-tag">#${t}</span>`).join("");
       return `
@@ -2325,10 +2393,18 @@
   }
 
   // ---------- all songs ----------
+  function songSearchableText(song){
+    const attached = song.ideaIds.map(id => ideas.find(i => i.id === id)).filter(Boolean);
+    const parts = [song.title, ...attached.map(i => i.mood), ...attached.flatMap(i => i.tags || [])];
+    if(song.createdAt) parts.push(dateSearchTerms(song.createdAt));
+    return parts.join(" ").toLowerCase();
+  }
+
   function openAllSongs(){
     document.getElementById("newSongInlineTriggerBtn").style.display = "block";
     document.getElementById("newSongInlineInputRow").style.display = "none";
     document.getElementById("newSongInlineTitleInput").value = "";
+    document.getElementById("songSearchInput").value = "";
     renderAllSongsList();
     goTo("allSongs");
   }
@@ -2344,12 +2420,25 @@
         </div>`;
       return;
     }
-    wrap.innerHTML = songs.map(s => `
+    const query = (document.getElementById("songSearchInput")?.value || "").trim().toLowerCase();
+    let filtered = songs;
+    if(query){
+      filtered = songs.filter(s => songSearchableText(s).includes(query));
+    }
+    if(filtered.length === 0){
+      wrap.innerHTML = `
+        <div class="empty-state">
+          <h4>No matches.</h4>
+          <p>Try a different word — search checks song titles, and the mood/tags of ideas inside them.</p>
+        </div>`;
+      return;
+    }
+    wrap.innerHTML = filtered.map(s => `
       <div class="song-item" style="margin-bottom:10px;" onclick="openSongWorkspace('${s.id}')">
         <div class="song-dot"></div>
         <div class="meta">
           <h4>${s.title}</h4>
-          <p>${s.ideaIds.length} ideas connected</p>
+          <p>${s.ideaIds.length} ideas connected${s.createdAt ? " · " + formatRelativeDate(s.createdAt) : ""}</p>
           ${songSummaryBadgesHtml(s)}
         </div>
         <span class="count">${s.ideaIds.length}</span>
@@ -2366,7 +2455,7 @@
   function createSongFromAllSongs(){
     const title = document.getElementById("newSongInlineTitleInput").value.trim() || "Untitled Song";
     songSeq++;
-    const song = { id: "song-" + songSeq, title, ideaIds: [] };
+    const song = { id: "song-" + songSeq, title, ideaIds: [], createdAt: new Date().toISOString() };
     songs.push(song);
     openSongWorkspace(song.id);
   }
@@ -3082,7 +3171,7 @@
     renderDetailTags(idea);
 
     document.getElementById("versionList").innerHTML = `
-      <div class="version-item"><span>v1</span><span>${idea.createdAt}</span></div>
+      <div class="version-item"><span>v1</span><span>${formatRelativeDate(idea.createdAt)}</span></div>
     `;
 
     goTo("detail", recordHistory);
@@ -3148,7 +3237,7 @@
   function createNewSongAndAdd(){
     const title = document.getElementById("newSongTitleInput").value.trim() || "Untitled Song";
     songSeq++;
-    const song = { id: "song-" + songSeq, title, ideaIds: activeIdeaId ? [activeIdeaId] : [] };
+    const song = { id: "song-" + songSeq, title, ideaIds: activeIdeaId ? [activeIdeaId] : [], createdAt: new Date().toISOString() };
     songs.push(song);
     closeAddToSong();
     showToast(`Created "${title}" and added this idea`);
@@ -3197,6 +3286,7 @@
     if(!song) return;
     currentSongWorkspaceId = songId;
     document.getElementById("songWorkspaceTitle").value = song.title;
+    document.getElementById("songWorkspaceDate").textContent = song.createdAt ? "Started " + formatRelativeDate(song.createdAt) : "";
     renderSongIdeaList();
     goTo("songWorkspace", recordHistory);
   }
