@@ -446,6 +446,38 @@
   .chord-chip-wrap .arrow{ color:#c7c2b3; font-size:13px; }
   .chip-empty-hint{ font-size:11.5px; color:#9a9a9a; margin:0; }
 
+  /* ---------- AUDIO RECORDING ---------- */
+  .audio-record-panel{
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+    background:var(--cream-soft); border:1px solid var(--line); border-radius:18px;
+    padding:24px 16px 20px; margin-bottom:6px;
+  }
+  .record-live-wave{ display:flex; align-items:center; justify-content:center; gap:3px; height:36px; }
+  .record-live-wave span{
+    width:4px; min-height:6px; border-radius:2px; background:var(--meadow); display:block;
+    transition:height .06s linear;
+  }
+  .record-timer{
+    font-family:'Inter',sans-serif; font-size:13px; font-weight:600; color:var(--slate);
+    font-variant-numeric:tabular-nums;
+  }
+  .record-btn{
+    width:64px; height:64px; border-radius:50%;
+    background:#c0453f; border:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 8px 20px rgba(192,69,63,0.35);
+    transition: transform .15s ease, background .15s ease;
+  }
+  .record-btn:active{ transform:scale(.95); }
+  .record-btn .record-dot{
+    width:22px; height:22px; border-radius:50%; background:#fff;
+    transition: border-radius .15s ease, width .15s ease, height .15s ease;
+  }
+  .record-btn.recording{ background:#8a332e; }
+  .record-btn.recording .record-dot{ border-radius:6px; width:20px; height:20px; }
+  .record-hint{ font-size:11.5px; color:var(--meadow); font-weight:600; }
+  .audio-player{ width:100%; margin-top:2px; }
+
   /* ---------- IDEA DETAIL ---------- */
   .detail-hero{
     background:var(--forest);
@@ -503,6 +535,29 @@
   }
   .lyric-edit::placeholder{ color:rgba(244,241,232,0.4); font-style:italic; }
   .lyric-edit:focus{ border-bottom-color:var(--harvest); }
+  .lyric-toolbar{ display:flex; justify-content:flex-end; margin-bottom:2px; }
+  .mic-btn{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:28px; height:28px; border-radius:50%; flex-shrink:0;
+    border:1px solid var(--line); background:var(--cream-soft);
+    color:var(--meadow); cursor:pointer;
+    transition: background .15s ease, color .15s ease;
+  }
+  .mic-btn:hover{ background:#eee9db; }
+  .mic-btn.listening{
+    background:var(--harvest); color:var(--forest-deep); border-color:var(--harvest);
+    animation: micPulse 1.2s ease-in-out infinite;
+  }
+  .mic-btn.dark{
+    background:rgba(244,241,232,0.1); border-color:rgba(244,241,232,0.2); color:var(--cream);
+  }
+  .mic-btn.dark:hover{ background:rgba(244,241,232,0.18); }
+  .mic-btn.dark.listening{ background:var(--harvest); color:var(--forest-deep); border-color:var(--harvest); }
+  .mic-btn.mic-unsupported{ opacity:.4; cursor:not-allowed; }
+  @keyframes micPulse{
+    0%,100%{ box-shadow:0 0 0 0 rgba(197,157,82,0.5); }
+    50%{ box-shadow:0 0 0 6px rgba(197,157,82,0); }
+  }
   .chord-progression{ display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin:16px 0 6px; min-height:44px; }
   .chord-progression .chord{
     background:rgba(197,157,82,0.18); color:var(--harvest); font-weight:700; font-size:13px;
@@ -726,11 +781,10 @@
     <div class="scroll-area">
       <div class="capture-intro">
         <h2>What have you got?</h2>
-        <p>Capture it now, however it came to you. Lyrics and Chords let you put in the real thing — Audio, Video, and Tab are still previews for now.</p>
+        <p>Capture it now, however it came to you. Lyrics, Chords, and Audio let you put in the real thing — Video and Tab are still previews for now.</p>
       </div>
       <div class="capture-grid">
-        <div class="capture-btn" onclick="createIdea('audio')">
-          <span class="capture-badge">Preview</span>
+        <div class="capture-btn" onclick="openCompose('audio')">
           <div class="capture-icon" style="background:rgba(197,157,82,0.18); color:var(--harvest-dark);">&#127908;</div>
           <div><h4>Audio</h4><p>Hum it, play it, record it</p></div>
         </div>
@@ -766,6 +820,47 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
         Songs
       </button>
+    </div>
+  </div>
+
+  <!-- COMPOSE: AUDIO -->
+  <div class="screen" id="composeAudio">
+    <div class="app-header">
+      <div class="back" onclick="goTo('capture')">&#8592;</div>
+      <div class="eyebrow">New audio idea</div>
+      <div style="width:34px;"></div>
+    </div>
+    <div class="scroll-area">
+      <div class="capture-intro">
+        <h2>Capture the take.</h2>
+        <p>Hit record, play or hum it, then stop whenever you're done.</p>
+      </div>
+      <span class="field-label">Title</span>
+      <input class="field-input" id="composeAudioTitle" placeholder="Untitled idea">
+
+      <span class="field-label">Recording</span>
+      <div class="audio-record-panel">
+        <div class="record-live-wave" id="audioLiveWave"></div>
+        <div class="record-timer" id="audioTimer">0:00</div>
+        <button type="button" class="record-btn" id="audioRecordBtn" onclick="toggleAudioRecording()">
+          <span class="record-dot"></span>
+        </button>
+        <div class="record-hint" id="audioRecordHint">Tap to record</div>
+      </div>
+      <div id="audioPreviewWrap" style="display:none;">
+        <div class="detail-body-wave" id="audioPreviewWave" style="margin:10px 0 8px;"></div>
+        <audio controls class="audio-player" id="audioPreviewPlayer"></audio>
+        <button type="button" class="btn btn-ghost" style="margin-top:10px; color:var(--forest); border-color:var(--line); width:100%;" onclick="discardAudioRecording()">Re-record</button>
+      </div>
+
+      <span class="field-label">Mood</span>
+      <div class="detail-meta light" id="composeAudioMood"></div>
+
+      <span class="field-label">Tags</span>
+      <div class="detail-meta light" id="composeAudioTags"></div>
+    </div>
+    <div class="detail-footer">
+      <button class="btn btn-primary" id="plantAudioBtn" onclick="plantAudioIdea()" disabled>&#127793; Plant Idea</button>
     </div>
   </div>
 
@@ -816,6 +911,9 @@
       <span class="field-label">Progression</span>
       <div class="chord-input-row">
         <input class="field-input" id="chordInputField" placeholder="e.g. Gmaj7" onkeydown="if(event.key==='Enter'){event.preventDefault();addChordChip();}">
+        <button type="button" class="mic-btn" id="chordInputListen" title="Listen for the chord you play">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M6 8a6 6 0 0 1 12 0c0 4-3 5-3 9a3 3 0 0 1-6 0"/><path d="M9 8a3 3 0 0 1 6 0c0 2-2 3-2 5"/></svg>
+        </button>
         <button class="btn-add" onclick="addChordChip()">Add</button>
       </div>
       <div class="chord-chip-wrap" id="chordChipsList"></div>
@@ -983,6 +1081,198 @@
     el.style.height = el.scrollHeight + "px";
   }
 
+  // ---------- listen for a played chord (audio pitch analysis, not speech) ----------
+  const PITCH_NAMES = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+  const CHORD_TEMPLATES = [
+    { suffix:"",     intervals:[0,4,7] },     // major
+    { suffix:"m",    intervals:[0,3,7] },     // minor
+    { suffix:"7",    intervals:[0,4,7,10] },  // dominant 7
+    { suffix:"maj7", intervals:[0,4,7,11] },  // major 7
+    { suffix:"m7",   intervals:[0,3,7,10] },  // minor 7
+    { suffix:"sus2", intervals:[0,2,7] },
+    { suffix:"sus4", intervals:[0,5,7] },
+  ];
+
+  function freqToPitchClass(freq){
+    const midi = 69 + 12 * Math.log2(freq / 440);
+    return ((Math.round(midi) % 12) + 12) % 12;
+  }
+
+  function bestChordMatch(chroma){
+    let bestName = null, bestScore = -Infinity;
+    for(let root = 0; root < 12; root++){
+      for(const tmpl of CHORD_TEMPLATES){
+        const vec = new Array(12).fill(0);
+        tmpl.intervals.forEach(iv => { vec[(root + iv) % 12] = 1; });
+        let dot = 0, vecMag = 0, chromaMag = 0;
+        for(let i = 0; i < 12; i++){
+          dot += chroma[i] * vec[i];
+          vecMag += vec[i] * vec[i];
+          chromaMag += chroma[i] * chroma[i];
+        }
+        const denom = Math.sqrt(vecMag) * Math.sqrt(chromaMag) || 1;
+        const score = dot / denom;
+        if(score > bestScore){
+          bestScore = score;
+          bestName = PITCH_NAMES[root] + tmpl.suffix;
+        }
+      }
+    }
+    return bestName;
+  }
+
+  function attachChordListenButton(btnId, inputId){
+    const btn = document.getElementById(btnId);
+    if(!btn) return;
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if(!AudioCtx || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      btn.classList.add("mic-unsupported");
+      btn.title = "Chord listening isn't supported in this browser";
+      btn.addEventListener("click", () => showToast("Chord listening isn't supported in this browser"));
+      return;
+    }
+
+    let busy = false;
+
+    btn.addEventListener("click", async () => {
+      if(busy) return;
+      busy = true;
+      btn.classList.add("listening");
+
+      let stream;
+      try{
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch(err){
+        showToast("Microphone access was blocked");
+        busy = false;
+        btn.classList.remove("listening");
+        return;
+      }
+
+      const audioCtx = new AudioCtx();
+      const source = audioCtx.createMediaStreamSource(stream);
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 8192;
+      source.connect(analyser);
+
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+      const chroma = new Array(12).fill(0);
+      const sampleRate = audioCtx.sampleRate;
+      const minFreq = 70, maxFreq = 1300;
+      const listenDurationMs = 1800;
+      const startTime = Date.now();
+
+      function sampleFrame(){
+        analyser.getByteFrequencyData(dataArray);
+        for(let i = 0; i < bufferLength; i++){
+          const freq = (i * sampleRate) / analyser.fftSize;
+          if(freq < minFreq || freq > maxFreq) continue;
+          const mag = dataArray[i];
+          if(mag < 10) continue;
+          chroma[freqToPitchClass(freq)] += mag;
+        }
+        if(Date.now() - startTime < listenDurationMs){
+          requestAnimationFrame(sampleFrame);
+        } else {
+          finish();
+        }
+      }
+
+      function finish(){
+        stream.getTracks().forEach(t => t.stop());
+        audioCtx.close();
+        busy = false;
+        btn.classList.remove("listening");
+
+        const totalEnergy = chroma.reduce((a, b) => a + b, 0);
+        if(totalEnergy < 50){
+          showToast("Didn't hear enough to guess a chord — try again, a bit louder");
+          return;
+        }
+        const maxVal = Math.max(...chroma, 1);
+        const normalized = chroma.map(v => v / maxVal);
+        const guess = bestChordMatch(normalized);
+        const input = document.getElementById(inputId);
+        if(input) input.value = guess;
+        showToast(`Best guess: ${guess} — check it before adding`);
+      }
+
+      requestAnimationFrame(sampleFrame);
+    });
+  }
+
+  // ---------- voice dictation ----------
+  // NOTE: not currently wired to any UI buttons — phone keyboards already provide
+  // a built-in mic/dictation button on every text field, so this was redundant there.
+  // Kept here in case it's worth reviving for a specific spot later on.
+  function attachMicButton(btnId, textareaId){
+    const btn = document.getElementById(btnId);
+    if(!btn) return;
+    const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if(!SpeechRecognitionCtor){
+      btn.classList.add("mic-unsupported");
+      btn.title = "Voice dictation isn't supported in this browser";
+      btn.addEventListener("click", () => showToast("Voice dictation isn't supported in this browser"));
+      return;
+    }
+
+    const recognition = new SpeechRecognitionCtor();
+    recognition.lang = "en-US";
+    recognition.continuous = true;
+    recognition.interimResults = false;
+
+    let listening = false;
+    let userStopped = false;
+
+    recognition.onresult = (e) => {
+      let finalText = "";
+      for(let i = e.resultIndex; i < e.results.length; i++){
+        if(e.results[i].isFinal) finalText += e.results[i][0].transcript;
+      }
+      finalText = finalText.trim();
+      if(!finalText) return;
+      const ta = document.getElementById(textareaId);
+      if(!ta) return;
+      const needsSpace = ta.value && !ta.value.endsWith("\n") && !ta.value.endsWith(" ");
+      ta.value = ta.value + (needsSpace ? " " : "") + finalText;
+      ta.dispatchEvent(new Event("input", { bubbles: true }));
+    };
+
+    recognition.onerror = (e) => {
+      if(e.error === "not-allowed" || e.error === "service-not-allowed"){
+        showToast("Microphone access was blocked");
+        listening = false;
+        userStopped = true;
+        btn.classList.remove("listening");
+      }
+      // other errors (no-speech, aborted, network) are handled by onend's restart logic
+    };
+
+    recognition.onend = () => {
+      if(listening && !userStopped){
+        try{ recognition.start(); } catch(err){ /* already running */ }
+      } else {
+        btn.classList.remove("listening");
+      }
+    };
+
+    btn.addEventListener("click", () => {
+      if(!listening){
+        listening = true;
+        userStopped = false;
+        btn.classList.add("listening");
+        try{ recognition.start(); } catch(err){ /* already running */ }
+      } else {
+        listening = false;
+        userStopped = true;
+        try{ recognition.stop(); } catch(err){ /* not running */ }
+        btn.classList.remove("listening");
+      }
+    });
+  }
+
   function attachPillReorder(wrap, getArray, rerender){
     let dragEl = null, dragIndex = null, startX = 0, startY = 0;
 
@@ -1034,6 +1324,13 @@
     if(v.kind === "wave"){
       box.className = "detail-body-wave";
       buildWave(box, v.data);
+    } else if(v.kind === "audio"){
+      box.className = "";
+      box.innerHTML = `
+        <div class="detail-body-wave" id="audioDetailWave"></div>
+        <audio controls class="audio-player" src="${v.url}"></audio>
+      `;
+      buildWave(document.getElementById("audioDetailWave"), v.peaks);
     } else if(v.kind === "lyric"){
       box.className = "";
       box.innerHTML = `<textarea class="lyric-edit" id="lyricEditArea" placeholder="Start typing…"></textarea>`;
@@ -1050,10 +1347,14 @@
         <div class="chip-row" id="detailChordChips"></div>
         <div class="chord-add-row">
           <input type="text" id="detailChordInput" placeholder="Add a chord…" onkeydown="if(event.key==='Enter'){event.preventDefault();addDetailChord();}">
+          <button type="button" class="mic-btn dark" id="detailChordListen" title="Listen for the chord you play">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M6 8a6 6 0 0 1 12 0c0 4-3 5-3 9a3 3 0 0 1-6 0"/><path d="M9 8a3 3 0 0 1 6 0c0 2-2 3-2 5"/></svg>
+          </button>
           <button onclick="addDetailChord()">Add</button>
         </div>
       `;
       renderDetailChordChips(idea);
+      attachChordListenButton("detailChordListen", "detailChordInput");
     } else if(v.kind === "tab"){
       box.className = "tab-line";
       box.textContent = v.data;
@@ -1171,6 +1472,18 @@
       renderComposeMood("composeChordsMood");
       renderComposeTags("composeChordsTags");
       goTo("composeChords");
+    } else if(type === "audio"){
+      resetAudioRecordState(true);
+      document.getElementById("composeAudioTitle").value = "";
+      document.getElementById("audioTimer").textContent = "0:00";
+      document.getElementById("audioRecordHint").textContent = "Tap to record";
+      document.getElementById("audioRecordBtn").classList.remove("recording");
+      document.getElementById("audioLiveWave").innerHTML = "";
+      document.getElementById("audioPreviewWrap").style.display = "none";
+      document.getElementById("plantAudioBtn").disabled = true;
+      renderComposeMood("composeAudioMood");
+      renderComposeTags("composeAudioTags");
+      goTo("composeAudio");
     }
   }
 
@@ -1238,6 +1551,186 @@
     const tags = composeState.tags.size ? [...composeState.tags] : ["chords"];
     const idea = mkIdea("chords", title, mood, tags, { kind:"chords", data:[...composeState.chords] });
     ideas.push(idea);
+    openIdeaById(idea.id);
+  }
+
+  // ---------- real audio recording ----------
+  let audioRecordState = {
+    mediaRecorder:null, stream:null, chunks:[],
+    audioCtx:null, analyser:null, rafId:null, timerInterval:null,
+    startTime:0, blob:null, blobUrl:null, peaks:null,
+  };
+
+  function resetAudioRecordState(revoke){
+    if(revoke && audioRecordState.blobUrl){
+      try{ URL.revokeObjectURL(audioRecordState.blobUrl); } catch(err){}
+    }
+    if(audioRecordState.rafId) cancelAnimationFrame(audioRecordState.rafId);
+    if(audioRecordState.timerInterval) clearInterval(audioRecordState.timerInterval);
+    if(audioRecordState.audioCtx){ try{ audioRecordState.audioCtx.close(); } catch(err){} }
+    if(audioRecordState.stream){ audioRecordState.stream.getTracks().forEach(t => t.stop()); }
+    audioRecordState = {
+      mediaRecorder:null, stream:null, chunks:[],
+      audioCtx:null, analyser:null, rafId:null, timerInterval:null,
+      startTime:0, blob:null, blobUrl:null, peaks:null,
+    };
+  }
+
+  function toggleAudioRecording(){
+    if(audioRecordState.mediaRecorder && audioRecordState.mediaRecorder.state === "recording"){
+      stopAudioRecording();
+    } else {
+      startAudioRecording();
+    }
+  }
+
+  async function startAudioRecording(){
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder){
+      showToast("Audio recording isn't supported in this browser");
+      return;
+    }
+    let stream;
+    try{
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch(err){
+      showToast("Microphone access was blocked");
+      return;
+    }
+
+    audioRecordState.stream = stream;
+    audioRecordState.chunks = [];
+    const mimeType = (window.MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported("audio/webm")) ? "audio/webm" : "";
+    const mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+    audioRecordState.mediaRecorder = mediaRecorder;
+
+    mediaRecorder.ondataavailable = (e) => { if(e.data && e.data.size > 0) audioRecordState.chunks.push(e.data); };
+    mediaRecorder.onstop = () => finalizeAudioRecording();
+    mediaRecorder.start();
+
+    document.getElementById("audioRecordBtn").classList.add("recording");
+    document.getElementById("audioRecordHint").textContent = "Tap to stop";
+    document.getElementById("audioPreviewWrap").style.display = "none";
+    document.getElementById("plantAudioBtn").disabled = true;
+
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    const audioCtx = new AudioCtx();
+    const source = audioCtx.createMediaStreamSource(stream);
+    const analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+    source.connect(analyser);
+    audioRecordState.audioCtx = audioCtx;
+    audioRecordState.analyser = analyser;
+
+    const waveEl = document.getElementById("audioLiveWave");
+    waveEl.innerHTML = "";
+    const bars = [];
+    for(let i = 0; i < 14; i++){
+      const s = document.createElement("span");
+      s.style.height = "6px";
+      waveEl.appendChild(s);
+      bars.push(s);
+    }
+    const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+    function drawLevel(){
+      analyser.getByteTimeDomainData(dataArray);
+      let sumSquares = 0;
+      for(let i = 0; i < dataArray.length; i++){
+        const v = (dataArray[i] - 128) / 128;
+        sumSquares += v * v;
+      }
+      const rms = Math.sqrt(sumSquares / dataArray.length);
+      const level = Math.min(1, rms * 4);
+      bars.forEach((bar) => {
+        const jitter = 0.6 + Math.random() * 0.4;
+        bar.style.height = Math.max(6, level * 34 * jitter) + "px";
+      });
+      audioRecordState.rafId = requestAnimationFrame(drawLevel);
+    }
+    drawLevel();
+
+    audioRecordState.startTime = Date.now();
+    document.getElementById("audioTimer").textContent = "0:00";
+    audioRecordState.timerInterval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - audioRecordState.startTime) / 1000);
+      const m = Math.floor(elapsed / 60), s = elapsed % 60;
+      document.getElementById("audioTimer").textContent = m + ":" + String(s).padStart(2, "0");
+      if(elapsed >= 180){
+        showToast("Stopped at 3 minutes — plenty for a sketch");
+        stopAudioRecording();
+      }
+    }, 250);
+  }
+
+  function stopAudioRecording(){
+    if(audioRecordState.mediaRecorder && audioRecordState.mediaRecorder.state === "recording"){
+      audioRecordState.mediaRecorder.stop();
+    }
+    if(audioRecordState.stream){
+      audioRecordState.stream.getTracks().forEach(t => t.stop());
+    }
+    if(audioRecordState.rafId) cancelAnimationFrame(audioRecordState.rafId);
+    if(audioRecordState.timerInterval) clearInterval(audioRecordState.timerInterval);
+    if(audioRecordState.audioCtx){ try{ audioRecordState.audioCtx.close(); } catch(err){} }
+
+    document.getElementById("audioRecordBtn").classList.remove("recording");
+    document.getElementById("audioRecordHint").textContent = "Tap to re-record";
+  }
+
+  async function finalizeAudioRecording(){
+    const blob = new Blob(audioRecordState.chunks, { type: (audioRecordState.chunks[0] && audioRecordState.chunks[0].type) || "audio/webm" });
+    audioRecordState.blob = blob;
+    if(audioRecordState.blobUrl){ try{ URL.revokeObjectURL(audioRecordState.blobUrl); } catch(err){} }
+    audioRecordState.blobUrl = URL.createObjectURL(blob);
+
+    try{
+      const arrayBuffer = await blob.arrayBuffer();
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      const decodeCtx = new AudioCtx();
+      const audioBuffer = await decodeCtx.decodeAudioData(arrayBuffer);
+      const channelData = audioBuffer.getChannelData(0);
+      const barsCount = 40;
+      const blockSize = Math.floor(channelData.length / barsCount) || 1;
+      const peaks = [];
+      for(let i = 0; i < barsCount; i++){
+        let max = 0;
+        const start = i * blockSize;
+        for(let j = 0; j < blockSize; j++){
+          const v = Math.abs(channelData[start + j] || 0);
+          if(v > max) max = v;
+        }
+        peaks.push(Math.max(6, Math.round(max * 34) + 6));
+      }
+      audioRecordState.peaks = peaks;
+      decodeCtx.close();
+    } catch(err){
+      audioRecordState.peaks = randomWave(40);
+    }
+
+    const previewWrap = document.getElementById("audioPreviewWrap");
+    previewWrap.style.display = "block";
+    buildWave(document.getElementById("audioPreviewWave"), audioRecordState.peaks);
+    document.getElementById("audioPreviewPlayer").src = audioRecordState.blobUrl;
+    document.getElementById("plantAudioBtn").disabled = false;
+  }
+
+  function discardAudioRecording(){
+    resetAudioRecordState(true);
+    document.getElementById("audioPreviewWrap").style.display = "none";
+    document.getElementById("plantAudioBtn").disabled = true;
+    document.getElementById("audioTimer").textContent = "0:00";
+    document.getElementById("audioRecordHint").textContent = "Tap to record";
+    document.getElementById("audioLiveWave").innerHTML = "";
+  }
+
+  function plantAudioIdea(){
+    const title = document.getElementById("composeAudioTitle").value.trim() || "Untitled idea";
+    if(!audioRecordState.blobUrl){ showToast("Record something first"); return; }
+    const mood = composeState.mood || "reflective";
+    const tags = composeState.tags.size ? [...composeState.tags] : ["audio"];
+    const idea = mkIdea("audio", title, mood, tags, { kind:"audio", url:audioRecordState.blobUrl, peaks:audioRecordState.peaks });
+    ideas.push(idea);
+    resetAudioRecordState(false); // ownership of the blob URL transfers to the idea — don't revoke it
     openIdeaById(idea.id);
   }
 
@@ -1321,6 +1814,7 @@
     toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
   }
 
+  attachChordListenButton("chordInputListen", "chordInputField");
   renderDashboard();
 </script>
 
