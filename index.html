@@ -10,7 +10,7 @@
 <style>
   :root{
     --forest:#1F3A2E;
-    --forest-deep:#142720;
+    --forest-deep:#030001;
     --meadow:#6D8467;
     --harvest:#C59D52;
     --harvest-dark:#A9843F;
@@ -328,6 +328,11 @@
   .song-item h4{ font-family:'Inter',sans-serif; font-size:13px; font-weight:600; color:var(--forest); margin:0; }
   .song-item p{ font-size:11px; color:#8b8b8b; margin:2px 0 0; }
   .song-item .count{ font-size:11px; color:var(--meadow); font-weight:600; }
+  .match-badge{
+    font-size:10px; font-weight:700; color:var(--harvest-dark);
+    background:rgba(197,157,82,0.16); padding:3px 9px; border-radius:100px;
+    display:inline-block; margin-top:5px;
+  }
 
   .empty-state{
     text-align:center;
@@ -882,12 +887,7 @@
         <p>Your meadow, as you left it.</p>
       </div>
 
-      <div class="continue-card" onclick="openSongWorkspace('song-midnight')">
-        <div class="eyebrow">Continue working</div>
-        <h3>Midnight Drive</h3>
-        <div class="waveform" id="continueWave"></div>
-        <button class="btn btn-primary">Resume</button>
-      </div>
+      <div class="continue-card" id="continueCard"></div>
 
       <div class="section-title">
         <h3>Recent Ideas</h3>
@@ -1330,6 +1330,8 @@
           <span class="label">Tags</span>
           <div class="tag-row" id="detailTags"></div>
         </div>
+
+        <div id="detailPairings"></div>
 
         <div class="detail-section">
           <span class="label">Versions</span>
@@ -2246,12 +2248,40 @@
   }
 
   // ---------- dashboard ----------
+  function renderContinueWorking(){
+    const card = document.getElementById("continueCard");
+    let song = songs.find(s => s.id === lastTouchedSongId);
+    if(!song && songs.length > 0){
+      song = songs.slice().sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))[0];
+    }
+
+    if(!song){
+      card.innerHTML = `
+        <div class="eyebrow">Continue working</div>
+        <h3>No songs yet</h3>
+        <p style="font-size:12.5px; color:rgba(244,241,232,0.65); margin:6px 0 16px; line-height:1.5;">Start one whenever an idea's ready to grow into something bigger.</p>
+        <button type="button" class="btn btn-primary" onclick="openAllSongs()">Start a Song</button>
+      `;
+      card.onclick = null;
+      return;
+    }
+
+    card.innerHTML = `
+      <div class="eyebrow">Continue working</div>
+      <h3>${song.title}</h3>
+      <div class="waveform" id="continueWave"></div>
+      <button type="button" class="btn btn-primary">Resume</button>
+    `;
+    buildWave(document.getElementById("continueWave"), randomWave(12));
+    card.onclick = () => openSongWorkspace(song.id);
+  }
+
   function renderDashboard(){
     const hour = new Date().getHours();
     const g = hour < 12 ? "Good morning, Richard" : hour < 18 ? "Good afternoon, Richard" : "Good evening, Richard";
     document.getElementById("greetingText").textContent = g;
 
-    buildWave(document.getElementById("continueWave"), [10,18,26,14,30,20,24,12,28,16,22,10]);
+    renderContinueWorking();
 
     const row = document.getElementById("recentIdeas");
     if(ideas.length === 0){
@@ -3178,6 +3208,7 @@
     ).join("");
 
     renderDetailTags(idea);
+    renderPairingSuggestions(idea);
 
     document.getElementById("versionList").innerHTML = `
       <div class="version-item"><span>v1</span><span>${formatRelativeDate(idea.createdAt)}</span></div>
@@ -3281,6 +3312,7 @@
     const song = songs.find(s => s.id === songId);
     closeAddToSong();
     if(!song) return;
+    lastTouchedSongId = songId;
     if(song.ideaIds.includes(activeIdeaId)){
       showToast(`Already in ${song.title}`);
       return;
@@ -3291,6 +3323,7 @@
 
   // ---------- song workspace ----------
   let currentSongWorkspaceId = null;
+  let lastTouchedSongId = null; // drives the Dashboard's "Continue Working" card
   let pendingSongLinkId = null; // set while a quick-capture was started from inside a song, so the new idea auto-attaches
 
   function finishPlantingIdea(idea){
@@ -3319,6 +3352,7 @@
     const song = songs.find(s => s.id === songId);
     if(!song) return;
     currentSongWorkspaceId = songId;
+    lastTouchedSongId = songId;
     document.getElementById("songWorkspaceTitle").value = song.title;
     document.getElementById("songWorkspaceDate").textContent = song.createdAt ? "Started " + formatRelativeDate(song.createdAt) : "";
     renderSongIdeaList();
@@ -3342,6 +3376,7 @@
     const song = songs.find(s => s.id === currentSongWorkspaceId);
     if(!song) return;
     songs = songs.filter(s => s.id !== currentSongWorkspaceId);
+    if(lastTouchedSongId === currentSongWorkspaceId) lastTouchedSongId = null;
     currentSongWorkspaceId = null;
     showToast(`"${song.title}" deleted — your ideas are still safe`);
     goBack();
@@ -3404,6 +3439,112 @@
     renderSongIdeaList();
   }
 
+  // ---------- heuristic idea matching ----------
+  // A real signal, not an AI guess: pulls actual chord symbols (via the same parser used for
+  // playback) and actual tab notes (via standard tuning) into a 12-tone chroma profile, then
+  // compares that alongside shared mood and tags. No idea's content ever leaves the browser.
+  function ideaChromaProfile(idea){
+    if(!idea.visual) return null;
+    const chroma = new Array(12).fill(0);
+    let any = false;
+    if(idea.visual.kind === "chords"){
+      (idea.visual.data || []).forEach(sym => {
+        const chord = parseChord(sym);
+        if(chord){ chord.unique.forEach(pc => { chroma[pc] += 1; any = true; }); }
+      });
+    } else if(idea.visual.kind === "tab"){
+      (idea.visual.data || []).forEach(step => {
+        Object.keys(step).forEach(s => {
+          const midi = STRING_OPEN_MIDI[s] + step[s];
+          const pc = ((midi % 12) + 12) % 12;
+          chroma[pc] += 1;
+          any = true;
+        });
+      });
+    } else {
+      return null;
+    }
+    return any ? chroma : null;
+  }
+
+  function chromaCosineSim(a, b){
+    let dot = 0, magA = 0, magB = 0;
+    for(let i = 0; i < 12; i++){ dot += a[i] * b[i]; magA += a[i] * a[i]; magB += b[i] * b[i]; }
+    const denom = Math.sqrt(magA) * Math.sqrt(magB);
+    return denom ? dot / denom : 0;
+  }
+
+  const NON_SIGNAL_TAGS = new Set(["audio", "video", "lyrics", "chords", "tab"]); // capture-type fallback tags, not real signal
+
+  function buildMatchProfile(sourceIdeas){
+    const moods = sourceIdeas.map(i => i.mood);
+    const tags = new Set(sourceIdeas.flatMap(i => (i.tags || []).filter(t => !NON_SIGNAL_TAGS.has(t))));
+    const chromaVectors = sourceIdeas.map(ideaChromaProfile).filter(Boolean);
+    let chroma = null;
+    if(chromaVectors.length){
+      chroma = new Array(12).fill(0);
+      chromaVectors.forEach(v => v.forEach((val, i) => { chroma[i] += val; }));
+    }
+    return { moods, tags, chroma };
+  }
+
+  function scoreIdeaAgainstProfile(idea, profile){
+    let score = 0;
+    const reasons = [];
+
+    if(profile.moods.includes(idea.mood)){
+      score += 1;
+      reasons.push(`mood: ${idea.mood}`);
+    }
+    const sharedTags = (idea.tags || []).filter(t => !NON_SIGNAL_TAGS.has(t)).filter(t => profile.tags.has(t));
+    if(sharedTags.length){
+      score += sharedTags.length * 0.6;
+      reasons.push(`tags: ${sharedTags.map(t => "#" + t).join(", ")}`);
+    }
+    const ideaChroma = ideaChromaProfile(idea);
+    if(ideaChroma && profile.chroma){
+      const sim = chromaCosineSim(ideaChroma, profile.chroma);
+      if(sim > 0.55){
+        score += sim * 1.5;
+        reasons.push("musically compatible");
+      }
+    }
+    return { score, reasons };
+  }
+
+  function renderPairingSuggestions(idea){
+    const wrap = document.getElementById("detailPairings");
+    const others = ideas.filter(i => i.id !== idea.id);
+    const profile = buildMatchProfile([idea]);
+    const scored = others
+      .map(other => ({ other, ...scoreIdeaAgainstProfile(other, profile) }))
+      .filter(s => s.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 2);
+
+    if(scored.length === 0){
+      wrap.innerHTML = "";
+      return;
+    }
+    wrap.innerHTML = `
+      <div class="detail-section">
+        <span class="label">Might pair well with</span>
+        ${scored.map(({ other, reasons }) => {
+          const meta = ideaTypes[other.type];
+          return `
+            <div class="song-idea-row" style="margin-bottom:8px; cursor:pointer;" onclick="openIdeaById('${other.id}')">
+              <div class="idea-tag">${meta.icon}</div>
+              <div class="meta">
+                <h4>${other.title}</h4>
+                <p>${reasons.join(" · ")}</p>
+              </div>
+            </div>
+          `;
+        }).join("")}
+      </div>
+    `;
+  }
+
   function openAddIdeaToSongSheet(){
     const song = songs.find(s => s.id === currentSongWorkspaceId);
     if(!song) return;
@@ -3412,12 +3553,21 @@
     if(available.length === 0){
       wrap.innerHTML = `<p class="chip-empty-hint" style="text-align:center;">Every idea in your meadow is already here.</p>`;
     } else {
-      wrap.innerHTML = available.map(idea => {
+      const attached = song.ideaIds.map(id => ideas.find(i => i.id === id)).filter(Boolean);
+      const profile = buildMatchProfile(attached);
+      const scored = available
+        .map(idea => ({ idea, ...scoreIdeaAgainstProfile(idea, profile) }))
+        .sort((a, b) => b.score - a.score);
+
+      wrap.innerHTML = scored.map(({ idea, score, reasons }) => {
         const meta = ideaTypes[idea.type];
+        const badge = score > 0
+          ? `<div class="match-badge">Good match — ${reasons.join(" · ")}</div>`
+          : "";
         return `
           <div class="song-item" onclick="addIdeaToCurrentSong('${idea.id}')">
             <div class="song-dot"></div>
-            <div class="meta"><h4>${idea.title}</h4><p>${meta.label}</p></div>
+            <div class="meta"><h4>${idea.title}</h4><p>${meta.label}</p>${badge}</div>
           </div>`;
       }).join("");
     }
