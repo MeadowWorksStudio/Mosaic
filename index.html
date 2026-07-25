@@ -347,6 +347,64 @@
   .empty-state h4{ font-family:'Fraunces', serif; font-size:16px; color:var(--forest); margin:0 0 6px; font-weight:500; }
   .empty-state p{ font-size:12px; color:#9a9a9a; margin:0; }
 
+  /* ---------- SONG WORKSPACE ---------- */
+  .song-title-input{
+    font-family:'Fraunces', serif; font-size:22px; font-weight:500; color:var(--forest);
+    border:none; border-bottom:1px dashed var(--line); background:transparent;
+    width:100%; padding:4px 0 8px; margin-bottom:20px; outline:none;
+  }
+  .song-title-input:focus{ border-bottom-color:var(--meadow); }
+  .song-idea-row{
+    display:flex; align-items:center; gap:10px;
+    background:var(--cream-soft); border:1px solid var(--line); border-radius:14px;
+    padding:12px 14px; margin-bottom:10px;
+  }
+  .song-idea-row .idea-tag{ margin-bottom:0; flex-shrink:0; }
+  .song-idea-row .meta{ flex:1; cursor:pointer; min-width:0; }
+  .song-idea-row .meta h4{
+    font-family:'Inter',sans-serif; font-size:13.5px; font-weight:600; color:var(--forest); margin:0;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+  .song-idea-row .meta p{ font-size:11px; color:#8b8b8b; margin:2px 0 0; }
+  .song-idea-tags{ display:flex; gap:4px; flex-wrap:wrap; margin-top:3px; }
+  .mini-tag{
+    font-size:9.5px; font-weight:600; color:var(--meadow);
+    background:rgba(109,132,103,0.14); padding:2px 7px; border-radius:100px;
+    white-space:nowrap;
+  }
+  .mini-mood{
+    font-size:9.5px; font-weight:700; font-style:italic; color:var(--harvest-dark);
+    background:rgba(197,157,82,0.18); padding:2px 7px; border-radius:100px;
+    white-space:nowrap;
+  }
+  .song-order-btns{ display:flex; flex-direction:column; gap:2px; flex-shrink:0; }
+  .song-order-btns button{
+    width:26px; height:20px; border:none; background:transparent; color:var(--meadow);
+    cursor:pointer; font-size:10px; display:flex; align-items:center; justify-content:center; padding:0;
+  }
+  .song-order-btns button:disabled{ opacity:.25; cursor:not-allowed; }
+  .song-remove-btn{
+    width:24px; height:24px; border-radius:50%; border:none; background:transparent;
+    color:#c0453f; font-size:16px; cursor:pointer; flex-shrink:0; line-height:1;
+  }
+  .song-quick-capture-grid{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; margin-bottom:14px;
+  }
+  .song-quick-capture-grid button{
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    background:var(--cream-soft); border:1px solid var(--line); border-radius:12px;
+    padding:12px 6px; cursor:pointer;
+  }
+  .song-quick-capture-grid button:hover{ background:#eee9db; }
+  .song-quick-capture-grid .qc-icon{ font-size:18px; }
+  .song-quick-capture-grid .qc-label{
+    font-size:10.5px; font-weight:600; color:var(--forest); font-family:'Inter',sans-serif;
+  }
+  .sheet-divider{
+    font-size:10.5px; color:#b0aa9a; text-transform:uppercase; letter-spacing:.06em; font-weight:700;
+    text-align:center; margin:2px 0 10px;
+  }
+
   /* ---------- CAPTURE ---------- */
   .capture-grid{ display:flex; flex-direction:column; gap:12px; margin-top:6px; }
   .capture-btn{
@@ -734,7 +792,11 @@
     padding:6px 13px; border-radius:100px;
     background:rgba(109,132,103,0.14);
     color:var(--meadow);
+    cursor:pointer;
+    border:1px solid transparent;
+    transition: background .15s ease, color .15s ease;
   }
+  .tag.selected{ background:var(--harvest); color:var(--forest-deep); }
   .version-item{
     display:flex; justify-content:space-between; align-items:center;
     padding:9px 0;
@@ -774,6 +836,7 @@
   .overlay.show .sheet{ transform:translateY(0); }
   .sheet h3{ font-size:17px; margin-bottom:14px; }
   .sheet .song-item{ margin-bottom:8px; }
+  .sheet-scroll-area{ max-height:38vh; overflow-y:auto; margin-bottom:10px; }
 
   .toast{
     position:absolute;
@@ -829,7 +892,7 @@
         <p>Your meadow, as you left it.</p>
       </div>
 
-      <div class="continue-card" onclick="openIdeaById('song-midnight')">
+      <div class="continue-card" onclick="openSongWorkspace('song-midnight')">
         <div class="eyebrow">Continue working</div>
         <h3>Midnight Drive</h3>
         <div class="waveform" id="continueWave"></div>
@@ -838,13 +901,13 @@
 
       <div class="section-title">
         <h3>Recent Ideas</h3>
-        <span onclick="showToast('Full idea library — coming next sprint')">See all</span>
+        <span onclick="openAllIdeas()">See all</span>
       </div>
       <div class="idea-row" id="recentIdeas"></div>
 
       <div class="section-title">
         <h3>Recent Songs</h3>
-        <span onclick="showToast('Song Workspace — coming next sprint')">See all</span>
+        <span onclick="openAllSongs()">See all</span>
       </div>
       <div class="song-list" id="recentSongs"></div>
 
@@ -860,17 +923,82 @@
       <div class="nav-fab" onclick="goTo('capture')">
         <svg viewBox="0 0 24 24" fill="none" stroke="#142720" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
       </div>
-      <button class="nav-item" onclick="showToast('Song Workspace — coming next sprint')">
+      <button class="nav-item" onclick="openAllSongs()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
         Songs
       </button>
     </div>
   </div>
 
+  <!-- SONG WORKSPACE -->
+  <div class="screen" id="songWorkspace">
+    <div class="app-header">
+      <div class="back" onclick="goBack()">&#8592;</div>
+      <div class="eyebrow">Song Workspace</div>
+      <div style="width:34px;"></div>
+    </div>
+    <div class="scroll-area">
+      <input class="song-title-input" id="songWorkspaceTitle" placeholder="Untitled song" oninput="renameCurrentSong(this.value)">
+
+      <div class="section-title"><h3>Ideas in this song</h3></div>
+      <div id="songIdeaList"></div>
+
+      <button type="button" class="btn btn-primary" style="width:100%; margin-top:6px;" onclick="openAddIdeaToSongSheet()">+ Add Idea</button>
+    </div>
+
+    <div class="overlay" id="addIdeaToSongOverlay">
+      <div class="sheet">
+        <h3>Add an idea</h3>
+        <div class="song-quick-capture-grid">
+          <button type="button" onclick="startNewIdeaForSong('audio')"><span class="qc-icon">&#127908;</span><span class="qc-label">Audio</span></button>
+          <button type="button" onclick="startNewIdeaForSong('video')"><span class="qc-icon">&#128249;</span><span class="qc-label">Video</span></button>
+          <button type="button" onclick="startNewIdeaForSong('lyrics')"><span class="qc-icon">&#128221;</span><span class="qc-label">Lyrics</span></button>
+          <button type="button" onclick="startNewIdeaForSong('chords')"><span class="qc-icon">&#127928;</span><span class="qc-label">Chords</span></button>
+          <button type="button" onclick="startNewIdeaForSong('tab')"><span class="qc-icon">&#127932;</span><span class="qc-label">Tab</span></button>
+          <button type="button" onclick="startNewIdeaForSong('upload')"><span class="qc-icon">&#8593;</span><span class="qc-label">Upload</span></button>
+        </div>
+        <div class="sheet-divider">or add an existing idea</div>
+        <div id="sheetIdeaList"></div>
+        <button class="btn btn-ghost" style="width:100%; color:var(--forest); border-color:var(--line); margin-top:6px;" onclick="closeAddIdeaToSongSheet()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALL IDEAS -->
+  <div class="screen" id="allIdeas">
+    <div class="app-header">
+      <div class="back" onclick="goBack()">&#8592;</div>
+      <div class="eyebrow">All Ideas</div>
+      <div style="width:34px;"></div>
+    </div>
+    <div class="scroll-area">
+      <div id="allIdeasList"></div>
+    </div>
+  </div>
+
+  <!-- ALL SONGS -->
+  <div class="screen" id="allSongs">
+    <div class="app-header">
+      <div class="back" onclick="goBack()">&#8592;</div>
+      <div class="eyebrow">All Songs</div>
+      <div style="width:34px;"></div>
+    </div>
+    <div class="scroll-area">
+      <div id="allSongsList"></div>
+    </div>
+    <div class="detail-footer">
+      <button type="button" class="btn btn-primary" id="newSongInlineTriggerBtn" onclick="showNewSongInlineInput()">&#127793; New Song</button>
+      <div id="newSongInlineInputRow" style="display:none; margin-top:12px;">
+        <input type="text" id="newSongInlineTitleInput" class="field-input" placeholder="Song title" style="margin-bottom:8px;" onkeydown="if(event.key==='Enter'){event.preventDefault();createSongFromAllSongs();}">
+        <button type="button" class="btn btn-primary" style="width:100%;" onclick="createSongFromAllSongs()">Create</button>
+      </div>
+    </div>
+  </div>
+
   <!-- CAPTURE -->
   <div class="screen" id="capture">
     <div class="app-header">
-      <div class="back" onclick="goTo('dashboard')">&#8592;</div>
+      <div class="back" onclick="goBack()">&#8592;</div>
       <div class="eyebrow">Plant an idea</div>
       <div style="width:34px;"></div>
     </div>
@@ -914,7 +1042,7 @@
       <div class="nav-fab" onclick="goTo('capture')">
         <svg viewBox="0 0 24 24" fill="none" stroke="#142720" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
       </div>
-      <button class="nav-item active" onclick="showToast('Song Workspace — coming next sprint')">
+      <button class="nav-item active" onclick="openAllSongs()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
         Songs
       </button>
@@ -924,7 +1052,7 @@
   <!-- COMPOSE: TAB -->
   <div class="screen" id="composeTab">
     <div class="app-header">
-      <div class="back" onclick="goTo('capture')">&#8592;</div>
+      <div class="back" onclick="goBack()">&#8592;</div>
       <div class="eyebrow">New tab idea</div>
       <div style="width:34px;"></div>
     </div>
@@ -972,7 +1100,7 @@
   <!-- COMPOSE: UPLOAD -->
   <div class="screen" id="composeUpload">
     <div class="app-header">
-      <div class="back" onclick="goTo('capture')">&#8592;</div>
+      <div class="back" onclick="goBack()">&#8592;</div>
       <div class="eyebrow">Upload a file</div>
       <div style="width:34px;"></div>
     </div>
@@ -1014,7 +1142,7 @@
   <!-- COMPOSE: VIDEO -->
   <div class="screen" id="composeVideo">
     <div class="app-header">
-      <div class="back" onclick="goTo('capture')">&#8592;</div>
+      <div class="back" onclick="goBack()">&#8592;</div>
       <div class="eyebrow">New video idea</div>
       <div style="width:34px;"></div>
     </div>
@@ -1059,7 +1187,7 @@
   <!-- COMPOSE: AUDIO -->
   <div class="screen" id="composeAudio">
     <div class="app-header">
-      <div class="back" onclick="goTo('capture')">&#8592;</div>
+      <div class="back" onclick="goBack()">&#8592;</div>
       <div class="eyebrow">New audio idea</div>
       <div style="width:34px;"></div>
     </div>
@@ -1100,7 +1228,7 @@
   <!-- COMPOSE: LYRICS -->
   <div class="screen" id="composeLyrics">
     <div class="app-header">
-      <div class="back" onclick="goTo('capture')">&#8592;</div>
+      <div class="back" onclick="goBack()">&#8592;</div>
       <div class="eyebrow">New lyric idea</div>
       <div style="width:34px;"></div>
     </div>
@@ -1129,7 +1257,7 @@
   <!-- COMPOSE: CHORDS -->
   <div class="screen" id="composeChords">
     <div class="app-header">
-      <div class="back" onclick="goTo('capture')">&#8592;</div>
+      <div class="back" onclick="goBack()">&#8592;</div>
       <div class="eyebrow">New chord idea</div>
       <div style="width:34px;"></div>
     </div>
@@ -1180,7 +1308,7 @@
     <div class="stack" style="display:flex; flex-direction:column; height:100%;">
       <div class="detail-hero">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:2px;">
-          <div class="back" onclick="goTo('dashboard')" style="background:rgba(244,241,232,0.12); color:var(--cream); border-color:rgba(244,241,232,0.2);">&#8592;</div>
+          <div class="back" onclick="goBack()" style="background:rgba(244,241,232,0.12); color:var(--cream); border-color:rgba(244,241,232,0.2);">&#8592;</div>
           <div class="eyebrow" id="detailType">Audio idea</div>
           <div style="width:34px;"></div>
         </div>
@@ -1218,8 +1346,15 @@
       <div class="overlay" id="addToSongOverlay">
         <div class="sheet">
           <h3>Add to a song</h3>
-          <div id="sheetSongList"></div>
-          <button class="btn btn-ghost" style="width:100%; color:var(--forest); border-color:var(--line); margin-top:6px;" onclick="closeAddToSong()">Cancel</button>
+          <div class="sheet-scroll-area">
+            <div id="sheetSongList"></div>
+          </div>
+          <button type="button" class="btn btn-primary" id="newSongTriggerBtn" style="width:100%; margin-top:4px;" onclick="showNewSongInput()">&#127793; New Song</button>
+          <div id="newSongInputRow" style="display:none; margin-top:12px;">
+            <input type="text" id="newSongTitleInput" class="field-input" placeholder="Song title" style="margin-bottom:8px;" onkeydown="if(event.key==='Enter'){event.preventDefault();createNewSongAndAdd();}">
+            <button type="button" class="btn btn-primary" style="width:100%;" onclick="createNewSongAndAdd()">Create &amp; Add</button>
+          </div>
+          <button class="btn btn-ghost" style="width:100%; color:var(--forest); border-color:var(--line); margin-top:10px;" onclick="closeAddToSong()">Cancel</button>
         </div>
       </div>
 
@@ -1294,8 +1429,8 @@
   ];
 
   let songs = [
-    { id:"song-midnight", title:"Midnight Drive", count:4 },
-    { id:"song-slowburn", title:"Slow Burn", count:2 },
+    { id:"song-midnight", title:"Midnight Drive", ideaIds:["idea-1","idea-3"] },
+    { id:"song-slowburn", title:"Slow Burn", ideaIds:["idea-2"] },
   ];
 
   let activeIdeaId = null;
@@ -1306,7 +1441,11 @@
   }
 
   // ---------- navigation ----------
-  function goTo(screenId){
+  const COMPOSE_SCREEN_IDS = new Set(["composeLyrics", "composeChords", "composeAudio", "composeVideo", "composeTab", "composeUpload"]);
+  let navStack = [];
+
+  function goTo(screenId, recordHistory){
+    if(recordHistory === undefined) recordHistory = true;
     stopChordPlayback();
     document.querySelectorAll("audio").forEach(a => a.pause());
     document.querySelectorAll("video").forEach(v => v.pause());
@@ -1318,9 +1457,30 @@
         videoRecordState.stream = null;
       }
     }
+    if(pendingSongLinkId && !COMPOSE_SCREEN_IDS.has(screenId)){
+      pendingSongLinkId = null; // abandoned the quick-capture without planting — don't let it linger onto something unrelated
+    }
+
+    const current = document.querySelector(".screen.active");
+    const currentId = current ? current.id : null;
+    if(recordHistory && currentId && currentId !== screenId){
+      navStack.push(currentId);
+    }
+
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
     document.getElementById(screenId).classList.add("active");
     if(screenId === "dashboard"){ renderDashboard(); }
+    if(screenId === "allSongs"){ renderAllSongsList(); }
+    if(screenId === "allIdeas"){ renderAllIdeasList(); }
+  }
+
+  function goBack(){
+    if(navStack.length === 0){
+      goTo("dashboard");
+      return;
+    }
+    const prev = navStack.pop();
+    goTo(prev, false);
   }
 
   function buildWave(container, heights, color){
@@ -2099,12 +2259,116 @@
 
     const list = document.getElementById("recentSongs");
     list.innerHTML = songs.map(s => `
-      <div class="song-item" onclick="showToast('Song Workspace — coming next sprint')">
+      <div class="song-item" onclick="openSongWorkspace('${s.id}')">
         <div class="song-dot"></div>
-        <div class="meta"><h4>${s.title}</h4><p>${s.count} ideas connected</p></div>
-        <span class="count">${s.count}</span>
+        <div class="meta">
+          <h4>${s.title}</h4>
+          <p>${s.ideaIds.length} ideas connected</p>
+          ${songSummaryBadgesHtml(s)}
+        </div>
+        <span class="count">${s.ideaIds.length}</span>
       </div>
     `).join("");
+  }
+
+  function songSummaryBadgesHtml(song){
+    const attached = song.ideaIds.map(id => ideas.find(i => i.id === id)).filter(Boolean);
+    if(attached.length === 0) return "";
+    const uniqueMoods = [...new Set(attached.map(i => i.mood))];
+    const uniqueTags = [...new Set(attached.flatMap(i => i.tags || []))];
+    let badges = [
+      ...uniqueMoods.map(m => `<span class="mini-mood">${m}</span>`),
+      ...uniqueTags.map(t => `<span class="mini-tag">#${t}</span>`),
+    ];
+    const max = 4;
+    if(badges.length > max){
+      const hidden = badges.length - max;
+      badges = badges.slice(0, max);
+      badges.push(`<span class="mini-tag">+${hidden}</span>`);
+    }
+    return `<div class="song-idea-tags" style="margin-top:4px;">${badges.join("")}</div>`;
+  }
+
+  // ---------- all ideas ----------
+  function openAllIdeas(){
+    renderAllIdeasList();
+    goTo("allIdeas");
+  }
+
+  function renderAllIdeasList(){
+    const wrap = document.getElementById("allIdeasList");
+    if(ideas.length === 0){
+      wrap.innerHTML = `
+        <div class="empty-state">
+          <svg class="sprout" viewBox="0 0 24 24" fill="none"><path d="M12 21V11" stroke="#6D8467" stroke-width="1.4" stroke-linecap="round"/><path d="M12 11C12 11 5 11.5 5 5C11.5 5 12 11 12 11Z" stroke="#6D8467" stroke-width="1.4"/><path d="M12 14C12 14 19 14.4 19 8.5C13 8.5 12 14 12 14Z" stroke="#6D8467" stroke-width="1.4"/></svg>
+          <h4>Your meadow is waiting.</h4>
+          <p>Plant your first idea.</p>
+        </div>`;
+      return;
+    }
+    wrap.innerHTML = ideas.slice().reverse().map(idea => {
+      const meta = ideaTypes[idea.type];
+      const tagChips = (idea.tags || []).map(t => `<span class="mini-tag">#${t}</span>`).join("");
+      return `
+        <div class="song-idea-row" style="cursor:pointer;" onclick="openIdeaById('${idea.id}')">
+          <div class="idea-tag">${meta.icon}</div>
+          <div class="meta">
+            <h4>${idea.title}</h4>
+            <div class="song-idea-tags">
+              <span class="mini-mood">${idea.mood}</span>
+              ${tagChips}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  // ---------- all songs ----------
+  function openAllSongs(){
+    document.getElementById("newSongInlineTriggerBtn").style.display = "block";
+    document.getElementById("newSongInlineInputRow").style.display = "none";
+    document.getElementById("newSongInlineTitleInput").value = "";
+    renderAllSongsList();
+    goTo("allSongs");
+  }
+
+  function renderAllSongsList(){
+    const wrap = document.getElementById("allSongsList");
+    if(songs.length === 0){
+      wrap.innerHTML = `
+        <div class="empty-state">
+          <svg class="sprout" viewBox="0 0 24 24" fill="none"><path d="M12 21V11" stroke="#6D8467" stroke-width="1.4" stroke-linecap="round"/><path d="M12 11C12 11 5 11.5 5 5C11.5 5 12 11 12 11Z" stroke="#6D8467" stroke-width="1.4"/><path d="M12 14C12 14 19 14.4 19 8.5C13 8.5 12 14 12 14Z" stroke="#6D8467" stroke-width="1.4"/></svg>
+          <h4>No songs yet.</h4>
+          <p>Start one below whenever you're ready.</p>
+        </div>`;
+      return;
+    }
+    wrap.innerHTML = songs.map(s => `
+      <div class="song-item" style="margin-bottom:10px;" onclick="openSongWorkspace('${s.id}')">
+        <div class="song-dot"></div>
+        <div class="meta">
+          <h4>${s.title}</h4>
+          <p>${s.ideaIds.length} ideas connected</p>
+          ${songSummaryBadgesHtml(s)}
+        </div>
+        <span class="count">${s.ideaIds.length}</span>
+      </div>
+    `).join("");
+  }
+
+  function showNewSongInlineInput(){
+    document.getElementById("newSongInlineTriggerBtn").style.display = "none";
+    document.getElementById("newSongInlineInputRow").style.display = "block";
+    document.getElementById("newSongInlineTitleInput").focus();
+  }
+
+  function createSongFromAllSongs(){
+    const title = document.getElementById("newSongInlineTitleInput").value.trim() || "Untitled Song";
+    songSeq++;
+    const song = { id: "song-" + songSeq, title, ideaIds: [] };
+    songs.push(song);
+    openSongWorkspace(song.id);
   }
 
   // ---------- capture ----------
@@ -2243,7 +2507,7 @@
     const tags = composeState.tags.size ? [...composeState.tags] : ["lyrics"];
     const idea = mkIdea("lyrics", title, mood, tags, { kind:"lyric", data:text });
     ideas.push(idea);
-    openIdeaById(idea.id);
+    finishPlantingIdea(idea);
   }
 
   function plantChordIdea(){
@@ -2253,7 +2517,7 @@
     const tags = composeState.tags.size ? [...composeState.tags] : ["chords"];
     const idea = mkIdea("chords", title, mood, tags, { kind:"chords", data:[...composeState.chords] });
     ideas.push(idea);
-    openIdeaById(idea.id);
+    finishPlantingIdea(idea);
   }
 
   // ---------- real audio recording ----------
@@ -2465,7 +2729,7 @@
     const idea = mkIdea(uploadState.kind, title, mood, tags, visual);
     ideas.push(idea);
     resetUploadState(false); // ownership of the blob URL transfers to the idea — don't revoke it
-    openIdeaById(idea.id);
+    finishPlantingIdea(idea);
   }
 
   async function finalizeAudioRecording(){
@@ -2499,7 +2763,7 @@
     const idea = mkIdea("audio", title, mood, tags, { kind:"audio", url:audioRecordState.blobUrl, peaks:audioRecordState.peaks });
     ideas.push(idea);
     resetAudioRecordState(false); // ownership of the blob URL transfers to the idea — don't revoke it
-    openIdeaById(idea.id);
+    finishPlantingIdea(idea);
   }
 
   // ---------- real video recording ----------
@@ -2652,7 +2916,7 @@
     const idea = mkIdea("video", title, mood, tags, { kind:"video", url:videoRecordState.blobUrl });
     ideas.push(idea);
     resetVideoRecordState(false); // ownership of the blob URL transfers to the idea — don't revoke it
-    openIdeaById(idea.id);
+    finishPlantingIdea(idea);
   }
 
   // ---------- tab builder (string + fret note entry) ----------
@@ -2789,11 +3053,12 @@
     const tags = composeState.tags.size ? [...composeState.tags] : ["tab"];
     const idea = mkIdea("tab", title, mood, tags, { kind:"tab", data:[...composeState.tabSteps] });
     ideas.push(idea);
-    openIdeaById(idea.id);
+    finishPlantingIdea(idea);
   }
 
   // ---------- idea detail ----------
-  function openIdeaById(id){
+  function openIdeaById(id, recordHistory){
+    if(recordHistory === undefined) recordHistory = true;
     if(id.startsWith("song-")){
       showToast("Song Workspace — coming next sprint");
       return;
@@ -2814,13 +3079,13 @@
       `<span class="chip ${m === idea.mood ? 'selected' : ''}" onclick="setMood('${m}')">${m}</span>`
     ).join("");
 
-    document.getElementById("detailTags").innerHTML = idea.tags.map(t => `<span class="tag">#${t}</span>`).join("");
+    renderDetailTags(idea);
 
     document.getElementById("versionList").innerHTML = `
       <div class="version-item"><span>v1</span><span>${idea.createdAt}</span></div>
     `;
 
-    goTo("detail");
+    goTo("detail", recordHistory);
   }
 
   function setMood(m){
@@ -2828,6 +3093,21 @@
     if(!idea) return;
     idea.mood = m;
     openIdeaById(activeIdeaId);
+  }
+
+  function renderDetailTags(idea){
+    const wrap = document.getElementById("detailTags");
+    wrap.innerHTML = TAG_OPTIONS.map(t =>
+      `<span class="tag ${idea.tags.includes(t) ? "selected" : ""}" onclick="toggleDetailTag('${t}')">#${t}</span>`
+    ).join("");
+  }
+
+  function toggleDetailTag(t){
+    const idea = ideas.find(i => i.id === activeIdeaId);
+    if(!idea) return;
+    if(idea.tags.includes(t)) idea.tags = idea.tags.filter(x => x !== t);
+    else idea.tags.push(t);
+    renderDetailTags(idea);
   }
 
   document.addEventListener("input", (e) => {
@@ -2842,12 +3122,17 @@
   });
 
   // ---------- add to song ----------
+  let songSeq = 0;
+
   function openAddToSong(){
+    document.getElementById("newSongTriggerBtn").style.display = "block";
+    document.getElementById("newSongInputRow").style.display = "none";
+    document.getElementById("newSongTitleInput").value = "";
     const wrap = document.getElementById("sheetSongList");
     wrap.innerHTML = songs.map(s => `
       <div class="song-item" onclick="addToSong('${s.id}')">
         <div class="song-dot"></div>
-        <div class="meta"><h4>${s.title}</h4><p>${s.count} ideas connected</p></div>
+        <div class="meta"><h4>${s.title}</h4><p>${s.ideaIds.length} ideas connected</p></div>
       </div>
     `).join("");
     document.getElementById("addToSongOverlay").classList.add("show");
@@ -2855,11 +3140,160 @@
   function closeAddToSong(){
     document.getElementById("addToSongOverlay").classList.remove("show");
   }
+  function showNewSongInput(){
+    document.getElementById("newSongTriggerBtn").style.display = "none";
+    document.getElementById("newSongInputRow").style.display = "block";
+    document.getElementById("newSongTitleInput").focus();
+  }
+  function createNewSongAndAdd(){
+    const title = document.getElementById("newSongTitleInput").value.trim() || "Untitled Song";
+    songSeq++;
+    const song = { id: "song-" + songSeq, title, ideaIds: activeIdeaId ? [activeIdeaId] : [] };
+    songs.push(song);
+    closeAddToSong();
+    showToast(`Created "${title}" and added this idea`);
+    openSongWorkspace(song.id);
+  }
   function addToSong(songId){
     const song = songs.find(s => s.id === songId);
-    if(song) song.count++;
     closeAddToSong();
-    showToast(`Added to ${song ? song.title : "song"}`);
+    if(!song) return;
+    if(song.ideaIds.includes(activeIdeaId)){
+      showToast(`Already in ${song.title}`);
+      return;
+    }
+    song.ideaIds.push(activeIdeaId);
+    showToast(`Added to ${song.title}`);
+  }
+
+  // ---------- song workspace ----------
+  let currentSongWorkspaceId = null;
+  let pendingSongLinkId = null; // set while a quick-capture was started from inside a song, so the new idea auto-attaches
+
+  function finishPlantingIdea(idea){
+    if(pendingSongLinkId){
+      const songId = pendingSongLinkId;
+      const song = songs.find(s => s.id === songId);
+      pendingSongLinkId = null;
+      if(song){
+        if(!song.ideaIds.includes(idea.id)) song.ideaIds.push(idea.id);
+        showToast(`Added to ${song.title}`);
+        openSongWorkspace(songId, false);
+        return;
+      }
+    }
+    openIdeaById(idea.id, false);
+  }
+
+  function startNewIdeaForSong(type){
+    pendingSongLinkId = currentSongWorkspaceId;
+    closeAddIdeaToSongSheet();
+    openCompose(type);
+  }
+
+  function openSongWorkspace(songId, recordHistory){
+    if(recordHistory === undefined) recordHistory = true;
+    const song = songs.find(s => s.id === songId);
+    if(!song) return;
+    currentSongWorkspaceId = songId;
+    document.getElementById("songWorkspaceTitle").value = song.title;
+    renderSongIdeaList();
+    goTo("songWorkspace", recordHistory);
+  }
+
+  function renameCurrentSong(newTitle){
+    const song = songs.find(s => s.id === currentSongWorkspaceId);
+    if(!song) return;
+    song.title = newTitle.trim() || "Untitled song";
+  }
+
+  function renderSongIdeaList(){
+    const song = songs.find(s => s.id === currentSongWorkspaceId);
+    if(!song) return;
+    const wrap = document.getElementById("songIdeaList");
+
+    if(song.ideaIds.length === 0){
+      wrap.innerHTML = `
+        <div class="empty-state">
+          <svg class="sprout" viewBox="0 0 24 24" fill="none"><path d="M12 21V11" stroke="#6D8467" stroke-width="1.4" stroke-linecap="round"/><path d="M12 11C12 11 5 11.5 5 5C11.5 5 12 11 12 11Z" stroke="#6D8467" stroke-width="1.4"/><path d="M12 14C12 14 19 14.4 19 8.5C13 8.5 12 14 12 14Z" stroke="#6D8467" stroke-width="1.4"/></svg>
+          <h4>This song is still finding its shape.</h4>
+          <p>Add ideas from your meadow below.</p>
+        </div>`;
+      return;
+    }
+
+    wrap.innerHTML = song.ideaIds.map((ideaId, i) => {
+      const idea = ideas.find(x => x.id === ideaId);
+      if(!idea) return "";
+      const meta = ideaTypes[idea.type];
+      const tagChips = (idea.tags || []).map(t => `<span class="mini-tag">#${t}</span>`).join("");
+      return `
+        <div class="song-idea-row">
+          <div class="idea-tag">${meta.icon}</div>
+          <div class="meta" onclick="openIdeaById('${idea.id}')">
+            <h4>${idea.title}</h4>
+            <div class="song-idea-tags">
+              <span class="mini-mood">${idea.mood}</span>
+              ${tagChips}
+            </div>
+          </div>
+          <div class="song-order-btns">
+            <button type="button" onclick="moveSongIdea(${i}, -1)" ${i === 0 ? "disabled" : ""}>&#9650;</button>
+            <button type="button" onclick="moveSongIdea(${i}, 1)" ${i === song.ideaIds.length - 1 ? "disabled" : ""}>&#9660;</button>
+          </div>
+          <button type="button" class="song-remove-btn" onclick="removeSongIdea(${i})">&times;</button>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function moveSongIdea(index, direction){
+    const song = songs.find(s => s.id === currentSongWorkspaceId);
+    if(!song) return;
+    const newIndex = index + direction;
+    if(newIndex < 0 || newIndex >= song.ideaIds.length) return;
+    const arr = song.ideaIds;
+    [arr[index], arr[newIndex]] = [arr[newIndex], arr[index]];
+    renderSongIdeaList();
+  }
+
+  function removeSongIdea(index){
+    const song = songs.find(s => s.id === currentSongWorkspaceId);
+    if(!song) return;
+    song.ideaIds.splice(index, 1);
+    renderSongIdeaList();
+  }
+
+  function openAddIdeaToSongSheet(){
+    const song = songs.find(s => s.id === currentSongWorkspaceId);
+    if(!song) return;
+    const available = ideas.filter(i => !song.ideaIds.includes(i.id));
+    const wrap = document.getElementById("sheetIdeaList");
+    if(available.length === 0){
+      wrap.innerHTML = `<p class="chip-empty-hint" style="text-align:center;">Every idea in your meadow is already here.</p>`;
+    } else {
+      wrap.innerHTML = available.map(idea => {
+        const meta = ideaTypes[idea.type];
+        return `
+          <div class="song-item" onclick="addIdeaToCurrentSong('${idea.id}')">
+            <div class="song-dot"></div>
+            <div class="meta"><h4>${idea.title}</h4><p>${meta.label}</p></div>
+          </div>`;
+      }).join("");
+    }
+    document.getElementById("addIdeaToSongOverlay").classList.add("show");
+  }
+
+  function closeAddIdeaToSongSheet(){
+    document.getElementById("addIdeaToSongOverlay").classList.remove("show");
+  }
+
+  function addIdeaToCurrentSong(ideaId){
+    const song = songs.find(s => s.id === currentSongWorkspaceId);
+    if(!song) return;
+    if(!song.ideaIds.includes(ideaId)) song.ideaIds.push(ideaId);
+    closeAddIdeaToSongSheet();
+    renderSongIdeaList();
   }
 
   // ---------- toast ----------
