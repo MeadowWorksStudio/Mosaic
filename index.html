@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mosaic v0.20 — Meadow Works</title>
+<title>Mosaic v0.30 — Meadow Works</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -900,6 +900,14 @@
   .sheet .song-item{ margin-bottom:8px; }
   .sheet-scroll-area{ max-height:38vh; overflow-y:auto; margin-bottom:10px; }
 
+  .library-actions{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px; }
+  .library-action{ border:1px solid var(--line); border-radius:12px; padding:11px 10px; background:var(--cream); color:var(--forest); font:600 12px Inter,sans-serif; cursor:pointer; }
+  .library-action.primary{ background:var(--forest); color:var(--cream); border-color:var(--forest); }
+  .storage-meter{ height:8px; border-radius:99px; background:var(--line); overflow:hidden; margin-top:9px; }
+  .storage-meter-fill{ height:100%; width:0%; border-radius:inherit; background:var(--meadow); transition:width .25s ease; }
+  .save-alert{ display:none; margin-top:12px; padding:11px 12px; border-radius:12px; background:#FFF0E8; border:1px solid rgba(153,72,30,.25); color:#7A3518; font-size:12px; line-height:1.45; }
+  :root[data-theme="dark"] .save-alert{ background:#3A241B; color:#FFD2BA; border-color:rgba(255,210,186,.18); }
+  .toast-action{ margin-left:12px; border:0; background:transparent; color:var(--harvest); font-weight:800; cursor:pointer; padding:0; }
   .toast{
     position:absolute;
     bottom:96px; left:50%;
@@ -1521,20 +1529,28 @@
           <div class="setting-row"><div class="setting-copy"><span class="setting-label">Ideas planted</span><span class="setting-note">Fragments currently stored in this browser.</span></div><strong id="settingsIdeaCount">0</strong></div>
           <div class="setting-row"><div class="setting-copy"><span class="setting-label">Songs growing</span><span class="setting-note">Songs currently taking shape.</span></div><strong id="settingsSongCount">0</strong></div>
           <div class="setting-row"><div class="setting-copy"><span class="setting-label">Last saved</span><span class="setting-note">Mosaic saves automatically on this device.</span></div><strong id="settingsLastSaved" style="font-size:12px;">Just now</strong></div>
+          <div class="setting-row"><div class="setting-copy"><span class="setting-label">Device storage</span><span class="setting-note" id="settingsStorageText">Checking available storage…</span><div class="storage-meter"><div class="storage-meter-fill" id="settingsStorageFill"></div></div></div></div>
+          <div class="setting-row" role="button" tabindex="0" onclick="requestAccountMigration()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();requestAccountMigration();}" style="cursor:pointer;"><div class="setting-copy"><span class="setting-label">Account migration</span><span class="setting-note" id="settingsMigrationText">Your local library is ready to move into a future Mosaic account—no manual export required.</span></div><strong id="settingsMigrationStatus" style="font-size:12px;">Ready</strong></div>
+          <div class="library-actions">
+            <button type="button" class="library-action primary" onclick="exportMosaicBackup()">Export Backup</button>
+            <button type="button" class="library-action" onclick="document.getElementById('backupImportInput').click()">Import Backup</button>
+          </div>
+          <input id="backupImportInput" type="file" accept="application/json,.json,.mosaic" hidden onchange="importMosaicBackup(this.files && this.files[0]); this.value=''">
+          <div class="save-alert" id="saveFailureAlert"><strong>Your latest changes may not be saved.</strong><br><span id="saveFailureMessage">Keep Mosaic open and export a backup.</span></div>
         </div>
       </section>
 
       <section class="settings-group">
         <h3>About</h3>
         <div class="settings-card">
-          <div class="setting-row"><div class="setting-copy"><span class="setting-label">Mosaic</span><span class="setting-note">Plant ideas. Grow songs.</span></div><strong>v0.20</strong></div>
+          <div class="setting-row"><div class="setting-copy"><span class="setting-label">Mosaic</span><span class="setting-note">Plant ideas. Grow songs.</span></div><strong>v0.30</strong></div>
           <div class="setting-row"><div class="setting-copy"><span class="setting-label">By Meadow Works</span><span class="setting-note">Every great song begins with a single idea.</span></div></div>
         </div>
       </section>
     </div>
   </div>
 
-  <div class="toast" id="toast"></div>
+  <div class="toast" id="toast"><span id="toastMessage"></span><button type="button" class="toast-action" id="toastAction" style="display:none"></button></div>
 
 </div>
 
@@ -1627,6 +1643,11 @@
   let persistenceReady = false;
   let lastSavedSnapshot = "";
   let lastSavedAt = null;
+  let saveFailure = null;
+  let pendingUndo = null;
+  let undoTimer = null;
+  let accountMigration = { completed:false, completedAt:null, accountId:null };
+  let migrationPromptShown = false;
   const defaultPreferences = {
     displayName:"", artistName:"", studioName:"",
     greetingStyle:"time", showInspiration:true, theme:"system",
@@ -1681,6 +1702,24 @@
     });
   }
 
+  async function getAllMediaKeys(){
+    const db = await openMediaDb();
+    return await new Promise((resolve, reject) => {
+      const tx = db.transaction(MOSAIC_MEDIA_STORE, "readonly");
+      const request = tx.objectStore(MOSAIC_MEDIA_STORE).getAllKeys();
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => reject(request.error || new Error("Could not inspect media storage"));
+    });
+  }
+
+  async function cleanupOrphanedMedia(){
+    try{
+      const valid = new Set(ideas.map(i => i?.visual?.mediaKey).filter(Boolean));
+      const keys = await getAllMediaKeys();
+      await Promise.all(keys.filter(k => !valid.has(k)).map(k => deleteMediaBlob(k)));
+    } catch(err){ console.warn("Mosaic could not clean unused media", err); }
+  }
+
   function serializableIdeas(){
     return ideas.map(idea => {
       const copy = JSON.parse(JSON.stringify(idea));
@@ -1691,8 +1730,9 @@
 
   function buildAppState(){
     return {
-      version: 2,
+      version: 3,
       preferences: { ...preferences },
+      accountMigration: { ...accountMigration },
       ideaSeq,
       songSeq,
       lastTouchedSongId,
@@ -1714,6 +1754,153 @@
       }
     } catch(err){
       console.error("Mosaic could not save its app state", err);
+      saveFailure = err;
+      renderSettingsStatus();
+      showToast("Mosaic could not save your latest changes");
+    }
+  }
+
+  function blobToDataUrl(blob){
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(reader.error || new Error("Could not read media"));
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  function dataUrlToBlob(dataUrl){
+    const parts = String(dataUrl).split(",");
+    const meta = parts[0] || "";
+    const mime = (meta.match(/data:([^;]+)/) || [])[1] || "application/octet-stream";
+    const binary = atob(parts[1] || "");
+    const bytes = new Uint8Array(binary.length);
+    for(let i=0;i<binary.length;i++) bytes[i] = binary.charCodeAt(i);
+    return new Blob([bytes], { type:mime });
+  }
+
+  function hasLocalLibraryForMigration(){
+    return ideas.length > 0 || songs.length > 0;
+  }
+
+  async function buildAccountMigrationPayload(){
+    const media = {};
+    for(const idea of ideas){
+      const key = idea?.visual?.mediaKey;
+      if(!key) continue;
+      const blob = await getMediaBlob(key);
+      if(blob) media[key] = {
+        blob,
+        mimeType: blob.type || idea?.visual?.mimeType || "application/octet-stream",
+        ideaId: idea.id
+      };
+    }
+    return {
+      migrationVersion: 1,
+      createdAt: new Date().toISOString(),
+      state: buildAppState(),
+      media
+    };
+  }
+
+  async function checkForAccountMigration(){
+    const adapter = window.MosaicAccountSync;
+    if(!adapter || typeof adapter.isAuthenticated !== "function" || typeof adapter.uploadLocalLibrary !== "function"){
+      renderSettingsStatus();
+      return false;
+    }
+    if(accountMigration.completed || !hasLocalLibraryForMigration()) return false;
+    let signedIn = false;
+    try{ signedIn = await adapter.isAuthenticated(); }
+    catch(err){ console.warn("Mosaic could not check account status", err); return false; }
+    if(!signedIn || migrationPromptShown) return false;
+    migrationPromptShown = true;
+    const ideaCount = ideas.length;
+    const songCount = songs.length;
+    const accepted = confirm(`We found ${ideaCount} idea${ideaCount === 1 ? "" : "s"} and ${songCount} song${songCount === 1 ? "" : "s"} saved on this device. Add them to your Mosaic account?`);
+    if(!accepted) return false;
+    try{
+      showToast("Moving your local library to your account…");
+      const payload = await buildAccountMigrationPayload();
+      const result = await adapter.uploadLocalLibrary(payload);
+      accountMigration = {
+        completed:true,
+        completedAt:new Date().toISOString(),
+        accountId: result?.accountId || null
+      };
+      saveAppState(true);
+      renderSettingsStatus();
+      showToast("Local library added to your account");
+      return true;
+    } catch(err){
+      console.error("Account migration failed", err);
+      migrationPromptShown = false;
+      showToast("Your local library is still safe on this device");
+      return false;
+    }
+  }
+
+  async function requestAccountMigration(){
+    const adapter = window.MosaicAccountSync;
+    if(!adapter){
+      showToast("Account sync will be available in a future release");
+      return;
+    }
+    migrationPromptShown = false;
+    const moved = await checkForAccountMigration();
+    if(!moved && accountMigration.completed) showToast("This library is already linked to your account");
+  }
+
+  async function exportMosaicBackup(){
+    try{
+      saveAppState(true);
+      const media = {};
+      for(const idea of ideas){
+        const key = idea?.visual?.mediaKey;
+        if(!key) continue;
+        const blob = await getMediaBlob(key);
+        if(blob) media[key] = await blobToDataUrl(blob);
+      }
+      const backup = { format:"mosaic-backup", backupVersion:1, exportedAt:new Date().toISOString(), appVersion:"0.30", state:buildAppState(), media };
+      const blob = new Blob([JSON.stringify(backup)], { type:"application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const stamp = new Date().toISOString().slice(0,10);
+      a.href = url; a.download = `Mosaic_Backup_${stamp}.mosaic.json`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      showToast("Backup exported");
+    } catch(err){
+      console.error("Backup export failed", err);
+      showToast("Backup could not be exported");
+    }
+  }
+
+  async function importMosaicBackup(file){
+    if(!file) return;
+    try{
+      const parsed = JSON.parse(await file.text());
+      if(parsed?.format !== "mosaic-backup" || !parsed.state || !Array.isArray(parsed.state.ideas) || !Array.isArray(parsed.state.songs)) throw new Error("Not a valid Mosaic backup");
+      if(!confirm("Importing this backup will replace the library currently stored on this device. Continue?")) return;
+      const state = parsed.state;
+      ideas.forEach(i => { if(i?.visual?.url) try{ URL.revokeObjectURL(i.visual.url); }catch(err){} });
+      ideas = state.ideas; songs = state.songs;
+      preferences = { ...defaultPreferences, ...(state.preferences || {}) };
+      accountMigration = { completed:false, completedAt:null, accountId:null, ...(state.accountMigration || {}) };
+      ideaSeq = Number(state.ideaSeq) || Math.max(0, ...ideas.map(i => Number(String(i.id || "").match(/idea-(\d+)/)?.[1]) || 0));
+      songSeq = Number(state.songSeq) || Math.max(0, ...songs.map(x => Number(String(x.id || "").match(/song-(\d+)/)?.[1]) || 0));
+      lastTouchedSongId = state.lastTouchedSongId || null;
+      const media = parsed.media || {};
+      for(const [key, dataUrl] of Object.entries(media)) await putMediaBlob(key, dataUrlToBlob(dataUrl));
+      await cleanupOrphanedMedia();
+      await hydrateMediaUrls();
+      saveFailure = null;
+      saveAppState(true); applyTheme(); renderSettingsStatus(); renderDashboard();
+      goTo("dashboard", false);
+      showToast("Backup restored");
+    } catch(err){
+      console.error("Backup import failed", err);
+      showToast("That backup could not be restored");
     }
   }
 
@@ -1740,6 +1927,7 @@
           ideas = state.ideas;
           songs = state.songs;
           preferences = { ...defaultPreferences, ...(state.preferences || {}) };
+          accountMigration = { completed:false, completedAt:null, accountId:null, ...(state.accountMigration || {}) };
           ideaSeq = Number(state.ideaSeq) || Math.max(0, ...ideas.map(i => Number(String(i.id || "").match(/idea-(\d+)/)?.[1]) || 0));
           songSeq = Number(state.songSeq) || Math.max(0, ...songs.map(s => Number(String(s.id || "").match(/song-(\d+)/)?.[1]) || 0));
           lastTouchedSongId = state.lastTouchedSongId || null;
@@ -1768,7 +1956,7 @@
     document.addEventListener("visibilitychange", () => {
       if(document.visibilityState === "hidden") saveAppState(true);
     });
-    window.addEventListener("beforeunload", () => saveAppState(true));
+    window.addEventListener("beforeunload", () => { finalizePendingUndo(); saveAppState(true); });
   }
 
   // ---------- navigation ----------
@@ -2610,7 +2798,34 @@
     if(byId("prefVideoQuality")) byId("prefVideoQuality").value = preferences.videoQuality;
     if(byId("settingsIdeaCount")) byId("settingsIdeaCount").textContent = ideas.length;
     if(byId("settingsSongCount")) byId("settingsSongCount").textContent = songs.length;
-    if(byId("settingsLastSaved")) byId("settingsLastSaved").textContent = lastSavedAt ? lastSavedAt.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"}) : "Saved locally";
+    const migrationStatus = byId("settingsMigrationStatus");
+    const migrationText = byId("settingsMigrationText");
+    if(migrationStatus) migrationStatus.textContent = accountMigration.completed ? "Moved" : (hasLocalLibraryForMigration() ? "Ready" : "No local data");
+    if(migrationText){
+      migrationText.textContent = accountMigration.completed
+        ? "This device library has been added to your Mosaic account."
+        : (hasLocalLibraryForMigration()
+          ? "Your local library is ready to move into a future Mosaic account—no manual export required."
+          : "Ideas saved on this device will be detected automatically when account support arrives.");
+    }
+    if(byId("settingsLastSaved")) byId("settingsLastSaved").textContent = saveFailure ? "Save failed" : (lastSavedAt ? lastSavedAt.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"}) : "Saved locally");
+    const alert = byId("saveFailureAlert");
+    if(alert) alert.style.display = saveFailure ? "block" : "none";
+    updateStorageStatus();
+  }
+
+  async function updateStorageStatus(){
+    const text = document.getElementById("settingsStorageText");
+    const fill = document.getElementById("settingsStorageFill");
+    if(!text || !fill) return;
+    try{
+      if(!navigator.storage?.estimate){ text.textContent = "Storage details are unavailable in this browser."; return; }
+      const { usage=0, quota=0 } = await navigator.storage.estimate();
+      const mb = n => (n / 1048576).toFixed(n >= 104857600 ? 0 : 1);
+      const pct = quota ? Math.min(100, usage / quota * 100) : 0;
+      text.textContent = `${mb(usage)} MB used${quota ? ` of about ${mb(quota)} MB available` : ""}.`;
+      fill.style.width = `${pct}%`;
+    } catch(err){ text.textContent = "Storage details could not be read."; }
   }
 
   function openSettings(){
@@ -3629,21 +3844,24 @@
     const idea = ideas.find(i => i.id === activeIdeaId);
     document.getElementById("deleteIdeaOverlay").classList.remove("show");
     if(!idea) return;
-
-    // release the active URL and remove the durable media blob for this idea
-    if(idea.visual && idea.visual.url){
-      try{ URL.revokeObjectURL(idea.visual.url); } catch(err){}
-    }
-    if(idea.visual && idea.visual.mediaKey){
-      deleteMediaBlob(idea.visual.mediaKey).catch(err => console.error("Could not remove stored media", err));
-    }
-    // detach from every song that referenced it — songs themselves stay
+    finalizePendingUndo();
+    const ideaIndex = ideas.findIndex(i => i.id === idea.id);
+    const songLinks = songs.map(s => ({ id:s.id, index:s.ideaIds.indexOf(idea.id) })).filter(x => x.index >= 0);
     songs.forEach(s => { s.ideaIds = s.ideaIds.filter(id => id !== idea.id); });
-    // remove from the library
-    ideas = ideas.filter(i => i.id !== idea.id);
+    ideas.splice(ideaIndex, 1);
     activeIdeaId = null;
-
-    showToast("Idea deleted");
+    pendingUndo = {
+      label:"Idea deleted",
+      undo(){
+        ideas.splice(Math.min(ideaIndex, ideas.length), 0, idea);
+        songLinks.forEach(link => { const song=songs.find(x=>x.id===link.id); if(song && !song.ideaIds.includes(idea.id)) song.ideaIds.splice(Math.min(link.index, song.ideaIds.length),0,idea.id); });
+      },
+      finalize(){
+        if(idea.visual?.url) try{ URL.revokeObjectURL(idea.visual.url); }catch(err){}
+        if(idea.visual?.mediaKey) deleteMediaBlob(idea.visual.mediaKey).catch(err => console.error("Could not remove stored media", err));
+      }
+    };
+    scheduleUndo();
     goBack();
   }
 
@@ -3774,10 +3992,14 @@
     document.getElementById("deleteSongOverlay").classList.remove("show");
     const song = songs.find(s => s.id === currentSongWorkspaceId);
     if(!song) return;
-    songs = songs.filter(s => s.id !== currentSongWorkspaceId);
-    if(lastTouchedSongId === currentSongWorkspaceId) lastTouchedSongId = null;
+    finalizePendingUndo();
+    const songIndex = songs.findIndex(s => s.id === song.id);
+    const previousLastTouched = lastTouchedSongId;
+    songs.splice(songIndex, 1);
+    if(lastTouchedSongId === song.id) lastTouchedSongId = null;
     currentSongWorkspaceId = null;
-    showToast(`"${song.title}" deleted — your ideas are still safe`);
+    pendingUndo = { label:`"${song.title}" deleted`, undo(){ songs.splice(Math.min(songIndex,songs.length),0,song); lastTouchedSongId=previousLastTouched; }, finalize(){} };
+    scheduleUndo("Your ideas are still safe");
     goBack();
   }
 
@@ -3996,12 +4218,40 @@
     }
     showToast("🌱 Planted");
   }
-  function showToast(msg){
+  function showToast(msg, actionLabel, action){
     const t = document.getElementById("toast");
-    t.textContent = msg;
+    const message = document.getElementById("toastMessage");
+    const button = document.getElementById("toastAction");
+    message.textContent = msg;
+    if(actionLabel && action){
+      button.textContent = actionLabel; button.style.display = "inline"; button.onclick = action;
+    } else { button.style.display = "none"; button.onclick = null; }
     t.classList.add("show");
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
+    toastTimer = setTimeout(() => t.classList.remove("show"), action ? 8000 : 2200);
+  }
+
+  function scheduleUndo(extra){
+    clearTimeout(undoTimer);
+    showToast(`${pendingUndo.label}${extra ? ` — ${extra}` : ""}`, "Undo", undoPendingDelete);
+    undoTimer = setTimeout(finalizePendingUndo, 8000);
+  }
+
+  function undoPendingDelete(){
+    if(!pendingUndo) return;
+    clearTimeout(undoTimer);
+    const item = pendingUndo; pendingUndo = null;
+    item.undo();
+    saveAppState(true); renderDashboard(); renderSettingsStatus();
+    showToast("Restored");
+  }
+
+  function finalizePendingUndo(){
+    if(!pendingUndo) return;
+    clearTimeout(undoTimer);
+    const item = pendingUndo; pendingUndo = null;
+    try{ item.finalize(); }catch(err){ console.warn("Could not finish deletion", err); }
+    saveAppState(true);
   }
 
   async function initializeMosaic(){
@@ -4013,7 +4263,9 @@
     attachChordListenButton("chordInputListen", "chordInputField");
     renderDashboard();
     renderSettingsStatus();
+    cleanupOrphanedMedia();
     installAutosave();
+    setTimeout(() => checkForAccountMigration(), 500);
   }
 
   initializeMosaic().catch(err => {
