@@ -378,7 +378,15 @@
     margin-bottom:10px;
   }
   .idea-card h4{ font-family:'Inter',sans-serif; font-size:13px; font-weight:600; color:var(--forest); margin:0 0 4px; }
-  .idea-card p{ font-size:11px; color:#8b8b8b; margin:0; }
+  .idea-card p{ font-size:11px; color:#8b8b8b; margin:0; line-height:1.35; }
+  .idea-card-date{ margin-top:7px !important; color:var(--meadow) !important; font-weight:600; }
+  .library-row-actions{ margin-left:auto; display:flex; align-items:center; align-self:stretch; }
+  .library-delete-btn{
+    width:34px; height:34px; border:0; border-radius:10px; background:transparent; color:#9b5b55;
+    cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .library-delete-btn:hover{ background:rgba(192,69,63,.10); color:#a23832; }
+  .idea-date-line{ margin-top:6px; font-size:11px; color:var(--meadow); font-weight:600; }
 
   .song-list{ display:flex; flex-direction:column; gap:10px; margin-bottom:24px; }
   .song-item{
@@ -926,6 +934,22 @@
     white-space:nowrap;
   }
   .toast.show{ opacity:1; transform:translate(-50%, 0); pointer-events:auto; }
+
+  .home-jump{width:34px;height:34px;border:1px solid var(--line);border-radius:50%;background:transparent;color:inherit;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;line-height:1;}
+  .idea-date-line{font-size:11px;color:var(--meadow);margin-top:5px;}
+  .ear-row{display:flex;align-items:center;gap:10px;margin:6px 0 14px;}
+  .ear-status{font-size:11.5px;color:var(--slate);line-height:1.35;}
+
+  .header-add-btn{
+    width:34px;height:34px;border:1px solid var(--line);border-radius:50%;
+    background:var(--forest);color:var(--cream);display:flex;align-items:center;justify-content:center;
+    cursor:pointer;font:500 22px/1 Inter,sans-serif;padding:0 0 2px;box-shadow:0 4px 12px rgba(20,39,32,.12);
+  }
+  .header-add-btn:hover{transform:translateY(-1px);}
+  .header-add-btn:active{transform:translateY(0);}
+  :root[data-theme="dark"] .header-add-btn{background:var(--harvest);color:#142720;border-color:var(--harvest);}
+  .header-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+
 </style>
 </head>
 <body>
@@ -1047,11 +1071,14 @@
     <div class="app-header">
       <div class="back" onclick="goBack()">&#8592;</div>
       <div class="eyebrow">All Ideas</div>
-      <div style="width:34px;"></div>
+      <button type="button" class="home-jump" onclick="goHome()" aria-label="Go to dashboard" title="Home">⌂</button>
     </div>
     <div class="scroll-area">
-      <input type="text" id="ideaSearchInput" class="field-input" placeholder="Search titles, tags, mood, lyrics, chords…" style="margin-bottom:14px;" oninput="renderAllIdeasList()">
+      <input type="text" id="ideaSearchInput" class="field-input" placeholder="Search date, title, type, mood, tags…" style="margin-bottom:14px;" oninput="renderAllIdeasList()">
       <div id="allIdeasList"></div>
+    </div>
+    <div class="detail-footer">
+      <button type="button" class="btn btn-primary" onclick="openIdeaCaptureFromLibrary()">&#65291; New Idea</button>
     </div>
   </div>
 
@@ -1060,7 +1087,7 @@
     <div class="app-header">
       <div class="back" onclick="goBack()">&#8592;</div>
       <div class="eyebrow">All Songs</div>
-      <div style="width:34px;"></div>
+      <button type="button" class="home-jump" onclick="goHome()" aria-label="Go to dashboard" title="Home">⌂</button>
     </div>
     <div class="scroll-area">
       <input type="text" id="songSearchInput" class="field-input" placeholder="Search song titles, tags, mood…" style="margin-bottom:14px;" oninput="renderAllSongsList()">
@@ -1147,7 +1174,11 @@
       <span class="field-label">Strings</span>
       <div class="detail-meta light" id="composeTabStringToggles"></div>
       <div class="tab-fret-inputs" id="composeTabFretInputs"></div>
-      <button type="button" class="btn-add" style="width:100%; margin:4px 0 14px;" onclick="addTabStep()">Add Note</button>
+      <button type="button" class="btn-add" style="width:100%; margin:4px 0 10px;" onclick="addTabStep()">Add Note</button>
+      <div class="ear-row">
+        <button type="button" class="mic-btn" id="tabEarBtn" style="width:auto;border-radius:10px;padding:0 14px;height:34px;font-size:12px;font-weight:700;" onclick="toggleTabEar()">👂 Listen to riff</button>
+        <span class="ear-status" id="tabEarStatus">Experimental: play a clear single-note riff. Press Stop when finished.</span>
+      </div>
 
       <span class="field-label">Line</span>
       <div class="chord-chip-wrap" id="composeTabStepsList"></div>
@@ -1544,8 +1575,8 @@
       <section class="settings-group">
         <h3>About</h3>
         <div class="settings-card">
-          <div class="setting-row"><div class="setting-copy"><span class="setting-label">Mosaic</span><span class="setting-note">Plant ideas. Grow songs.</span></div><strong>v0.31</strong></div>
-          <div class="setting-row" role="button" tabindex="0" onclick="goTo('releaseNotes')" style="cursor:pointer;"><div class="setting-copy"><span class="setting-label">What's new</span><span class="setting-note">Release notes for v0.31 Foundation.</span></div><strong>›</strong></div>
+          <div class="setting-row"><div class="setting-copy"><span class="setting-label">Mosaic</span><span class="setting-note">Plant ideas. Grow songs.</span></div><strong>v0.37</strong></div>
+          <div class="setting-row" role="button" tabindex="0" onclick="goTo('releaseNotes')" style="cursor:pointer;"><div class="setting-copy"><span class="setting-label">What's new</span><span class="setting-note">Release notes for v0.37 Media Engine.</span></div><strong>›</strong></div>
           <div class="setting-row" role="button" tabindex="0" onclick="goTo('versionHistory')" style="cursor:pointer;"><div class="setting-copy"><span class="setting-label">Version history</span><span class="setting-note">See how Mosaic has grown.</span></div><strong>›</strong></div>
           <div class="setting-row"><div class="setting-copy"><span class="setting-label">By Meadow Works</span><span class="setting-note">Every great song begins with a single idea.</span></div></div>
           <div style="padding:16px 2px 2px;text-align:center;color:var(--meadow);font-size:12px;line-height:1.6;"><strong>Thank you for helping shape Mosaic.</strong><br>Thank you for planting your ideas here.</div>
@@ -1558,10 +1589,10 @@
   <div class="screen" id="releaseNotes">
     <div class="app-header"><div class="back" onclick="goBack()">&#8592;</div><div class="eyebrow">What's New</div><div style="width:38px;"></div></div>
     <div class="scroll-area">
-      <div style="padding:6px 0 20px;"><h2 style="font-size:30px;">v0.31 Foundation</h2><p style="font-size:13px;line-height:1.6;margin-top:7px;">Stabilize. Document. Prepare.</p></div>
-      <section class="settings-group"><h3>New</h3><div class="settings-card"><p class="setting-note" style="font-size:13px;line-height:1.8;">• Release notes and version history<br>• Library Health diagnostics<br>• Versioned backup metadata and filenames<br>• Detailed import summaries<br>• Startup integrity checks</p></div></section>
-      <section class="settings-group"><h3>Improved</h3><div class="settings-card"><p class="setting-note" style="font-size:13px;line-height:1.8;">• Backup validation and compatibility messaging<br>• Media-reference repair and orphan cleanup<br>• Clearer reporting when restored media is incomplete</p></div></section>
-      <section class="settings-group"><h3>Fixed</h3><div class="settings-card"><p class="setting-note" style="font-size:13px;line-height:1.8;">• Audio and video reconnect correctly after backup import<br>• Restored video ideas appear in the detail view<br>• Playback URLs regenerate after restoration</p></div></section>
+      <div style="padding:6px 0 20px;"><h2 style="font-size:30px;">v0.37.1 Video Import Fix</h2><p style="font-size:13px;line-height:1.6;margin-top:7px;">Corrects video backup decoding when the saved WebM codec declaration contains a comma, restoring imported video playback and eliminating the false one-item missing-media warning.</p></div>
+      <section class="settings-group"><h3>New</h3><div class="settings-card"><p class="setting-note" style="font-size:13px;line-height:1.8;">• Added a full-width + New Idea action at the bottom of All Ideas<br>• Kept the full-width New Song action at the bottom of All Songs<br>• Removed creation buttons from both library headers<br>• Headers now remain focused on Back and Home navigation</p></div></section>
+      <section class="settings-group"><h3>Added</h3><div class="settings-card"><p class="setting-note" style="font-size:13px;line-height:1.8;">• Continuous Listen to Riff mode for Tab ideas<br>• Automatic separation of notes using silence and stable pitch changes<br>• Live note count and last-note feedback<br>• Suggested low-fret guitar tab added directly to the line</p></div></section>
+      <section class="settings-group"><h3>Notes</h3><div class="settings-card"><p class="setting-note" style="font-size:13px;line-height:1.8;">• Designed for clear, single-note riffs<br>• Exact guitar string choice is suggested, not detected<br>• Chords, bends, slides, and heavily distorted playing may need manual correction</p></div></section>
       <section class="settings-group"><h3>Known limitations</h3><div class="settings-card"><p class="setting-note" style="font-size:13px;line-height:1.8;">Libraries remain stored on this device until account sync is introduced. Export backups regularly.</p></div></section>
     </div>
   </div>
@@ -1572,7 +1603,13 @@
     <div class="scroll-area">
       <div style="padding:6px 0 20px;"><h2 style="font-size:30px;">How Mosaic has grown.</h2></div>
       <section class="settings-group"><div class="settings-card">
-        <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.31.2 — Import Hotfix</span><span class="setting-note">Release notes, diagnostics, versioned backups, integrity checks, and import summaries.</span></div></div>
+        <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.37 — Media Engine</span><span class="setting-note">Verified backup media restoration, fresh playback URLs, exact post-import health checks, and corrected backup version metadata.</span></div></div>
+        <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.36 — Riff Listener</span><span class="setting-note">Continuously captures clear single-note riffs and converts detected pitches into editable suggested guitar tab.</span></div></div>
+        <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.35 — UI Consistency</span><span class="setting-note">Moves New Idea and New Song actions to matching bottom action bars while keeping headers dedicated to navigation.</span></div></div>
+        <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.34.1 — Header Buttons Hotfix</span><span class="setting-note">Fixes a header conflict that caused Home to replace the new + controls.</span></div></div>
+        <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.33.1 — Video Import Hotfix</span><span class="setting-note">Reconnects legacy backup video records to their ideas and reports unsupported source codecs separately from missing media.</span></div></div>
+        <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.33 — Idea Library</span><span class="setting-note">Friendly dates on idea cards, direct deletion from See All with Undo, blank mood defaults everywhere, and clearer Mood and Tags organization.</span></div></div>
+        <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.32 — Usability & Search</span><span class="setting-note">Blank mood defaults, broader tags, dashboard shortcuts, visible and searchable dates, experimental single-note tab listening, and stronger imported-video restoration.</span></div></div>
         <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.30 — Library Safety</span><span class="setting-note">Backup and restore, undo delete, storage awareness, migration readiness, and media restore fixes.</span></div></div>
         <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.20 — Foundations</span><span class="setting-note">Preferences, themes, personalized greetings, and Mosaic's growth-centered voice.</span></div></div>
         <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.10 — Prototype</span><span class="setting-note">Initial idea capture, playback, song workspace, matching, and dashboard.</span></div></div>
@@ -1753,6 +1790,31 @@
     });
   }
 
+
+  async function clearMediaStore(){
+    const db = await openMediaDb();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(MOSAIC_MEDIA_STORE, "readwrite");
+      tx.objectStore(MOSAIC_MEDIA_STORE).clear();
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error || new Error("Could not reset media storage"));
+    });
+  }
+
+  async function snapshotMediaStore(){
+    const snapshot = new Map();
+    for(const key of await getAllMediaKeys()){
+      const blob = await getMediaBlob(key);
+      if(blob) snapshot.set(key, blob);
+    }
+    return snapshot;
+  }
+
+  async function restoreMediaSnapshot(snapshot){
+    await clearMediaStore();
+    for(const [key, blob] of snapshot || []) await putMediaBlob(key, blob);
+  }
+
   async function cleanupOrphanedMedia(){
     try{
       const valid = new Set(ideas.map(i => i?.visual?.mediaKey).filter(Boolean));
@@ -1812,10 +1874,18 @@
   }
 
   function dataUrlToBlob(dataUrl){
-    const parts = String(dataUrl).split(",");
-    const meta = parts[0] || "";
-    const mime = (meta.match(/data:([^;]+)/) || [])[1] || "application/octet-stream";
-    const binary = atob(parts[1] || "");
+    const source = String(dataUrl || "");
+    // Do not split on every comma: codec parameters such as
+    // video/webm;codecs=vp8,opus contain a comma before the payload.
+    const base64Marker = ";base64,";
+    const markerIndex = source.indexOf(base64Marker);
+    if(!source.startsWith("data:") || markerIndex < 0){
+      throw new Error("Unsupported media data URL");
+    }
+    const meta = source.slice(0, markerIndex);
+    const payload = source.slice(markerIndex + base64Marker.length);
+    const mime = (meta.match(/^data:([^;]+)/) || [])[1] || "application/octet-stream";
+    const binary = atob(payload);
     const bytes = new Uint8Array(binary.length);
     for(let i=0;i<binary.length;i++) bytes[i] = binary.charCodeAt(i);
     return new Blob([bytes], { type:mime });
@@ -1896,7 +1966,7 @@
   function normalizeMediaIdea(idea){
     if(!idea) return null;
     if(!idea.visual) idea.visual = {};
-    const inferredKind = idea.visual.kind || (idea.type === "audio" || idea.type === "video" ? idea.type : null);
+    const inferredKind = (idea.type === "audio" || idea.type === "video") ? idea.type : idea.visual.kind;
     if(inferredKind === "audio" || inferredKind === "video"){
       idea.visual.kind = inferredKind;
       if(!idea.visual.mediaKey && idea.id) idea.visual.mediaKey = "media-" + idea.id;
@@ -1924,8 +1994,8 @@
         format:"mosaic-backup",
         backupVersion:3,
         exportedAt:new Date().toISOString(),
-        appVersion:"0.31.2",
-        releaseName:"Import Hotfix",
+        appVersion:"0.37.1",
+        releaseName:"Video Import Fix",
         platform:navigator.userAgent,
         state:buildAppState(),
         media
@@ -1934,7 +2004,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       const stamp = new Date().toISOString().slice(0,10);
-      a.href = url; a.download = `Mosaic_Backup_v0.31.2_${stamp}.mosaic.json`;
+      a.href = url; a.download = `Mosaic_Backup_v0.37.1_${stamp}.mosaic.json`;
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
       maintenance.lastBackupAt = new Date().toISOString(); saveAppState(true); renderSettingsStatus(); showToast("Backup exported");
@@ -1982,7 +2052,8 @@
     backupImportInProgress = true;
     const previous = {
       ideas, songs, preferences, accountMigration, maintenance,
-      ideaSeq, songSeq, lastTouchedSongId
+      ideaSeq, songSeq, lastTouchedSongId,
+      mediaSnapshot: await snapshotMediaStore()
     };
     try{
       showToast("Reading backup…");
@@ -1998,31 +2069,78 @@
       if(backupVersion > 3) throw new Error("This backup was created by a newer version of Mosaic and cannot be imported here.");
       if(!confirm(`Import ${state.ideas.length} idea${state.ideas.length===1?"":"s"} and ${state.songs.length} song${state.songs.length===1?"":"s"}? This will replace the library currently stored on this device.`)) return;
 
-      const nextIdeas = state.ideas.map(i => normalizeMediaIdea(JSON.parse(JSON.stringify(i))));
+      const importStamp = parsed.exportedAt || new Date().toISOString();
+      const nextIdeas = state.ideas.map(i => { const copy=normalizeMediaIdea(JSON.parse(JSON.stringify(i))); if(!copy.createdAt) copy.createdAt=importStamp; return copy; });
       const nextSongs = JSON.parse(JSON.stringify(state.songs));
       ideas = nextIdeas; songs = nextSongs;
       preferences = { ...defaultPreferences, ...(state.preferences || {}) };
       accountMigration = { completed:false, completedAt:null, accountId:null, ...(state.accountMigration || {}) };
-      maintenance = { lastBackupAt:null, lastImportAt:null, lastIntegrityCheckAt:null, lastIntegrityReport:null, ...(state.maintenance || {}) };
+      maintenance = { lastBackupAt:state.maintenance?.lastBackupAt || null, lastImportAt:null, lastIntegrityCheckAt:null, lastIntegrityReport:null };
       ideaSeq = Number(state.ideaSeq) || Math.max(0, ...ideas.map(i => Number(String(i.id || "").match(/idea-(\d+)/)?.[1]) || 0));
       songSeq = Number(state.songSeq) || Math.max(0, ...songs.map(x => Number(String(x.id || "").match(/song-(\d+)/)?.[1]) || 0));
       lastTouchedSongId = state.lastTouchedSongId || null;
 
-      const media = parsed.media && typeof parsed.media === "object" ? parsed.media : {};
+      const rawMedia = parsed.media && typeof parsed.media === "object" ? parsed.media : {};
+      const mediaEntries = Array.isArray(rawMedia)
+        ? rawMedia.map((stored, index) => [stored?.mediaKey || stored?.key || `legacy-media-${index}`, stored])
+        : Object.entries(rawMedia);
       let restoredMediaCount = 0;
       let failedMediaCount = 0;
-      for(const [originalKey, stored] of Object.entries(media)){
+      const claimedIdeaIds = new Set();
+
+      function inferImportedMediaKind(originalKey, record){
+        if(record?.kind === "audio" || record?.kind === "video") return record.kind;
+        const mime = String(record?.mimeType || record?.type || record?.dataUrl || "").toLowerCase();
+        if(mime.includes("video/")) return "video";
+        if(mime.includes("audio/")) return "audio";
+        const keyText = String(originalKey || "").toLowerCase();
+        if(keyText.includes("video")) return "video";
+        if(keyText.includes("audio")) return "audio";
+        return null;
+      }
+
+      function findImportedMediaIdea(originalKey, record, kind){
+        let idea = ideas.find(i => i.id === record?.ideaId);
+        if(!idea) idea = ideas.find(i => i?.visual?.mediaKey === originalKey);
+        if(!idea) idea = ideas.find(i => ("media-" + i.id) === originalKey);
+        if(!idea && record?.mediaKey) idea = ideas.find(i => i?.visual?.mediaKey === record.mediaKey);
+        // Legacy backups sometimes embedded the bytes without an ideaId or matching mediaKey.
+        // Pair those records to the first still-unclaimed media idea of the same kind.
+        if(!idea && kind){
+          idea = ideas.find(i => !claimedIdeaIds.has(i.id) && (i.type === kind || i?.visual?.kind === kind));
+        }
+        return idea || null;
+      }
+
+      // The backup is now parsed and structurally valid. Replace the media library
+      // as one exact set so old blobs cannot masquerade as restored items.
+      await clearMediaStore();
+
+      for(const [originalKey, stored] of mediaEntries){
         try{
           const record = typeof stored === "string" ? { dataUrl:stored } : (stored || {});
-          const idea = ideas.find(i => i.id === record.ideaId) || ideas.find(i => i?.visual?.mediaKey === originalKey) || ideas.find(i => ("media-" + i.id) === originalKey);
-          const key = idea?.visual?.mediaKey || originalKey;
+          record.dataUrl = record.dataUrl || record.data || record.base64 || (typeof record.url === "string" && record.url.startsWith("data:") ? record.url : null);
+          const inferredKind = inferImportedMediaKind(originalKey, record);
+          const idea = findImportedMediaIdea(originalKey, record, inferredKind);
+          const key = idea ? (idea.visual.mediaKey || ("media-" + idea.id)) : (record.mediaKey || originalKey);
           if(!key || !record.dataUrl) { failedMediaCount++; continue; }
-          if(idea && !idea.visual.mediaKey) idea.visual.mediaKey = key;
-          if(idea && (record.kind === "audio" || record.kind === "video")) idea.visual.kind = record.kind;
-          const mediaBlob = dataUrlToBlob(record.dataUrl);
+          if(idea){
+            claimedIdeaIds.add(idea.id);
+            idea.visual.mediaKey = key;
+            if(inferredKind) idea.visual.kind = inferredKind;
+          }
+          let mediaBlob = dataUrlToBlob(record.dataUrl);
           if(!mediaBlob.size) throw new Error("Empty media item");
-          if(idea) idea.visual.mimeType = mediaBlob.type || record.mimeType || idea.visual.mimeType;
+          const kind = inferredKind || idea?.visual?.kind;
+          let resolvedType = mediaBlob.type || record.mimeType || record.type || idea?.visual?.mimeType || "";
+          if(!resolvedType || resolvedType === "application/octet-stream"){
+            resolvedType = kind === "video" ? "video/webm" : kind === "audio" ? "audio/webm" : "application/octet-stream";
+            mediaBlob = new Blob([mediaBlob], { type: resolvedType });
+          }
+          if(idea){ idea.visual.kind = kind || idea.visual.kind; idea.visual.mimeType = resolvedType; }
           await putMediaBlob(key, mediaBlob);
+          const verifiedBlob = await getMediaBlob(key);
+          if(!verifiedBlob || verifiedBlob.size !== mediaBlob.size) throw new Error("Media verification failed");
           restoredMediaCount++;
         } catch(mediaError){
           failedMediaCount++;
@@ -2034,22 +2152,26 @@
       const hydratedMediaCount = await hydrateMediaUrls();
       saveFailure = null;
       maintenance.lastImportAt = new Date().toISOString();
-      await runIntegrityCheck(false);
-      saveAppState(true);
+      maintenance.lastIntegrityCheckAt = null;
+      maintenance.lastIntegrityReport = null;
       await cleanupOrphanedMedia();
+      const freshIntegrityReport = await runIntegrityCheck(false);
+      saveAppState(true);
       applyTheme(); renderSettingsStatus(); renderDashboard();
       goTo("dashboard", false);
 
       const expectedMediaCount = ideas.filter(i => i?.visual?.kind === "audio" || i?.visual?.kind === "video").length;
       const audioCount = ideas.filter(i => i?.visual?.kind === "audio").length;
       const videoCount = ideas.filter(i => i?.visual?.kind === "video").length;
-      const missingCount = Math.max(failedMediaCount, expectedMediaCount - hydratedMediaCount);
+      const missingCount = Math.max(failedMediaCount, Number(freshIntegrityReport?.counts?.missingMedia || 0), expectedMediaCount - hydratedMediaCount);
       showImportSummary({ ideas:ideas.length, songs:songs.length, audio:audioCount, video:videoCount, missing:missingCount });
       showToast(missingCount ? `Imported with ${missingCount} media warning${missingCount===1?"":"s"}` : (restoredMediaCount ? "Backup and media restored" : "Backup restored"));
     } catch(err){
       ideas = previous.ideas; songs = previous.songs; preferences = previous.preferences;
       accountMigration = previous.accountMigration; maintenance = previous.maintenance;
       ideaSeq = previous.ideaSeq; songSeq = previous.songSeq; lastTouchedSongId = previous.lastTouchedSongId;
+      try{ await restoreMediaSnapshot(previous.mediaSnapshot); await hydrateMediaUrls(); }
+      catch(restoreError){ console.error("Mosaic could not restore the previous media library", restoreError); }
       console.error("Backup import failed", err);
       const message = err && err.message ? err.message : "An unknown import error occurred.";
       alert(`Mosaic could not import this backup.\n\n${message}\n\nYour current library has not been replaced.`);
@@ -2068,9 +2190,11 @@
       if(visual.url){ try{ URL.revokeObjectURL(visual.url); }catch(err){} delete visual.url; }
       try{
         const blob = await getMediaBlob(visual.mediaKey);
-        if(blob){
-          visual.mimeType = blob.type || visual.mimeType || "application/octet-stream";
+        if(blob && blob.size){
+          visual.kind = idea.type === "video" ? "video" : idea.type === "audio" ? "audio" : visual.kind;
+          visual.mimeType = blob.type || visual.mimeType || (visual.kind === "video" ? "video/webm" : visual.kind === "audio" ? "audio/webm" : "application/octet-stream");
           visual.url = URL.createObjectURL(blob);
+          visual.mediaSize = blob.size;
           hydrated++;
         }
       } catch(err){
@@ -2813,8 +2937,13 @@
     } else if(v.kind === "video"){
       box.className = "";
       box.innerHTML = v.url
-        ? `<video controls playsinline webkit-playsinline class="video-preview" style="max-width:100%;" src="${v.url}"></video>`
+        ? `<video controls playsinline webkit-playsinline preload="metadata" class="video-preview" style="max-width:100%;" src="${v.url}">Your browser cannot play this video format.</video><p id="videoPlaybackError" style="display:none;font-size:12px;color:rgba(244,241,232,.65);margin-top:8px;">The video bytes were restored, but this browser could not open the saved format. Try exporting this idea again from the device that recorded it.</p>`
         : `<p style="font-size:12px;color:rgba(244,241,232,.65);">Media is unavailable on this device.</p>`;
+      const restoredVideo = box.querySelector("video");
+      if(restoredVideo){
+        restoredVideo.addEventListener("error", () => { const msg=document.getElementById("videoPlaybackError"); if(msg) msg.style.display="block"; });
+        restoredVideo.load();
+      }
     } else if(v.kind === "lyric"){
       box.className = "";
       box.innerHTML = `<textarea class="lyric-edit" id="lyricEditArea" placeholder="Start typing…"></textarea>`;
@@ -3122,7 +3251,7 @@
         <div class="idea-card" onclick="openIdeaById('${idea.id}')">
           <div class="idea-tag">${ideaTypes[idea.type].icon}</div>
           <h4>${idea.title}</h4>
-          <p>${formatRelativeDate(idea.createdAt)}</p>
+          <p class="idea-card-date">${formatRelativeDate(idea.createdAt)}</p>
         </div>
       `).join("");
     }
@@ -3144,7 +3273,7 @@
   function songSummaryBadgesHtml(song){
     const attached = song.ideaIds.map(id => ideas.find(i => i.id === id)).filter(Boolean);
     if(attached.length === 0) return "";
-    const uniqueMoods = [...new Set(attached.map(i => i.mood))];
+    const uniqueMoods = [...new Set(attached.map(i => i.mood).filter(Boolean))];
     const uniqueTags = [...new Set(attached.flatMap(i => i.tags || []))];
     let badges = [
       ...uniqueMoods.map(m => `<span class="mini-mood">${m}</span>`),
@@ -3162,19 +3291,19 @@
   // ---------- all ideas ----------
   // ---------- dates ----------
   function formatRelativeDate(iso){
+    if(!iso) return "Date unavailable";
     const date = new Date(iso);
+    if(Number.isNaN(date.getTime())) return "Date unavailable";
     const now = new Date();
-    const diffMs = now - date;
-    const diffMin = Math.floor(diffMs / 60000);
-    const diffHr = Math.floor(diffMs / 3600000);
-    const diffDay = Math.floor(diffMs / 86400000);
-
-    if(diffMin < 1) return "just now";
-    if(diffMin < 60) return `${diffMin} minute${diffMin === 1 ? "" : "s"} ago`;
-    if(diffHr < 24) return `${diffHr} hour${diffHr === 1 ? "" : "s"} ago`;
-    if(diffDay === 1) return "yesterday";
-    if(diffDay < 7) return `${diffDay} days ago`;
-    return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const dayDiff = Math.round((startToday - startDate) / 86400000);
+    const time = date.toLocaleTimeString("en-US", { hour:"numeric", minute:"2-digit" });
+    if(dayDiff === 0) return `Today · ${time}`;
+    if(dayDiff === 1) return `Yesterday · ${time}`;
+    if(dayDiff > 1 && dayDiff < 7) return `${date.toLocaleDateString("en-US", { weekday:"long" })} · ${time}`;
+    if(date.getFullYear() === now.getFullYear()) return date.toLocaleDateString("en-US", { month:"short", day:"numeric" });
+    return date.toLocaleDateString("en-US", { month:"short", day:"numeric", year:"numeric" });
   }
 
   function dateSearchTerms(iso){
@@ -3190,11 +3319,15 @@
     terms.push(date.toLocaleDateString("en-US", { weekday: "long" })); // "Saturday"
     terms.push(String(date.getFullYear()));
     terms.push(String(date.getDate()));
+    terms.push(date.toISOString().slice(0,10));
+    terms.push(date.toLocaleDateString("en-US"));
+    terms.push(`${date.getMonth()+1}/${date.getDate()}`);
+    terms.push(`${date.toLocaleDateString("en-US", { month:"long" })} ${date.getDate()}`);
     return terms.join(" ").toLowerCase();
   }
 
   function ideaSearchableText(idea){
-    const parts = [idea.title, idea.mood, ...(idea.tags || []), idea.notes || ""];
+    const parts = [idea.title, idea.type, ideaTypes[idea.type]?.label || "", idea.mood || "", ...(idea.tags || []), idea.notes || "", "idea"];
     if(idea.visual){
       if(idea.visual.kind === "lyric") parts.push(idea.visual.data || "");
       if(idea.visual.kind === "chords") parts.push((idea.visual.data || []).join(" "));
@@ -3210,6 +3343,10 @@
     document.getElementById("ideaSearchInput").value = "";
     renderAllIdeasList();
     goTo("allIdeas");
+  }
+
+  function openIdeaCaptureFromLibrary(){
+    goTo("capture");
   }
 
   function renderAllIdeasList(){
@@ -3232,7 +3369,7 @@
       wrap.innerHTML = `
         <div class="empty-state">
           <h4>No matches.</h4>
-          <p>Try a different word — search checks titles, tags, mood, notes, lyrics, and chords.</p>
+          <p>Try a different word — search checks dates, titles, idea types, tags, mood, notes, lyrics, chords, and tab.</p>
         </div>`;
       return;
     }
@@ -3245,9 +3382,13 @@
           <div class="meta">
             <h4>${idea.title}</h4>
             <div class="song-idea-tags">
-              <span class="mini-mood">${idea.mood}</span>
+              ${idea.mood ? `<span class="mini-mood">${idea.mood}</span>` : ""}
               ${tagChips}
             </div>
+            <div class="idea-date-line">${formatRelativeDate(idea.createdAt)}</div>
+          </div>
+          <div class="library-row-actions">
+            <button type="button" class="library-delete-btn" title="Delete idea" aria-label="Delete ${idea.title}" onclick="event.stopPropagation(); deleteIdeaFromLibrary('${idea.id}')">🗑️</button>
           </div>
         </div>
       `;
@@ -3309,9 +3450,12 @@
   }
 
   function showNewSongInlineInput(){
-    document.getElementById("newSongInlineTriggerBtn").style.display = "none";
-    document.getElementById("newSongInlineInputRow").style.display = "block";
-    document.getElementById("newSongInlineTitleInput").focus();
+    const trigger = document.getElementById("newSongInlineTriggerBtn");
+    const row = document.getElementById("newSongInlineInputRow");
+    const input = document.getElementById("newSongInlineTitleInput");
+    if(trigger) trigger.style.display = "none";
+    if(row) row.style.display = "block";
+    if(input){ input.value = ""; requestAnimationFrame(() => input.focus()); }
   }
 
   function createSongFromAllSongs(){
@@ -3330,9 +3474,8 @@
       title = names[(names.indexOf(title) + 1) % names.length];
     }
     lastUsedTitle[type] = title;
-    const moods = ["bright","reflective","heavy","restless","tender"];
-    const mood = moods[Math.floor(Math.random() * moods.length)];
-    const tagPool = ["riff","verse","chorus","unfinished","drop-c","open-tuning","bridge"];
+    const mood = "";
+    const tagPool = ["riff","melody","rhythm","verse","pre-chorus","chorus","bridge","hook","intro","outro","solo","unfinished"];
     const tags = [tagPool[Math.floor(Math.random()*tagPool.length)], tagPool[Math.floor(Math.random()*tagPool.length)]];
     const idea = mkIdea(type, title, mood, [...new Set(tags)]);
     ideas.push(idea);
@@ -3340,8 +3483,8 @@
   }
 
   // ---------- compose (real input) ----------
-  const MOOD_OPTIONS = ["bright","reflective","heavy","restless","tender"];
-  const TAG_OPTIONS = ["riff","verse","chorus","bridge","hook","unfinished"];
+  const MOOD_OPTIONS = ["bright","hopeful","reflective","tender","peaceful","melancholy","restless","heavy","energetic","angry","dreamy","dark"];
+  const TAG_OPTIONS = ["riff","melody","rhythm","groove","verse","pre-chorus","chorus","bridge","hook","intro","outro","solo","instrumental","fingerpicking","acoustic","electric","open-tuning","alternate-tuning","unfinished"];
   let composeState = { type:null, mood:null, tags:new Set(), chords:[], tabSteps:[] };
 
   function openCompose(type){
@@ -3454,7 +3597,7 @@
     const title = document.getElementById("composeLyricsTitle").value.trim() || "Untitled idea";
     const text = document.getElementById("composeLyricsText").value.trim();
     if(!text){ showToast("Write a line or two first"); return; }
-    const mood = composeState.mood || "reflective";
+    const mood = composeState.mood || "";
     const tags = composeState.tags.size ? [...composeState.tags] : ["lyrics"];
     const idea = mkIdea("lyrics", title, mood, tags, { kind:"lyric", data:text });
     ideas.push(idea);
@@ -3464,7 +3607,7 @@
   function plantChordIdea(){
     const title = document.getElementById("composeChordsTitle").value.trim() || "Untitled idea";
     if(composeState.chords.length === 0){ showToast("Add at least one chord first"); return; }
-    const mood = composeState.mood || "reflective";
+    const mood = composeState.mood || "";
     const tags = composeState.tags.size ? [...composeState.tags] : ["chords"];
     const idea = mkIdea("chords", title, mood, tags, { kind:"chords", data:[...composeState.chords] });
     ideas.push(idea);
@@ -3673,7 +3816,7 @@
   async function plantUploadIdea(){
     const title = document.getElementById("composeUploadTitle").value.trim() || "Untitled idea";
     if(!uploadState.blobUrl || !uploadState.kind || !uploadState.file){ showToast("Choose a file first"); return; }
-    const mood = composeState.mood || "reflective";
+    const mood = composeState.mood || "";
     const tags = composeState.tags.size ? [...composeState.tags] : [uploadState.kind];
     const visual = uploadState.kind === "audio"
       ? { kind:"audio", url:uploadState.blobUrl, peaks:uploadState.peaks }
@@ -3718,7 +3861,7 @@
   async function plantAudioIdea(){
     const title = document.getElementById("composeAudioTitle").value.trim() || "Untitled idea";
     if(!audioRecordState.blobUrl || !audioRecordState.blob){ showToast("Record something first"); return; }
-    const mood = composeState.mood || "reflective";
+    const mood = composeState.mood || "";
     const tags = composeState.tags.size ? [...composeState.tags] : ["audio"];
     const idea = mkIdea("audio", title, mood, tags, { kind:"audio", url:audioRecordState.blobUrl, peaks:audioRecordState.peaks });
     try{
@@ -3880,7 +4023,7 @@
   async function plantVideoIdea(){
     const title = document.getElementById("composeVideoTitle").value.trim() || "Untitled idea";
     if(!videoRecordState.blobUrl || !videoRecordState.blob){ showToast("Record something first"); return; }
-    const mood = composeState.mood || "reflective";
+    const mood = composeState.mood || "";
     const tags = composeState.tags.size ? [...composeState.tags] : ["video"];
     const idea = mkIdea("video", title, mood, tags, { kind:"video", url:videoRecordState.blobUrl });
     try{
@@ -4026,7 +4169,7 @@
   function plantTabIdea(){
     const title = document.getElementById("composeTabTitle").value.trim() || "Untitled idea";
     if(composeState.tabSteps.length === 0){ showToast("Add at least one note first"); return; }
-    const mood = composeState.mood || "reflective";
+    const mood = composeState.mood || "";
     const tags = composeState.tags.size ? [...composeState.tags] : ["tab"];
     const idea = mkIdea("tab", title, mood, tags, { kind:"tab", data:[...composeState.tabSteps] });
     ideas.push(idea);
@@ -4050,9 +4193,8 @@
     document.getElementById("detailNotes").value = idea.notes || "";
     renderVisual(idea);
 
-    const moods = ["bright","reflective","heavy","restless","tender"];
     const chipsWrap = document.getElementById("moodChips");
-    chipsWrap.innerHTML = moods.map(m =>
+    chipsWrap.innerHTML = MOOD_OPTIONS.map(m =>
       `<span class="chip ${m === idea.mood ? 'selected' : ''}" onclick="setMood('${m}')">${m}</span>`
     ).join("");
 
@@ -4060,7 +4202,7 @@
     renderPairingSuggestions(idea);
 
     document.getElementById("versionList").innerHTML = `
-      <div class="version-item"><span>v1</span><span>${formatRelativeDate(idea.createdAt)}</span></div>
+      <div class="version-item"><span>Created</span><span>${idea.createdAt ? new Date(idea.createdAt).toLocaleString("en-US") : "Date unavailable"}</span></div>
     `;
 
     goTo("detail", recordHistory);
@@ -4071,6 +4213,37 @@
     if(!idea) return;
     idea.mood = m;
     openIdeaById(activeIdeaId);
+  }
+
+  function deleteIdeaFromLibrary(id){
+    const idea = ideas.find(i => i.id === id);
+    if(!idea) return;
+    const ok = window.confirm(`Delete “${idea.title}”? You can undo this for a few seconds.`);
+    if(!ok) return;
+    finalizePendingUndo();
+    const ideaIndex = ideas.findIndex(i => i.id === id);
+    const songLinks = songs.map(s => ({ id:s.id, index:s.ideaIds.indexOf(id) })).filter(x => x.index >= 0);
+    songs.forEach(s => { s.ideaIds = s.ideaIds.filter(ideaId => ideaId !== id); });
+    ideas.splice(ideaIndex, 1);
+    pendingUndo = {
+      label:`“${idea.title}” deleted`,
+      undo(){
+        ideas.splice(Math.min(ideaIndex, ideas.length), 0, idea);
+        songLinks.forEach(link => {
+          const song = songs.find(x => x.id === link.id);
+          if(song && !song.ideaIds.includes(id)) song.ideaIds.splice(Math.min(link.index, song.ideaIds.length), 0, id);
+        });
+        renderAllIdeasList();
+        renderDashboard();
+      },
+      finalize(){
+        if(idea.visual?.url) try{ URL.revokeObjectURL(idea.visual.url); }catch(err){}
+        if(idea.visual?.mediaKey) deleteMediaBlob(idea.visual.mediaKey).catch(err => console.error("Could not remove stored media", err));
+      }
+    };
+    scheduleUndo();
+    renderAllIdeasList();
+    renderDashboard();
   }
 
   function confirmDeleteIdea(){
@@ -4493,6 +4666,177 @@
     saveAppState(true);
   }
 
+
+  function goHome(){
+    finalizePendingUndo();
+    renderDashboard();
+    goTo("dashboard", false);
+  }
+
+  function installHomeButtons(){
+    document.querySelectorAll('.screen').forEach(screen => {
+      if(screen.id === 'splash' || screen.id === 'dashboard') return;
+      const header = screen.querySelector('.app-header');
+      if(!header || header.querySelector('.home-jump')) return;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'home-jump';
+      btn.setAttribute('aria-label','Go to dashboard');
+      btn.title = 'Home';
+      btn.innerHTML = '&#8962;';
+      btn.onclick = goHome;
+
+      const existingAction = header.querySelector('.header-add-btn');
+      if(existingAction){
+        let actions = header.querySelector('.header-actions');
+        if(!actions){
+          actions = document.createElement('div');
+          actions.className = 'header-actions';
+          header.insertBefore(actions, existingAction);
+          actions.appendChild(existingAction);
+        }
+        actions.insertBefore(btn, actions.firstChild);
+      } else {
+        const spacer = header.lastElementChild;
+        if(spacer && !spacer.classList.contains('back') && !spacer.classList.contains('eyebrow')){
+          header.replaceChild(btn, spacer);
+        } else {
+          header.appendChild(btn);
+        }
+      }
+    });
+  }
+
+  // Experimental continuous single-note riff detector for Tab entry.
+  // Chords and exact fingering are intentionally not guessed.
+  let tabEarState = {
+    stream:null, ctx:null, analyser:null, raf:null, listening:false,
+    candidateMidi:null, candidateFrames:0, acceptedMidi:null,
+    silenceFrames:0, armed:true, captured:0, lastAcceptedAt:0
+  };
+  const TAB_STRING_MIDI = { E:40, A:45, D:50, G:55, B:59, e:64 };
+  const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+  function freshTabEarState(overrides){
+    return Object.assign({
+      stream:null, ctx:null, analyser:null, raf:null, listening:false,
+      candidateMidi:null, candidateFrames:0, acceptedMidi:null,
+      silenceFrames:0, armed:true, captured:0, lastAcceptedAt:0
+    }, overrides || {});
+  }
+
+  function setTabEarUi(listening, message){
+    const btn=document.getElementById('tabEarBtn');
+    if(btn){
+      btn.classList.toggle('listening', !!listening);
+      btn.textContent = listening ? '■ Stop listening' : '👂 Listen to riff';
+    }
+    const status=document.getElementById('tabEarStatus');
+    if(status && message) status.textContent=message;
+  }
+
+  function stopTabEar(message){
+    const captured=tabEarState.captured || 0;
+    tabEarState.listening = false;
+    if(tabEarState.raf) cancelAnimationFrame(tabEarState.raf);
+    if(tabEarState.stream) tabEarState.stream.getTracks().forEach(t=>t.stop());
+    if(tabEarState.ctx) try{ tabEarState.ctx.close(); }catch(err){}
+    tabEarState = freshTabEarState();
+    setTabEarUi(false, message || (captured ? `Captured ${captured} note${captured===1?'':'s'}. Review the suggested tab below.` : 'Listening stopped. No clear notes were captured.'));
+  }
+
+  function autoCorrelate(buffer, sampleRate){
+    let rms=0; for(let i=0;i<buffer.length;i++) rms += buffer[i]*buffer[i];
+    rms=Math.sqrt(rms/buffer.length); if(rms<0.018) return -1;
+    let bestOffset=-1, best=0;
+    const minOffset=Math.floor(sampleRate/1200), maxOffset=Math.min(Math.floor(sampleRate/70), buffer.length/2);
+    for(let offset=minOffset; offset<maxOffset; offset++){
+      let corr=0; for(let i=0;i<buffer.length-offset;i++) corr += buffer[i]*buffer[i+offset];
+      corr /= (buffer.length-offset);
+      if(corr>best){best=corr;bestOffset=offset;}
+    }
+    return bestOffset>0 ? sampleRate/bestOffset : -1;
+  }
+
+  function noteToTabSuggestion(midi){
+    const options=[];
+    Object.entries(TAB_STRING_MIDI).forEach(([string,open])=>{
+      const fret=midi-open;
+      if(fret>=0 && fret<=24) options.push({string,fret});
+    });
+    // Favor lower frets, then a position near the previous accepted note when possible.
+    options.sort((a,b)=>a.fret-b.fret || STRING_NAMES.indexOf(a.string)-STRING_NAMES.indexOf(b.string));
+    return options[0] || null;
+  }
+
+  function midiName(midi){
+    return NOTE_NAMES[(midi%12+12)%12]+(Math.floor(midi/12)-1);
+  }
+
+  function acceptRiffNote(midi){
+    const suggestion=noteToTabSuggestion(midi);
+    if(!suggestion) return false;
+    const now=performance.now();
+    // A tiny time guard prevents one attack from being entered twice before silence is detected.
+    if(tabEarState.acceptedMidi===midi && now-tabEarState.lastAcceptedAt<260) return false;
+    const steps=getTabSteps();
+    steps.push({ [suggestion.string]: suggestion.fret });
+    tabEarState.acceptedMidi=midi;
+    tabEarState.lastAcceptedAt=now;
+    tabEarState.captured++;
+    tabEarState.armed=false;
+    renderTabSteps();
+    renderTabPreview();
+    if(activeTabContext==='compose') document.getElementById('plantTabBtn').disabled=false;
+    setTabEarUi(true, `Listening… ${tabEarState.captured} note${tabEarState.captured===1?'':'s'} captured. Last: ${midiName(midi)} → ${suggestion.string}${suggestion.fret}`);
+    return true;
+  }
+
+  async function toggleTabEar(){
+    if(tabEarState.listening){ stopTabEar(); return; }
+    if(!navigator.mediaDevices?.getUserMedia){ showToast('Riff listening is not supported in this browser'); return; }
+    try{
+      const stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
+      const ctx=new (window.AudioContext||window.webkitAudioContext)();
+      if(ctx.state==='suspended') await ctx.resume();
+      const analyser=ctx.createAnalyser(); analyser.fftSize=4096;
+      ctx.createMediaStreamSource(stream).connect(analyser);
+      tabEarState=freshTabEarState({stream,ctx,analyser,listening:true});
+      setTabEarUi(true,'Listening… play a clear single-note riff, then press Stop.');
+      const data=new Float32Array(analyser.fftSize);
+      const tick=()=>{
+        if(!tabEarState.listening) return;
+        analyser.getFloatTimeDomainData(data);
+        const hz=autoCorrelate(data,ctx.sampleRate);
+        if(hz>0){
+          tabEarState.silenceFrames=0;
+          const midi=Math.round(69+12*Math.log2(hz/440));
+          if(tabEarState.candidateMidi===midi) tabEarState.candidateFrames++;
+          else { tabEarState.candidateMidi=midi; tabEarState.candidateFrames=1; }
+
+          // A changed, stable pitch can start the next note even without full silence.
+          if(tabEarState.acceptedMidi!==null && midi!==tabEarState.acceptedMidi && tabEarState.candidateFrames>=5){
+            tabEarState.armed=true;
+          }
+          if(tabEarState.armed && tabEarState.candidateFrames>=6){
+            acceptRiffNote(midi);
+          }
+        } else {
+          tabEarState.silenceFrames++;
+          tabEarState.candidateMidi=null;
+          tabEarState.candidateFrames=0;
+          if(tabEarState.silenceFrames>=4) tabEarState.armed=true;
+        }
+        tabEarState.raf=requestAnimationFrame(tick);
+      };
+      tick();
+    }catch(err){
+      console.error(err);
+      stopTabEar('Microphone access was unavailable.');
+      showToast('Could not listen to the riff');
+    }
+  }
+
   async function initializeMosaic(){
     await loadAppState();
     applyTheme();
@@ -4500,6 +4844,7 @@
       window.matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => { if(preferences.theme === "system") applyTheme(); });
     }
     attachChordListenButton("chordInputListen", "chordInputField");
+    installHomeButtons();
     renderDashboard();
     renderSettingsStatus();
     cleanupOrphanedMedia();
@@ -4511,6 +4856,7 @@
     console.error("Mosaic startup failed", err);
     persistenceReady = true;
     attachChordListenButton("chordInputListen", "chordInputField");
+    installHomeButtons();
     renderDashboard();
     installAutosave();
     showToast("Mosaic opened, but local saving is unavailable");
