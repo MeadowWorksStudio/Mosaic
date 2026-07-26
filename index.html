@@ -1851,17 +1851,34 @@
     if(!moved && accountMigration.completed) showToast("This library is already linked to your account");
   }
 
+  function normalizeMediaIdea(idea){
+    if(!idea) return null;
+    if(!idea.visual) idea.visual = {};
+    const inferredKind = idea.visual.kind || (idea.type === "audio" || idea.type === "video" ? idea.type : null);
+    if(inferredKind === "audio" || inferredKind === "video"){
+      idea.visual.kind = inferredKind;
+      if(!idea.visual.mediaKey && idea.id) idea.visual.mediaKey = "media-" + idea.id;
+    }
+    return idea;
+  }
+
   async function exportMosaicBackup(){
     try{
       saveAppState(true);
       const media = {};
-      for(const idea of ideas){
+      for(const rawIdea of ideas){
+        const idea = normalizeMediaIdea(rawIdea);
         const key = idea?.visual?.mediaKey;
         if(!key) continue;
         const blob = await getMediaBlob(key);
-        if(blob) media[key] = await blobToDataUrl(blob);
+        if(blob) media[key] = {
+          dataUrl: await blobToDataUrl(blob),
+          mimeType: blob.type || idea.visual.mimeType || "application/octet-stream",
+          ideaId: idea.id,
+          kind: idea.visual.kind
+        };
       }
-      const backup = { format:"mosaic-backup", backupVersion:1, exportedAt:new Date().toISOString(), appVersion:"0.30", state:buildAppState(), media };
+      const backup = { format:"mosaic-backup", backupVersion:2, exportedAt:new Date().toISOString(), appVersion:"0.30", state:buildAppState(), media };
       const blob = new Blob([JSON.stringify(backup)], { type:"application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -1884,20 +1901,37 @@
       if(!confirm("Importing this backup will replace the library currently stored on this device. Continue?")) return;
       const state = parsed.state;
       ideas.forEach(i => { if(i?.visual?.url) try{ URL.revokeObjectURL(i.visual.url); }catch(err){} });
-      ideas = state.ideas; songs = state.songs;
+      ideas = state.ideas.map(normalizeMediaIdea); songs = state.songs;
       preferences = { ...defaultPreferences, ...(state.preferences || {}) };
       accountMigration = { completed:false, completedAt:null, accountId:null, ...(state.accountMigration || {}) };
       ideaSeq = Number(state.ideaSeq) || Math.max(0, ...ideas.map(i => Number(String(i.id || "").match(/idea-(\d+)/)?.[1]) || 0));
       songSeq = Number(state.songSeq) || Math.max(0, ...songs.map(x => Number(String(x.id || "").match(/song-(\d+)/)?.[1]) || 0));
       lastTouchedSongId = state.lastTouchedSongId || null;
       const media = parsed.media || {};
-      for(const [key, dataUrl] of Object.entries(media)) await putMediaBlob(key, dataUrlToBlob(dataUrl));
+      let restoredMediaCount = 0;
+      for(const [originalKey, stored] of Object.entries(media)){
+        const record = typeof stored === "string" ? { dataUrl:stored } : (stored || {});
+        const idea = ideas.find(i => i.id === record.ideaId) || ideas.find(i => i?.visual?.mediaKey === originalKey) || ideas.find(i => ("media-" + i.id) === originalKey);
+        const key = idea?.visual?.mediaKey || originalKey;
+        if(idea && !idea.visual.mediaKey) idea.visual.mediaKey = key;
+        if(idea && record.kind && (record.kind === "audio" || record.kind === "video")) idea.visual.kind = record.kind;
+        if(!record.dataUrl) continue;
+        const mediaBlob = dataUrlToBlob(record.dataUrl);
+        if(idea) idea.visual.mimeType = mediaBlob.type || record.mimeType || idea.visual.mimeType;
+        await putMediaBlob(key, mediaBlob);
+        restoredMediaCount++;
+      }
       await cleanupOrphanedMedia();
-      await hydrateMediaUrls();
+      const hydratedMediaCount = await hydrateMediaUrls();
       saveFailure = null;
       saveAppState(true); applyTheme(); renderSettingsStatus(); renderDashboard();
       goTo("dashboard", false);
-      showToast("Backup restored");
+      const expectedMediaCount = ideas.filter(i => i?.visual?.kind === "audio" || i?.visual?.kind === "video").length;
+      if(expectedMediaCount && hydratedMediaCount < expectedMediaCount){
+        showToast(`Backup restored, but ${expectedMediaCount - hydratedMediaCount} media item${expectedMediaCount - hydratedMediaCount === 1 ? "" : "s"} could not be reconnected`);
+      } else {
+        showToast(restoredMediaCount ? "Backup and media restored" : "Backup restored");
+      }
     } catch(err){
       console.error("Backup import failed", err);
       showToast("That backup could not be restored");
@@ -1905,16 +1939,24 @@
   }
 
   async function hydrateMediaUrls(){
-    for(const idea of ideas){
+    let hydrated = 0;
+    for(const rawIdea of ideas){
+      const idea = normalizeMediaIdea(rawIdea);
       const visual = idea && idea.visual;
       if(!visual || !visual.mediaKey || (visual.kind !== "audio" && visual.kind !== "video")) continue;
+      if(visual.url){ try{ URL.revokeObjectURL(visual.url); }catch(err){} delete visual.url; }
       try{
         const blob = await getMediaBlob(visual.mediaKey);
-        if(blob) visual.url = URL.createObjectURL(blob);
+        if(blob){
+          visual.mimeType = blob.type || visual.mimeType || "application/octet-stream";
+          visual.url = URL.createObjectURL(blob);
+          hydrated++;
+        }
       } catch(err){
         console.error("Mosaic could not restore media for", idea.id, err);
       }
     }
+    return hydrated;
   }
 
   async function loadAppState(){
