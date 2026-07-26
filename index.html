@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mosaic v0.30 — Meadow Works</title>
+<title>Mosaic v0.38.4 — Dark Mode Balance</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -950,6 +950,180 @@
   :root[data-theme="dark"] .header-add-btn{background:var(--harvest);color:#142720;border-color:var(--harvest);}
   .header-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
 
+
+  /* v0.38 Capture & Connect */
+  .filter-toolbar{display:flex;gap:8px;margin-bottom:12px;align-items:center}
+  .filter-toolbar .field-input{margin:0!important;flex:1}
+  .compact-btn{border:1px solid var(--line);background:#fff;color:var(--forest);border-radius:12px;padding:11px 12px;font-weight:700;cursor:pointer;white-space:nowrap}
+  .filter-panel{display:none;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:14px;box-shadow:0 8px 24px rgba(31,58,46,.08)}
+  .filter-panel.show{display:block}
+  .filter-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .filter-panel label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--meadow);font-weight:800;margin-bottom:5px}
+  .filter-panel select{width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--forest)}
+  .active-filter-line{font-size:11px;color:var(--meadow);margin:-4px 0 12px;min-height:16px}
+  .favorite-btn{border:0;background:transparent;font-size:20px;cursor:pointer;padding:4px 7px;color:#a8a8a8}
+  .favorite-btn.on{color:#c5544d}
+  .custom-tag-row{display:flex;gap:8px;margin-top:10px}
+  .custom-tag-row input{flex:1}
+  .used-in-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px}
+  .used-in-chip{border:1px solid var(--line);background:var(--cream);border-radius:999px;padding:7px 10px;font-size:11px;color:var(--forest);cursor:pointer}
+  .spark-hero{position:relative;overflow:hidden;background:linear-gradient(145deg,#173529 0%,#285542 62%,#9a7435 140%);color:#fffdf7;border-radius:24px;padding:24px;margin-bottom:16px;box-shadow:0 18px 34px rgba(20,39,32,.28);border:1px solid rgba(255,255,255,.12)}
+  .spark-hero::after{content:"✦";position:absolute;right:16px;top:4px;font-size:78px;line-height:1;color:rgba(255,255,255,.09);pointer-events:none}
+  .spark-card{background:var(--cream-soft);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px;cursor:pointer;box-shadow:0 8px 18px rgba(20,39,32,.05)}
+  .spark-card h4{margin:4px 0 6px;color:var(--forest)}
+  .spark-card p{font-size:12px;line-height:1.5;color:var(--slate);margin:0}
+  .spark-preview{position:relative;overflow:hidden;background:linear-gradient(140deg,#173529 0%,#2f5b49 64%,#b28743 145%);border:1px solid rgba(255,255,255,.15);border-radius:22px;padding:19px 18px 18px;margin:6px 0 20px;cursor:pointer;box-shadow:0 14px 28px rgba(20,39,32,.23);color:#fffdf7;transition:transform .18s ease,box-shadow .18s ease}
+  .spark-preview:hover{transform:translateY(-2px);box-shadow:0 18px 34px rgba(20,39,32,.28)}
+  .spark-preview:active{transform:scale(.985)}
+  .spark-preview::after{content:"✦";position:absolute;right:-4px;bottom:-20px;font-size:102px;line-height:1;color:rgba(255,255,255,.08);pointer-events:none}
+  .spark-preview-head{position:relative;z-index:1;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:9px}
+  .spark-preview .eyebrow{color:#ead29b;letter-spacing:.16em}
+  .spark-preview-title{font-family:'Fraunces',serif;font-size:23px;line-height:1.15;color:#fffdf7;margin:3px 0 0}
+  .spark-preview-copy{position:relative;z-index:1;font-size:12.5px;line-height:1.55;color:rgba(255,253,247,.82);margin:0;max-width:290px}
+  .spark-preview-badge{position:relative;z-index:1;display:inline-flex;align-items:center;gap:7px;margin-top:14px;padding:8px 11px;border-radius:999px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.16);color:#fffdf7;font-size:11px;font-weight:700}
+  .spark-gem{position:relative;z-index:1;width:42px;height:42px;flex:0 0 42px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.18);font-size:23px;color:#f3d58c;box-shadow:inset 0 1px 0 rgba(255,255,255,.16)}
+  .spark-mode-row{display:flex;gap:8px;overflow-x:auto;padding:0 0 12px;scrollbar-width:none}
+  .spark-mode-row::-webkit-scrollbar{display:none}
+  .spark-mode{white-space:nowrap;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 12px;font-size:11px;color:var(--forest);cursor:pointer}
+  .spark-mode.active{background:var(--forest);color:var(--cream);border-color:var(--forest)}
+  .organize-summary{background:rgba(109,132,103,.09);border:1px solid rgba(109,132,103,.25);border-radius:16px;padding:13px;margin-bottom:14px;font-size:12px;color:var(--forest)}
+
+</style>
+
+<style id="v0383-simplified-branding">
+  /* v0.38.3: one calm Meadow Works visual system */
+  :root{
+    --forest:#234336;
+    --forest-deep:#183126;
+    --meadow:#71806F;
+    --harvest:#B78B45;
+    --harvest-dark:#8E6B33;
+    --cream:#F5F3ED;
+    --cream-soft:#FFFFFF;
+    --slate:#38423D;
+    --line:rgba(35,67,54,.14);
+    --shadow:0 18px 38px rgba(24,49,38,.16);
+  }
+  html{background:#EAE7DE}
+  body{background:#EAE7DE}
+  body::before,body::after{display:none}
+  .frame{box-shadow:var(--shadow);border:1px solid rgba(35,67,54,.08)}
+  .screen,.app-header,.bottom-nav{background:var(--cream)}
+  .app-header{border-bottom:1px solid var(--line)}
+  .bottom-nav{border-top:1px solid var(--line)}
+  .settings-card,.idea-card,.song-item,.song-idea-row,.capture-btn,.audio-card,.video-card,.spark-card{background:#fff;box-shadow:none}
+  .continue-card,.detail-hero,.spark-hero,.spark-preview{background:var(--forest);color:#fff;border:0;box-shadow:none}
+  .continue-card::after,.spark-hero::after,.spark-preview::after{display:none}
+  .spark-preview:hover{box-shadow:none}
+  .spark-preview .eyebrow,.spark-hero .eyebrow,.continue-card .eyebrow{color:#E8D5AE}
+  .spark-preview-title,.spark-hero h2,.continue-card h3{color:#fff}
+  .spark-preview-copy,.spark-hero p{color:rgba(255,255,255,.78)!important}
+  .spark-gem{background:rgba(255,255,255,.10);border-color:rgba(255,255,255,.18);color:#E8D5AE;box-shadow:none}
+  .spark-preview-badge{background:transparent;border-color:rgba(255,255,255,.28)}
+  .btn-primary,.bottom-nav .add-btn{background:var(--forest);color:#fff;box-shadow:none}
+  .btn-primary:hover{background:var(--forest-deep)}
+  .btn-add{background:var(--forest);color:#fff}
+  .btn-add:hover{background:var(--forest-deep)}
+  .song-dot{background:var(--harvest)}
+  .idea-icon,.mini-tag,.song-idea-tags span,.tag-chip{background:rgba(35,67,54,.09);color:var(--forest);border-color:transparent}
+  .tag-chip.selected,.spark-mode.active{background:var(--forest);color:#fff;border-color:var(--forest)}
+  .spark-mode{background:#fff;color:var(--forest)}
+  .nav-item.active{color:var(--forest)}
+  .nav-item.active::before{background:var(--forest)}
+  .eyebrow,.section-title span,.idea-card-date,.idea-date-line,.record-hint{color:var(--meadow)}
+  .badge,.status-badge{background:rgba(183,139,69,.13);color:var(--harvest-dark)}
+  .icon-button{background:#fff}
+  .capture-btn.selected,.capture-btn:hover{border-color:var(--forest);background:rgba(35,67,54,.04)}
+  :root[data-theme="dark"] body,:root[data-theme="dark"] html{background:#111D17}
+</style>
+
+<style id="v0384-dark-mode-balance">
+  /* v0.38.4: true dark surfaces with restrained contrast */
+  :root[data-theme="dark"]{
+    --forest:#E7EEE8;
+    --forest-deep:#0E1712;
+    --meadow:#A9B9AA;
+    --harvest:#D3AE68;
+    --harvest-dark:#E1BE7A;
+    --cream:#111C16;
+    --cream-soft:#18261F;
+    --slate:#D7DFD9;
+    --line:rgba(231,238,232,.14);
+    --shadow:0 18px 38px rgba(0,0,0,.34);
+  }
+  :root[data-theme="dark"] html,
+  :root[data-theme="dark"] body{background:#0B120E}
+  :root[data-theme="dark"] .frame{background:var(--cream);border-color:rgba(231,238,232,.09)}
+  :root[data-theme="dark"] .screen,
+  :root[data-theme="dark"] .app-header,
+  :root[data-theme="dark"] .bottom-nav,
+  :root[data-theme="dark"] .detail-footer,
+  :root[data-theme="dark"] .sheet{background:var(--cream)}
+  :root[data-theme="dark"] .settings-card,
+  :root[data-theme="dark"] .idea-card,
+  :root[data-theme="dark"] .song-item,
+  :root[data-theme="dark"] .song-idea-row,
+  :root[data-theme="dark"] .capture-btn,
+  :root[data-theme="dark"] .audio-card,
+  :root[data-theme="dark"] .video-card,
+  :root[data-theme="dark"] .spark-card,
+  :root[data-theme="dark"] .filter-panel,
+  :root[data-theme="dark"] .library-action,
+  :root[data-theme="dark"] .icon-button,
+  :root[data-theme="dark"] .compact-btn,
+  :root[data-theme="dark"] .spark-mode,
+  :root[data-theme="dark"] .used-in-chip{
+    background:var(--cream-soft);
+    color:var(--slate);
+    border-color:var(--line);
+    box-shadow:none;
+  }
+  :root[data-theme="dark"] .song-item:hover,
+  :root[data-theme="dark"] .capture-btn:hover,
+  :root[data-theme="dark"] .compact-btn:hover,
+  :root[data-theme="dark"] .icon-button:hover{background:#203229}
+  :root[data-theme="dark"] .field-input,
+  :root[data-theme="dark"] textarea,
+  :root[data-theme="dark"] select,
+  :root[data-theme="dark"] .filter-panel select,
+  :root[data-theme="dark"] .settings-card select{
+    background:#132019;
+    color:var(--slate);
+    border-color:var(--line);
+  }
+  :root[data-theme="dark"] .field-input::placeholder,
+  :root[data-theme="dark"] textarea::placeholder{color:#829087}
+  :root[data-theme="dark"] .idea-icon,
+  :root[data-theme="dark"] .mini-tag,
+  :root[data-theme="dark"] .song-idea-tags span,
+  :root[data-theme="dark"] .tag-chip,
+  :root[data-theme="dark"] .tag{
+    background:rgba(169,185,170,.12);
+    color:#C3D0C5;
+    border-color:rgba(169,185,170,.08);
+  }
+  :root[data-theme="dark"] .tag-chip.selected,
+  :root[data-theme="dark"] .tag.selected,
+  :root[data-theme="dark"] .spark-mode.active{background:var(--harvest);color:#172018;border-color:var(--harvest)}
+  :root[data-theme="dark"] .organize-summary{background:rgba(169,185,170,.08);border-color:rgba(169,185,170,.18);color:var(--slate)}
+  :root[data-theme="dark"] .continue-card,
+  :root[data-theme="dark"] .detail-hero,
+  :root[data-theme="dark"] .spark-hero,
+  :root[data-theme="dark"] .spark-preview{background:#20382D;color:#F7F4EA;border:1px solid rgba(255,255,255,.08)}
+  :root[data-theme="dark"] .btn-primary,
+  :root[data-theme="dark"] .btn-add,
+  :root[data-theme="dark"] .bottom-nav .add-btn{background:var(--harvest);color:#172018}
+  :root[data-theme="dark"] .btn-primary:hover,
+  :root[data-theme="dark"] .btn-add:hover{background:#E0BC76}
+  :root[data-theme="dark"] .nav-item{color:#8F9D94}
+  :root[data-theme="dark"] .nav-item.active{color:var(--harvest)}
+  :root[data-theme="dark"] .nav-item.active::before{background:var(--harvest)}
+  :root[data-theme="dark"] .setting-note,
+  :root[data-theme="dark"] .idea-date-line,
+  :root[data-theme="dark"] .active-filter-line,
+  :root[data-theme="dark"] .ear-status{color:#A8B3AB}
+  :root[data-theme="dark"] .library-action.primary{background:var(--harvest);color:#172018;border-color:var(--harvest)}
+  :root[data-theme="dark"] .overlay{background:rgba(0,0,0,.66)}
 </style>
 </head>
 <body>
@@ -990,6 +1164,15 @@
 
       <div class="continue-card" id="continueCard"></div>
 
+      <div class="spark-preview" id="dashboardSparkPreview" onclick="openSpark()" role="button" tabindex="0" aria-label="Open Rediscover">
+        <div class="spark-preview-head">
+          <div><div class="eyebrow">Rediscover</div><h3 class="spark-preview-title" id="dashboardSparkTitle">Today’s Hidden Gem</h3></div>
+          <div class="spark-gem" aria-hidden="true">✦</div>
+        </div>
+        <p class="spark-preview-copy" id="dashboardSparkCopy">Revisit a forgotten riff, favorite, or unfinished idea.</p>
+        <div class="spark-preview-badge">Explore your ideas <span aria-hidden="true">→</span></div>
+      </div>
+
       <div class="section-title">
         <h3>Recent Ideas</h3>
         <span onclick="openAllIdeas()">See all</span>
@@ -1015,6 +1198,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
         Songs
       </button>
+      <button class="nav-item" onclick="openSpark()"><span style="font-size:20px;line-height:20px">✦</span>Rediscover</button>
     </div>
   </div>
 
@@ -1074,7 +1258,21 @@
       <button type="button" class="home-jump" onclick="goHome()" aria-label="Go to dashboard" title="Home">⌂</button>
     </div>
     <div class="scroll-area">
-      <input type="text" id="ideaSearchInput" class="field-input" placeholder="Search date, title, type, mood, tags…" style="margin-bottom:14px;" oninput="renderAllIdeasList()">
+      <div class="filter-toolbar">
+        <input type="text" id="ideaSearchInput" class="field-input" placeholder="Search ideas…" oninput="renderAllIdeasList()">
+        <button type="button" class="compact-btn" onclick="toggleIdeaFilters()">Filter / Sort</button>
+      </div>
+      <div class="filter-panel" id="ideaFilterPanel">
+        <div class="filter-grid">
+          <div><label>Type</label><select id="filterType" onchange="renderAllIdeasList()"><option value="all">All types</option><option value="audio">Audio</option><option value="video">Video</option><option value="lyrics">Lyrics</option><option value="chords">Chords</option><option value="tab">Tab</option></select></div>
+          <div><label>Status</label><select id="filterStatus" onchange="renderAllIdeasList()"><option value="all">All ideas</option><option value="favorites">Favorites</option><option value="assigned">In a song</option><option value="unassigned">Not in a song</option><option value="tagged">Tagged</option><option value="untagged">Untagged</option></select></div>
+          <div><label>Tag</label><select id="filterTag" onchange="renderAllIdeasList()"><option value="all">All tags</option></select></div>
+          <div><label>Sort by</label><select id="sortIdeas" onchange="renderAllIdeasList()"><option value="newest">Newest</option><option value="oldest">Oldest</option><option value="edited">Recently edited</option><option value="az">Alphabetical</option><option value="favorites">Favorites first</option><option value="type">Idea type</option><option value="song">Song</option><option value="tag">Tag</option></select></div>
+        </div>
+        <button type="button" class="compact-btn" style="width:100%;margin-top:12px" onclick="clearIdeaFilters()">Clear filters</button>
+      </div>
+      <div class="active-filter-line" id="activeFilterLine"></div>
+      <div class="organize-summary" id="organizeSummary"></div>
       <div id="allIdeasList"></div>
     </div>
     <div class="detail-footer">
@@ -1421,7 +1619,7 @@
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:2px;">
           <div class="back" onclick="goBack()" style="background:rgba(244,241,232,0.12); color:var(--cream); border-color:rgba(244,241,232,0.2);">&#8592;</div>
           <div class="eyebrow" id="detailType">Audio idea</div>
-          <div style="width:34px;"></div>
+          <button type="button" class="favorite-btn" id="detailFavoriteBtn" onclick="toggleFavoriteActive()" aria-label="Favorite idea">♡</button>
         </div>
         <input class="detail-title" id="detailTitleInput" placeholder="Untitled idea">
         <div class="detail-meta" id="moodChips"></div>
@@ -1436,10 +1634,10 @@
 
         <div class="detail-section">
           <span class="label">Tags</span>
-          <div class="tag-row" id="detailTags"></div>
+          <div class="tag-row" id="detailTags"></div><div class="custom-tag-row"><input class="field-input" id="customTagInput" placeholder="Add any tag" onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomTagToActive();}"><button type="button" class="compact-btn" onclick="addCustomTagToActive()">Add</button></div>
         </div>
 
-        <div id="detailPairings"></div>
+        <div class="detail-section"><span class="label">Used in songs</span><div class="used-in-list" id="detailUsedIn"></div></div><div id="detailPairings"></div>
 
         <div class="detail-section">
           <span class="label">Versions</span>
@@ -1482,6 +1680,29 @@
     </div>
   </div>
 
+
+
+  <!-- SPARK / REDISCOVER -->
+  <div class="screen" id="spark">
+    <div class="app-header"><div class="back" onclick="goBack()">&#8592;</div><div class="eyebrow">Rediscover</div><button type="button" class="home-jump" onclick="goHome()">⌂</button></div>
+    <div class="scroll-area">
+      <div class="spark-hero"><div class="eyebrow" style="color:#ead29b">Rediscover</div><h2 style="color:#fffdf7;margin:5px 0 8px">Find a hidden gem.</h2><p style="font-size:13px;line-height:1.55;color:rgba(255,253,247,.8);margin:0;max-width:300px">Forgotten riffs, favorites, and unfinished pieces—ready when inspiration needs a nudge.</p><button class="btn btn-primary" style="margin-top:16px" onclick="selectSparkMode('surprise')">Surprise Me</button></div>
+      <div class="spark-mode-row" id="sparkModeRow">
+        <button class="spark-mode active" data-mode="surprise" onclick="selectSparkMode('surprise')">Surprise Me</button>
+        <button class="spark-mode" data-mode="forgotten" onclick="selectSparkMode('forgotten')">Forgotten</button>
+        <button class="spark-mode" data-mode="favorites" onclick="selectSparkMode('favorites')">Favorites</button>
+        <button class="spark-mode" data-mode="unassigned" onclick="selectSparkMode('unassigned')">Unassigned</button>
+        <button class="spark-mode" data-mode="onthisday" onclick="selectSparkMode('onthisday')">On This Day</button>
+      </div>
+      <div id="sparkContent"></div>
+    </div>
+    <div class="bottom-nav">
+      <button class="nav-item" onclick="goHome()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9h14v-9"/></svg>Home</button>
+      <div class="nav-fab" onclick="goTo('capture')"><svg viewBox="0 0 24 24" fill="none" stroke="#142720" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>
+      <button class="nav-item" onclick="openAllSongs()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>Songs</button>
+      <button class="nav-item active" onclick="selectSparkMode('surprise')"><span style="font-size:20px;line-height:20px">✦</span>Rediscover</button>
+    </div>
+  </div>
 
   <!-- SETTINGS -->
   <div class="screen" id="settings">
@@ -1575,8 +1796,8 @@
       <section class="settings-group">
         <h3>About</h3>
         <div class="settings-card">
-          <div class="setting-row"><div class="setting-copy"><span class="setting-label">Mosaic</span><span class="setting-note">Plant ideas. Grow songs.</span></div><strong>v0.37</strong></div>
-          <div class="setting-row" role="button" tabindex="0" onclick="goTo('releaseNotes')" style="cursor:pointer;"><div class="setting-copy"><span class="setting-label">What's new</span><span class="setting-note">Release notes for v0.37 Media Engine.</span></div><strong>›</strong></div>
+          <div class="setting-row"><div class="setting-copy"><span class="setting-label">Mosaic</span><span class="setting-note">Plant ideas. Grow songs.</span></div><strong>v0.38.1</strong></div>
+          <div class="setting-row" role="button" tabindex="0" onclick="goTo('releaseNotes')" style="cursor:pointer;"><div class="setting-copy"><span class="setting-label">What's new</span><span class="setting-note">Release notes for v0.38.4 Dark Mode Balance.</span></div><strong>›</strong></div>
           <div class="setting-row" role="button" tabindex="0" onclick="goTo('versionHistory')" style="cursor:pointer;"><div class="setting-copy"><span class="setting-label">Version history</span><span class="setting-note">See how Mosaic has grown.</span></div><strong>›</strong></div>
           <div class="setting-row"><div class="setting-copy"><span class="setting-label">By Meadow Works</span><span class="setting-note">Every great song begins with a single idea.</span></div></div>
           <div style="padding:16px 2px 2px;text-align:center;color:var(--meadow);font-size:12px;line-height:1.6;"><strong>Thank you for helping shape Mosaic.</strong><br>Thank you for planting your ideas here.</div>
@@ -1589,7 +1810,7 @@
   <div class="screen" id="releaseNotes">
     <div class="app-header"><div class="back" onclick="goBack()">&#8592;</div><div class="eyebrow">What's New</div><div style="width:38px;"></div></div>
     <div class="scroll-area">
-      <div style="padding:6px 0 20px;"><h2 style="font-size:30px;">v0.37.1 Video Import Fix</h2><p style="font-size:13px;line-height:1.6;margin-top:7px;">Corrects video backup decoding when the saved WebM codec declaration contains a comma, restoring imported video playback and eliminating the false one-item missing-media warning.</p></div>
+      <div style="padding:6px 0 20px;"><h2 style="font-size:30px;">v0.38.4 Dark Mode Balance</h2><p style="font-size:13px;line-height:1.6;margin-top:7px;">Capture without interruption, organize later with flexible tags and filters, connect ideas to songs, and rediscover forgotten sparks.</p></div>
       <section class="settings-group"><h3>New</h3><div class="settings-card"><p class="setting-note" style="font-size:13px;line-height:1.8;">• Added a full-width + New Idea action at the bottom of All Ideas<br>• Kept the full-width New Song action at the bottom of All Songs<br>• Removed creation buttons from both library headers<br>• Headers now remain focused on Back and Home navigation</p></div></section>
       <section class="settings-group"><h3>Added</h3><div class="settings-card"><p class="setting-note" style="font-size:13px;line-height:1.8;">• Continuous Listen to Riff mode for Tab ideas<br>• Automatic separation of notes using silence and stable pitch changes<br>• Live note count and last-note feedback<br>• Suggested low-fret guitar tab added directly to the line</p></div></section>
       <section class="settings-group"><h3>Notes</h3><div class="settings-card"><p class="setting-note" style="font-size:13px;line-height:1.8;">• Designed for clear, single-note riffs<br>• Exact guitar string choice is suggested, not detected<br>• Chords, bends, slides, and heavily distorted playing may need manual correction</p></div></section>
@@ -1603,6 +1824,7 @@
     <div class="scroll-area">
       <div style="padding:6px 0 20px;"><h2 style="font-size:30px;">How Mosaic has grown.</h2></div>
       <section class="settings-group"><div class="settings-card">
+        <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.38.4 — Dark Mode Balance</span><span class="setting-note">True dark cards and controls, stronger contrast, unified Meadow Works branding, flexible tags, favorites, filtering, sorting, Rediscover, and song connections.</span></div></div>
         <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.37 — Media Engine</span><span class="setting-note">Verified backup media restoration, fresh playback URLs, exact post-import health checks, and corrected backup version metadata.</span></div></div>
         <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.36 — Riff Listener</span><span class="setting-note">Continuously captures clear single-note riffs and converts detected pitches into editable suggested guitar tab.</span></div></div>
         <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.35 — UI Consistency</span><span class="setting-note">Moves New Idea and New Song actions to matching bottom action bars while keeping headers dedicated to navigation.</span></div></div>
@@ -1994,8 +2216,8 @@
         format:"mosaic-backup",
         backupVersion:3,
         exportedAt:new Date().toISOString(),
-        appVersion:"0.37.1",
-        releaseName:"Video Import Fix",
+        appVersion:"0.38.4",
+        releaseName:"Dark Mode Balance",
         platform:navigator.userAgent,
         state:buildAppState(),
         media
@@ -2004,7 +2226,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       const stamp = new Date().toISOString().slice(0,10);
-      a.href = url; a.download = `Mosaic_Backup_v0.37.1_${stamp}.mosaic.json`;
+      a.href = url; a.download = `Mosaic_Backup_v0.38.1_${stamp}.mosaic.json`;
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
       maintenance.lastBackupAt = new Date().toISOString(); saveAppState(true); renderSettingsStatus(); showToast("Backup exported");
@@ -2277,7 +2499,7 @@
 
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
     document.getElementById(screenId).classList.add("active");
-    if(screenId === "dashboard"){ renderDashboard(); }
+    if(screenId === "dashboard"){ renderDashboard(); renderDashboardSparkPreview(); }
     if(screenId === "allSongs"){ renderAllSongsList(); }
     if(screenId === "allIdeas"){ renderAllIdeasList(); }
     if(screenId === "songWorkspace" && currentSongWorkspaceId){ renderSongIdeaList(); }
@@ -4861,6 +5083,154 @@
     installAutosave();
     showToast("Mosaic opened, but local saving is unavailable");
   });
+
+  // ---------- v0.38 Capture & Connect ----------
+  const V038_STARTER_TAGS = ["dark","energetic","dreamy","melancholy","hopeful","heavy","acoustic","chorus","verse","needs-lyrics"];
+  let ideaFilterState = { type:"all", status:"all", tag:"all", sort:"newest" };
+
+  function normalizeV038Data(){
+    ideas.forEach((idea, index) => {
+      if(!Array.isArray(idea.tags)) idea.tags = [];
+      idea.tags = [...new Set(idea.tags.map(t => String(t).trim().toLowerCase()).filter(Boolean))];
+      if(typeof idea.favorite !== "boolean") idea.favorite = false;
+      if(!idea.updatedAt) idea.updatedAt = idea.createdAt || new Date().toISOString();
+      if(typeof idea.manualOrder !== "number") idea.manualOrder = index;
+    });
+    songs.forEach(song => { if(!Array.isArray(song.ideaIds)) song.ideaIds = []; });
+  }
+
+  function allFlexibleTags(){
+    normalizeV038Data();
+    return [...new Set([...V038_STARTER_TAGS, ...ideas.flatMap(i => i.tags || [])])].sort((a,b)=>a.localeCompare(b));
+  }
+
+  function toggleIdeaFilters(){ document.getElementById("ideaFilterPanel")?.classList.toggle("show"); }
+  function clearIdeaFilters(){
+    ["filterType","filterStatus","filterTag"].forEach(id => { const el=document.getElementById(id); if(el) el.value="all"; });
+    const sort=document.getElementById("sortIdeas"); if(sort) sort.value="newest";
+    renderAllIdeasList();
+  }
+  function refreshTagFilterOptions(){
+    const select=document.getElementById("filterTag"); if(!select) return;
+    const current=select.value || "all";
+    select.innerHTML='<option value="all">All tags</option>'+allFlexibleTags().map(t=>`<option value="${escapeHtmlV038(t)}">${escapeHtmlV038(t)}</option>`).join("");
+    if([...select.options].some(o=>o.value===current)) select.value=current;
+  }
+  function escapeHtmlV038(value){ return String(value ?? "").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c])); }
+  function ideaSongNames(ideaId){ return songs.filter(s=>s.ideaIds.includes(ideaId)).map(s=>s.title); }
+
+  const renderAllIdeasListV037 = renderAllIdeasList;
+  renderAllIdeasList = function(){
+    normalizeV038Data(); refreshTagFilterOptions();
+    const wrap=document.getElementById("allIdeasList"); if(!wrap) return;
+    const query=(document.getElementById("ideaSearchInput")?.value||"").trim().toLowerCase();
+    const type=document.getElementById("filterType")?.value||"all";
+    const status=document.getElementById("filterStatus")?.value||"all";
+    const tag=document.getElementById("filterTag")?.value||"all";
+    const sort=document.getElementById("sortIdeas")?.value||"newest";
+    let filtered=ideas.filter(idea=>{
+      const assigned=ideaSongNames(idea.id).length>0;
+      if(query && !ideaSearchableText(idea).includes(query)) return false;
+      if(type!=="all" && idea.type!==type) return false;
+      if(tag!=="all" && !(idea.tags||[]).includes(tag)) return false;
+      if(status==="favorites" && !idea.favorite) return false;
+      if(status==="assigned" && !assigned) return false;
+      if(status==="unassigned" && assigned) return false;
+      if(status==="tagged" && !(idea.tags||[]).length) return false;
+      if(status==="untagged" && (idea.tags||[]).length) return false;
+      return true;
+    });
+    const dateVal=i=>new Date(i.updatedAt||i.createdAt||0).getTime();
+    filtered.sort((a,b)=>{
+      if(sort==="oldest") return new Date(a.createdAt||0)-new Date(b.createdAt||0);
+      if(sort==="edited") return dateVal(b)-dateVal(a);
+      if(sort==="az") return a.title.localeCompare(b.title);
+      if(sort==="favorites") return Number(b.favorite)-Number(a.favorite)||dateVal(b)-dateVal(a);
+      if(sort==="type") return (ideaTypes[a.type]?.label||a.type).localeCompare(ideaTypes[b.type]?.label||b.type)||dateVal(b)-dateVal(a);
+      if(sort==="song") return (ideaSongNames(a.id)[0]||"zzzz").localeCompare(ideaSongNames(b.id)[0]||"zzzz")||dateVal(b)-dateVal(a);
+      if(sort==="tag") return ((a.tags||[])[0]||"zzzz").localeCompare((b.tags||[])[0]||"zzzz")||dateVal(b)-dateVal(a);
+      return new Date(b.createdAt||0)-new Date(a.createdAt||0);
+    });
+    const untagged=ideas.filter(i=>!(i.tags||[]).length).length;
+    const unassigned=ideas.filter(i=>!ideaSongNames(i.id).length).length;
+    const summary=document.getElementById("organizeSummary"); if(summary) summary.innerHTML=`Capture first. Organize later. <strong>${untagged}</strong> untagged · <strong>${unassigned}</strong> not in songs · <strong>${ideas.filter(i=>i.favorite).length}</strong> favorites`;
+    const active=[]; if(type!=="all") active.push(ideaTypes[type]?.label||type); if(status!=="all") active.push(status); if(tag!=="all") active.push(`#${tag}`);
+    const line=document.getElementById("activeFilterLine"); if(line) line.textContent=`Showing ${filtered.length} of ${ideas.length}${active.length?" · "+active.join(" · "):""}`;
+    if(!filtered.length){ wrap.innerHTML='<div class="empty-state"><h4>No matching ideas.</h4><p>Try clearing a filter or choosing another tag.</p></div>'; return; }
+    wrap.innerHTML=filtered.map(idea=>{
+      const meta=ideaTypes[idea.type]||{icon:"✦",label:idea.type};
+      const songNames=ideaSongNames(idea.id);
+      return `<div class="song-idea-row" style="cursor:pointer" onclick="openIdeaById('${idea.id}')">
+        <div class="idea-tag">${meta.icon}</div><div class="meta"><h4>${escapeHtmlV038(idea.title)} ${idea.favorite?'<span title="Favorite">♥</span>':''}</h4>
+        <div class="song-idea-tags">${(idea.tags||[]).slice(0,5).map(t=>`<span class="mini-tag">#${escapeHtmlV038(t)}</span>`).join("")}${songNames.slice(0,2).map(n=>`<span class="mini-mood">${escapeHtmlV038(n)}</span>`).join("")}</div>
+        <p>${meta.label} · ${formatRelativeDate(idea.createdAt)}${idea.updatedAt&&idea.updatedAt!==idea.createdAt?" · edited "+formatRelativeDate(idea.updatedAt):""}</p></div>
+        <button class="favorite-btn ${idea.favorite?'on':''}" onclick="event.stopPropagation();toggleFavorite('${idea.id}')">${idea.favorite?'♥':'♡'}</button>
+        <div class="library-row-actions"><button type="button" class="library-delete-btn" title="Delete idea" onclick="event.stopPropagation();deleteIdeaFromLibrary('${idea.id}')">🗑️</button></div></div>`;
+    }).join("");
+  };
+
+  function toggleFavorite(id){ const idea=ideas.find(i=>i.id===id); if(!idea)return; idea.favorite=!idea.favorite; idea.updatedAt=new Date().toISOString(); saveAppState(true); renderAllIdeasList(); renderDashboard(); }
+  function toggleFavoriteActive(){ if(activeIdeaId) { toggleFavorite(activeIdeaId); renderDetailV038(); } }
+  function renderDetailV038(){
+    const idea=ideas.find(i=>i.id===activeIdeaId); if(!idea)return;
+    const btn=document.getElementById("detailFavoriteBtn"); if(btn){btn.textContent=idea.favorite?"♥":"♡";btn.classList.toggle("on",idea.favorite);}
+    const used=document.getElementById("detailUsedIn"); if(used){ const linked=songs.filter(s=>s.ideaIds.includes(idea.id)); used.innerHTML=linked.length?linked.map(s=>`<button class="used-in-chip" onclick="openSongWorkspace('${s.id}')">${escapeHtmlV038(s.title)}</button>`).join(""):'<span style="font-size:12px;color:#8b8b8b">Not connected to a song yet.</span>'; }
+  }
+  const openIdeaByIdV037=openIdeaById;
+  openIdeaById=function(id,recordHistory){ openIdeaByIdV037(id,recordHistory); normalizeV038Data(); renderDetailV038(); };
+
+  renderDetailTags=function(idea){
+    const wrap=document.getElementById("detailTags"); if(!wrap)return;
+    wrap.innerHTML=allFlexibleTags().map(t=>`<span class="tag ${(idea.tags||[]).includes(t)?"selected":""}" onclick="toggleDetailTag('${escapeHtmlV038(t)}')">#${escapeHtmlV038(t)}</span>`).join("");
+  };
+  toggleDetailTag=function(t){ const idea=ideas.find(i=>i.id===activeIdeaId); if(!idea)return; idea.tags=idea.tags||[]; if(idea.tags.includes(t)) idea.tags=idea.tags.filter(x=>x!==t); else idea.tags.push(t); idea.updatedAt=new Date().toISOString(); saveAppState(true); renderDetailTags(idea); };
+  function addCustomTagToActive(){
+    const input=document.getElementById("customTagInput"); const idea=ideas.find(i=>i.id===activeIdeaId); if(!input||!idea)return;
+    const tag=input.value.trim().toLowerCase().replace(/^#/,"").replace(/\s+/g,"-"); if(!tag)return;
+    idea.tags=idea.tags||[]; if(!idea.tags.includes(tag))idea.tags.push(tag); idea.updatedAt=new Date().toISOString(); input.value=""; saveAppState(true); renderDetailTags(idea); showToast(`#${tag} added`);
+  }
+
+  let activeSparkMode="surprise";
+  function openSpark(){ goTo("spark"); selectSparkMode(activeSparkMode||"surprise"); }
+  function sparkCandidates(){ normalizeV038Data(); return ideas.slice().sort((a,b)=>new Date(a.updatedAt||a.createdAt||0)-new Date(b.updatedAt||b.createdAt||0)); }
+  function sparkAgeDays(idea){ const d=new Date(idea.updatedAt||idea.createdAt||Date.now()); return Math.max(0,Math.floor((Date.now()-d.getTime())/86400000)); }
+  function selectSparkMode(mode){
+    activeSparkMode=mode||"surprise";
+    document.querySelectorAll(".spark-mode").forEach(b=>b.classList.toggle("active",b.dataset.mode===activeSparkMode));
+    renderSpark(activeSparkMode);
+  }
+  function sparkCard(label,idea,copy){
+    return `<div class="spark-card" onclick="openIdeaById('${idea.id}')"><div class="eyebrow">${label}</div><h4>${escapeHtmlV038(idea.title||"Untitled idea")}</h4><p>${copy}</p><div class="song-idea-tags" style="margin-top:9px">${(idea.tags||[]).map(t=>`<span class="mini-tag">#${escapeHtmlV038(t)}</span>`).join("")}</div></div>`;
+  }
+  function renderDashboardSparkPreview(){
+    const title=document.getElementById("dashboardSparkTitle"),copy=document.getElementById("dashboardSparkCopy");
+    if(!title||!copy)return; const pool=sparkCandidates();
+    if(!pool.length){ title.textContent="Capture your first idea"; copy.textContent="Spark will begin rediscovering ideas after you save something."; return; }
+    const idea=pool[0]; title.textContent=idea.title||"Untitled idea"; copy.textContent=`You last touched this ${sparkAgeDays(idea)} day${sparkAgeDays(idea)===1?"":"s"} ago. Tap to rediscover more.`;
+  }
+  function renderSpark(mode){
+    const wrap=document.getElementById("sparkContent"); if(!wrap)return;
+    const pool=sparkCandidates(); if(!pool.length){wrap.innerHTML='<div class="empty-state"><h4>No sparks yet.</h4><p>Capture an idea first, then come back to rediscover it.</p></div>';return;}
+    let cards=[]; const today=new Date();
+    if(mode==="forgotten"){ cards=pool.slice(0,Math.min(8,pool.length)).map(i=>sparkCard("Forgotten idea",i,`Last touched ${sparkAgeDays(i)} day${sparkAgeDays(i)===1?"":"s"} ago.`)); }
+    else if(mode==="favorites"){ const fav=pool.filter(i=>i.favorite); cards=(fav.length?fav:pool.slice(0,1)).map(i=>sparkCard(fav.length?"Favorite":"No favorites yet",i,fav.length?"One of the ideas you marked worth returning to.":"Favorite ideas to build a dedicated rediscovery collection.")); }
+    else if(mode==="unassigned"){ const list=pool.filter(i=>!ideaSongNames(i.id).length); cards=(list.length?list:pool.slice(0,1)).map(i=>sparkCard(list.length?"Waiting for a song":"Everything is connected",i,list.length?"This idea has not been added to a song yet.":"All current ideas are already connected to songs.")); }
+    else if(mode==="onthisday"){ const list=pool.filter(i=>{const d=new Date(i.createdAt||0);return d.getMonth()===today.getMonth()&&d.getDate()===today.getDate()&&d.getFullYear()!==today.getFullYear();}); cards=(list.length?list:pool.slice(0,1)).map(i=>sparkCard(list.length?"On this day":"Nothing from this date yet",i,list.length?`Created on this day in ${new Date(i.createdAt).getFullYear()}.`:"Try Surprise Me for another rediscovery.")); }
+    else {
+      const forgotten=pool[0],favorites=pool.filter(i=>i.favorite),favorite=favorites[Math.floor(Math.random()*favorites.length)]||null,unassigned=pool.filter(i=>!ideaSongNames(i.id).length),hidden=unassigned[Math.floor(Math.random()*unassigned.length)]||pool[Math.floor(Math.random()*pool.length)];
+      const chosen=[{label:"Forgotten idea",idea:forgotten,copy:`Last touched ${sparkAgeDays(forgotten)} day${sparkAgeDays(forgotten)===1?"":"s"} ago. Give it another listen.`}];
+      if(favorite&&favorite.id!==forgotten.id)chosen.push({label:"Favorite",idea:favorite,copy:"One of the pieces you marked worth returning to."});
+      if(hidden&&hidden.id!==forgotten.id&&(!favorite||hidden.id!==favorite.id))chosen.push({label:"Hidden gem",idea:hidden,copy:ideaSongNames(hidden.id).length?"This one may fit somewhere unexpected.":"Still waiting for a song."});
+      cards=chosen.map(x=>sparkCard(x.label,x.idea,x.copy));
+    }
+    wrap.innerHTML=cards.join("");
+  }
+
+  // Update edit timestamps without adding friction to capture.
+  document.addEventListener("input", e=>{ if((e.target.id==="detailTitleInput"||e.target.id==="detailNotes")&&activeIdeaId){ const idea=ideas.find(i=>i.id===activeIdeaId); if(idea) idea.updatedAt=new Date().toISOString(); } });
+  normalizeV038Data();
+  renderDashboardSparkPreview();
+
 </script>
 
 </body>
