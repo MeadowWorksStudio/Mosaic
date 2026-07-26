@@ -1530,6 +1530,7 @@
           <div class="setting-row"><div class="setting-copy"><span class="setting-label">Songs growing</span><span class="setting-note">Songs currently taking shape.</span></div><strong id="settingsSongCount">0</strong></div>
           <div class="setting-row"><div class="setting-copy"><span class="setting-label">Last saved</span><span class="setting-note">Mosaic saves automatically on this device.</span></div><strong id="settingsLastSaved" style="font-size:12px;">Just now</strong></div>
           <div class="setting-row"><div class="setting-copy"><span class="setting-label">Device storage</span><span class="setting-note" id="settingsStorageText">Checking available storage…</span><div class="storage-meter"><div class="storage-meter-fill" id="settingsStorageFill"></div></div></div></div>
+          <div class="setting-row" role="button" tabindex="0" onclick="openLibraryHealth()" style="cursor:pointer;"><div class="setting-copy"><span class="setting-label">Library health</span><span class="setting-note">Check ideas, songs, media, and references.</span></div><strong id="settingsHealthStatus" style="font-size:12px;">Check</strong></div>
           <div class="setting-row" role="button" tabindex="0" onclick="requestAccountMigration()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();requestAccountMigration();}" style="cursor:pointer;"><div class="setting-copy"><span class="setting-label">Account migration</span><span class="setting-note" id="settingsMigrationText">Your local library is ready to move into a future Mosaic account—no manual export required.</span></div><strong id="settingsMigrationStatus" style="font-size:12px;">Ready</strong></div>
           <div class="library-actions">
             <button type="button" class="library-action primary" onclick="exportMosaicBackup()">Export Backup</button>
@@ -1543,10 +1544,49 @@
       <section class="settings-group">
         <h3>About</h3>
         <div class="settings-card">
-          <div class="setting-row"><div class="setting-copy"><span class="setting-label">Mosaic</span><span class="setting-note">Plant ideas. Grow songs.</span></div><strong>v0.30</strong></div>
+          <div class="setting-row"><div class="setting-copy"><span class="setting-label">Mosaic</span><span class="setting-note">Plant ideas. Grow songs.</span></div><strong>v0.31</strong></div>
+          <div class="setting-row" role="button" tabindex="0" onclick="goTo('releaseNotes')" style="cursor:pointer;"><div class="setting-copy"><span class="setting-label">What's new</span><span class="setting-note">Release notes for v0.31 Foundation.</span></div><strong>›</strong></div>
+          <div class="setting-row" role="button" tabindex="0" onclick="goTo('versionHistory')" style="cursor:pointer;"><div class="setting-copy"><span class="setting-label">Version history</span><span class="setting-note">See how Mosaic has grown.</span></div><strong>›</strong></div>
           <div class="setting-row"><div class="setting-copy"><span class="setting-label">By Meadow Works</span><span class="setting-note">Every great song begins with a single idea.</span></div></div>
+          <div style="padding:16px 2px 2px;text-align:center;color:var(--meadow);font-size:12px;line-height:1.6;"><strong>Thank you for helping shape Mosaic.</strong><br>Thank you for planting your ideas here.</div>
         </div>
       </section>
+    </div>
+  </div>
+
+  <!-- RELEASE NOTES -->
+  <div class="screen" id="releaseNotes">
+    <div class="app-header"><div class="back" onclick="goBack()">&#8592;</div><div class="eyebrow">What's New</div><div style="width:38px;"></div></div>
+    <div class="scroll-area">
+      <div style="padding:6px 0 20px;"><h2 style="font-size:30px;">v0.31 Foundation</h2><p style="font-size:13px;line-height:1.6;margin-top:7px;">Stabilize. Document. Prepare.</p></div>
+      <section class="settings-group"><h3>New</h3><div class="settings-card"><p class="setting-note" style="font-size:13px;line-height:1.8;">• Release notes and version history<br>• Library Health diagnostics<br>• Versioned backup metadata and filenames<br>• Detailed import summaries<br>• Startup integrity checks</p></div></section>
+      <section class="settings-group"><h3>Improved</h3><div class="settings-card"><p class="setting-note" style="font-size:13px;line-height:1.8;">• Backup validation and compatibility messaging<br>• Media-reference repair and orphan cleanup<br>• Clearer reporting when restored media is incomplete</p></div></section>
+      <section class="settings-group"><h3>Fixed</h3><div class="settings-card"><p class="setting-note" style="font-size:13px;line-height:1.8;">• Audio and video reconnect correctly after backup import<br>• Restored video ideas appear in the detail view<br>• Playback URLs regenerate after restoration</p></div></section>
+      <section class="settings-group"><h3>Known limitations</h3><div class="settings-card"><p class="setting-note" style="font-size:13px;line-height:1.8;">Libraries remain stored on this device until account sync is introduced. Export backups regularly.</p></div></section>
+    </div>
+  </div>
+
+  <!-- VERSION HISTORY -->
+  <div class="screen" id="versionHistory">
+    <div class="app-header"><div class="back" onclick="goBack()">&#8592;</div><div class="eyebrow">Version History</div><div style="width:38px;"></div></div>
+    <div class="scroll-area">
+      <div style="padding:6px 0 20px;"><h2 style="font-size:30px;">How Mosaic has grown.</h2></div>
+      <section class="settings-group"><div class="settings-card">
+        <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.31 — Foundation</span><span class="setting-note">Release notes, diagnostics, versioned backups, integrity checks, and import summaries.</span></div></div>
+        <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.30 — Library Safety</span><span class="setting-note">Backup and restore, undo delete, storage awareness, migration readiness, and media restore fixes.</span></div></div>
+        <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.20 — Foundations</span><span class="setting-note">Preferences, themes, personalized greetings, and Mosaic's growth-centered voice.</span></div></div>
+        <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.10 — Prototype</span><span class="setting-note">Initial idea capture, playback, song workspace, matching, and dashboard.</span></div></div>
+      </div></section>
+    </div>
+  </div>
+
+  <!-- LIBRARY HEALTH -->
+  <div class="screen" id="libraryHealth">
+    <div class="app-header"><div class="back" onclick="goBack()">&#8592;</div><div class="eyebrow">Library Health</div><div style="width:38px;"></div></div>
+    <div class="scroll-area">
+      <div style="padding:6px 0 20px;"><h2 style="font-size:30px;" id="healthHeadline">Checking your library…</h2><p style="font-size:13px;line-height:1.6;margin-top:7px;" id="healthCheckedAt"></p></div>
+      <section class="settings-group"><div class="settings-card" id="healthReport"></div></section>
+      <button type="button" class="btn btn-primary" style="width:100%;" onclick="runIntegrityCheck(true)">Run Check Again</button>
     </div>
   </div>
 
@@ -1654,6 +1694,7 @@
     audioQuality:"standard", videoQuality:"standard"
   };
   let preferences = { ...defaultPreferences };
+  let maintenance = { lastBackupAt:null, lastImportAt:null, lastIntegrityCheckAt:null, lastIntegrityReport:null };
 
   function openMediaDb(){
     if(mediaDbPromise) return mediaDbPromise;
@@ -1733,6 +1774,7 @@
       version: 3,
       preferences: { ...preferences },
       accountMigration: { ...accountMigration },
+      maintenance: { ...maintenance },
       ideaSeq,
       songSeq,
       lastTouchedSongId,
@@ -1878,15 +1920,24 @@
           kind: idea.visual.kind
         };
       }
-      const backup = { format:"mosaic-backup", backupVersion:2, exportedAt:new Date().toISOString(), appVersion:"0.30", state:buildAppState(), media };
+      const backup = {
+        format:"mosaic-backup",
+        backupVersion:3,
+        exportedAt:new Date().toISOString(),
+        appVersion:"0.31",
+        releaseName:"Foundation",
+        platform:navigator.userAgent,
+        state:buildAppState(),
+        media
+      };
       const blob = new Blob([JSON.stringify(backup)], { type:"application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       const stamp = new Date().toISOString().slice(0,10);
-      a.href = url; a.download = `Mosaic_Backup_${stamp}.mosaic.json`;
+      a.href = url; a.download = `Mosaic_Backup_v0.31_${stamp}.mosaic.json`;
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-      showToast("Backup exported");
+      maintenance.lastBackupAt = new Date().toISOString(); saveAppState(true); renderSettingsStatus(); showToast("Backup exported");
     } catch(err){
       console.error("Backup export failed", err);
       showToast("Backup could not be exported");
@@ -1898,12 +1949,14 @@
     try{
       const parsed = JSON.parse(await file.text());
       if(parsed?.format !== "mosaic-backup" || !parsed.state || !Array.isArray(parsed.state.ideas) || !Array.isArray(parsed.state.songs)) throw new Error("Not a valid Mosaic backup");
+      if(Number(parsed.backupVersion || 1) > 3) throw new Error("This backup was created by a newer version of Mosaic");
       if(!confirm("Importing this backup will replace the library currently stored on this device. Continue?")) return;
       const state = parsed.state;
       ideas.forEach(i => { if(i?.visual?.url) try{ URL.revokeObjectURL(i.visual.url); }catch(err){} });
       ideas = state.ideas.map(normalizeMediaIdea); songs = state.songs;
       preferences = { ...defaultPreferences, ...(state.preferences || {}) };
       accountMigration = { completed:false, completedAt:null, accountId:null, ...(state.accountMigration || {}) };
+      maintenance = { lastBackupAt:null, lastImportAt:null, lastIntegrityCheckAt:null, lastIntegrityReport:null, ...(state.maintenance || {}) };
       ideaSeq = Number(state.ideaSeq) || Math.max(0, ...ideas.map(i => Number(String(i.id || "").match(/idea-(\d+)/)?.[1]) || 0));
       songSeq = Number(state.songSeq) || Math.max(0, ...songs.map(x => Number(String(x.id || "").match(/song-(\d+)/)?.[1]) || 0));
       lastTouchedSongId = state.lastTouchedSongId || null;
@@ -1927,11 +1980,15 @@
       saveAppState(true); applyTheme(); renderSettingsStatus(); renderDashboard();
       goTo("dashboard", false);
       const expectedMediaCount = ideas.filter(i => i?.visual?.kind === "audio" || i?.visual?.kind === "video").length;
-      if(expectedMediaCount && hydratedMediaCount < expectedMediaCount){
-        showToast(`Backup restored, but ${expectedMediaCount - hydratedMediaCount} media item${expectedMediaCount - hydratedMediaCount === 1 ? "" : "s"} could not be reconnected`);
-      } else {
-        showToast(restoredMediaCount ? "Backup and media restored" : "Backup restored");
-      }
+      const audioCount = ideas.filter(i => i?.visual?.kind === "audio").length;
+      const videoCount = ideas.filter(i => i?.visual?.kind === "video").length;
+      const missingCount = Math.max(0, expectedMediaCount - hydratedMediaCount);
+      maintenance.lastImportAt = new Date().toISOString();
+      await runIntegrityCheck(false);
+      saveAppState(true);
+      showImportSummary({ ideas:ideas.length, songs:songs.length, audio:audioCount, video:videoCount, missing:missingCount });
+      if(missingCount) showToast(`Backup restored with ${missingCount} missing media item${missingCount === 1 ? "" : "s"}`);
+      else showToast(restoredMediaCount ? "Backup and media restored" : "Backup restored");
     } catch(err){
       console.error("Backup import failed", err);
       showToast("That backup could not be restored");
@@ -1970,6 +2027,7 @@
           songs = state.songs;
           preferences = { ...defaultPreferences, ...(state.preferences || {}) };
           accountMigration = { completed:false, completedAt:null, accountId:null, ...(state.accountMigration || {}) };
+          maintenance = { lastBackupAt:null, lastImportAt:null, lastIntegrityCheckAt:null, lastIntegrityReport:null, ...(state.maintenance || {}) };
           ideaSeq = Number(state.ideaSeq) || Math.max(0, ...ideas.map(i => Number(String(i.id || "").match(/idea-(\d+)/)?.[1]) || 0));
           songSeq = Number(state.songSeq) || Math.max(0, ...songs.map(s => Number(String(s.id || "").match(/song-(\d+)/)?.[1]) || 0));
           lastTouchedSongId = state.lastTouchedSongId || null;
@@ -1983,6 +2041,7 @@
     persistenceReady = true;
     lastSavedSnapshot = restored ? JSON.stringify(buildAppState()) : "";
     if(!restored) saveAppState(true);
+    await runIntegrityCheck(false);
     return restored;
   }
 
@@ -2851,6 +2910,7 @@
           : "Ideas saved on this device will be detected automatically when account support arrives.");
     }
     if(byId("settingsLastSaved")) byId("settingsLastSaved").textContent = saveFailure ? "Save failed" : (lastSavedAt ? lastSavedAt.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"}) : "Saved locally");
+    if(byId("settingsHealthStatus")) byId("settingsHealthStatus").textContent = maintenance.lastIntegrityReport?.healthy === false ? "Review" : (maintenance.lastIntegrityReport ? "Healthy" : "Check");
     const alert = byId("saveFailureAlert");
     if(alert) alert.style.display = saveFailure ? "block" : "none";
     updateStorageStatus();
@@ -2868,6 +2928,79 @@
       text.textContent = `${mb(usage)} MB used${quota ? ` of about ${mb(quota)} MB available` : ""}.`;
       fill.style.width = `${pct}%`;
     } catch(err){ text.textContent = "Storage details could not be read."; }
+  }
+
+  async function runIntegrityCheck(showScreen){
+    const report = { checkedAt:new Date().toISOString(), issues:[], repairs:[], counts:{} };
+    const seenIdeas = new Set();
+    ideas = ideas.filter(idea => {
+      if(!idea || !idea.id){ report.issues.push("An idea without an ID was removed."); return false; }
+      if(seenIdeas.has(idea.id)){ report.issues.push(`Duplicate idea ID: ${idea.id}`); return false; }
+      seenIdeas.add(idea.id); normalizeMediaIdea(idea); return true;
+    });
+    const seenSongs = new Set();
+    songs = songs.filter(song => {
+      if(!song || !song.id){ report.issues.push("A song without an ID was removed."); return false; }
+      if(seenSongs.has(song.id)){ report.issues.push(`Duplicate song ID: ${song.id}`); return false; }
+      seenSongs.add(song.id);
+      const before = Array.isArray(song.ideaIds) ? song.ideaIds.length : 0;
+      song.ideaIds = Array.isArray(song.ideaIds) ? [...new Set(song.ideaIds.filter(id => seenIdeas.has(id)))] : [];
+      if(song.ideaIds.length !== before) report.repairs.push(`Repaired idea links in ${song.title || "a song"}.`);
+      return true;
+    });
+    let audio=0, video=0, missingMedia=0;
+    for(const idea of ideas){
+      const kind=idea?.visual?.kind;
+      if(kind !== "audio" && kind !== "video") continue;
+      if(kind === "audio") audio++; else video++;
+      const blob = await getMediaBlob(idea.visual.mediaKey);
+      if(!blob){ missingMedia++; report.issues.push(`Missing ${kind} for “${idea.title || "Untitled idea"}”.`); }
+    }
+    await cleanupOrphanedMedia();
+    report.counts={ ideas:ideas.length, songs:songs.length, audio, video, missingMedia };
+    report.healthy = report.issues.length === 0;
+    maintenance.lastIntegrityCheckAt=report.checkedAt;
+    maintenance.lastIntegrityReport=report;
+    saveAppState(true); renderSettingsStatus();
+    if(showScreen){ renderLibraryHealth(report); goTo("libraryHealth"); }
+    return report;
+  }
+
+  function healthRow(label, value, note){
+    return `<div class="setting-row"><div class="setting-copy"><span class="setting-label">${label}</span>${note ? `<span class="setting-note">${note}</span>` : ""}</div><strong>${value}</strong></div>`;
+  }
+
+  function renderLibraryHealth(report){
+    report = report || maintenance.lastIntegrityReport;
+    const headline=document.getElementById("healthHeadline"), checked=document.getElementById("healthCheckedAt"), box=document.getElementById("healthReport");
+    if(!report || !box) return;
+    headline.textContent = report.healthy ? "Your library looks healthy." : "Your library needs attention.";
+    checked.textContent = `Checked ${new Date(report.checkedAt).toLocaleString()}`;
+    const c=report.counts || {};
+    box.innerHTML = healthRow("Database", report.healthy ? "Healthy" : "Review", report.healthy ? "No unresolved problems detected." : `${report.issues.length} issue${report.issues.length===1?"":"s"} found.`)
+      +healthRow("Ideas", c.ideas ?? ideas.length)
+      +healthRow("Songs", c.songs ?? songs.length)
+      +healthRow("Audio", c.audio ?? 0)
+      +healthRow("Video", c.video ?? 0)
+      +healthRow("Missing media", c.missingMedia ?? 0)
+      +(maintenance.lastBackupAt ? healthRow("Last backup", new Date(maintenance.lastBackupAt).toLocaleDateString()) : healthRow("Last backup", "Not yet"))
+      +(report.repairs?.length ? `<div style="padding:14px 0 4px;"><span class="setting-label">Repairs made</span><p class="setting-note" style="line-height:1.7;">${report.repairs.map(x=>"• "+x).join("<br>")}</p></div>` : "")
+      +(report.issues?.length ? `<div style="padding:14px 0 4px;"><span class="setting-label">Issues</span><p class="setting-note" style="line-height:1.7;">${report.issues.map(x=>"• "+x).join("<br>")}</p></div>` : "");
+  }
+
+  async function openLibraryHealth(){
+    const report=await runIntegrityCheck(false); renderLibraryHealth(report); goTo("libraryHealth");
+  }
+
+  function showImportSummary(summary){
+    const details = [
+      `${summary.ideas} idea${summary.ideas===1?"":"s"}`,
+      `${summary.songs} song${summary.songs===1?"":"s"}`,
+      `${summary.audio} audio recording${summary.audio===1?"":"s"}`,
+      `${summary.video} video${summary.video===1?"":"s"}`,
+      `${summary.missing} missing media item${summary.missing===1?"":"s"}`
+    ].join("\n");
+    alert(`Import Complete\n\n${details}\n\n${summary.missing ? "Review Library Health for details." : "No problems detected."}`);
   }
 
   function openSettings(){
