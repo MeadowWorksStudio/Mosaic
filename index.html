@@ -1458,6 +1458,148 @@
     return { id:"idea-"+ideaSeq, type, title, mood, tags, notes:"", createdAt:new Date().toISOString(), visual: visualOverride || makeVisual(type) };
   }
 
+  // ---------- local persistence ----------
+  const MOSAIC_STORAGE_KEY = "mosaic.appState.v1";
+  const MOSAIC_DB_NAME = "mosaic-media";
+  const MOSAIC_DB_VERSION = 1;
+  const MOSAIC_MEDIA_STORE = "media";
+  let mediaDbPromise = null;
+  let persistenceReady = false;
+  let lastSavedSnapshot = "";
+
+  function openMediaDb(){
+    if(mediaDbPromise) return mediaDbPromise;
+    mediaDbPromise = new Promise((resolve, reject) => {
+      const request = indexedDB.open(MOSAIC_DB_NAME, MOSAIC_DB_VERSION);
+      request.onupgradeneeded = () => {
+        const db = request.result;
+        if(!db.objectStoreNames.contains(MOSAIC_MEDIA_STORE)) db.createObjectStore(MOSAIC_MEDIA_STORE);
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error || new Error("Could not open media storage"));
+    });
+    return mediaDbPromise;
+  }
+
+  async function putMediaBlob(key, blob){
+    if(!key || !blob) return;
+    const db = await openMediaDb();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(MOSAIC_MEDIA_STORE, "readwrite");
+      tx.objectStore(MOSAIC_MEDIA_STORE).put(blob, key);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error || new Error("Could not save media"));
+    });
+  }
+
+  async function getMediaBlob(key){
+    if(!key) return null;
+    const db = await openMediaDb();
+    return await new Promise((resolve, reject) => {
+      const tx = db.transaction(MOSAIC_MEDIA_STORE, "readonly");
+      const request = tx.objectStore(MOSAIC_MEDIA_STORE).get(key);
+      request.onsuccess = () => resolve(request.result || null);
+      request.onerror = () => reject(request.error || new Error("Could not load media"));
+    });
+  }
+
+  async function deleteMediaBlob(key){
+    if(!key) return;
+    const db = await openMediaDb();
+    await new Promise((resolve, reject) => {
+      const tx = db.transaction(MOSAIC_MEDIA_STORE, "readwrite");
+      tx.objectStore(MOSAIC_MEDIA_STORE).delete(key);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error || new Error("Could not delete media"));
+    });
+  }
+
+  function serializableIdeas(){
+    return ideas.map(idea => {
+      const copy = JSON.parse(JSON.stringify(idea));
+      if(copy.visual) delete copy.visual.url;
+      return copy;
+    });
+  }
+
+  function buildAppState(){
+    return {
+      version: 1,
+      ideaSeq,
+      songSeq,
+      lastTouchedSongId,
+      ideas: serializableIdeas(),
+      songs: JSON.parse(JSON.stringify(songs)),
+    };
+  }
+
+  function saveAppState(force){
+    if(!persistenceReady) return;
+    try{
+      const state = buildAppState();
+      const snapshot = JSON.stringify(state);
+      if(force || snapshot !== lastSavedSnapshot){
+        localStorage.setItem(MOSAIC_STORAGE_KEY, snapshot);
+        lastSavedSnapshot = snapshot;
+      }
+    } catch(err){
+      console.error("Mosaic could not save its app state", err);
+    }
+  }
+
+  async function hydrateMediaUrls(){
+    for(const idea of ideas){
+      const visual = idea && idea.visual;
+      if(!visual || !visual.mediaKey || (visual.kind !== "audio" && visual.kind !== "video")) continue;
+      try{
+        const blob = await getMediaBlob(visual.mediaKey);
+        if(blob) visual.url = URL.createObjectURL(blob);
+      } catch(err){
+        console.error("Mosaic could not restore media for", idea.id, err);
+      }
+    }
+  }
+
+  async function loadAppState(){
+    let restored = false;
+    try{
+      const raw = localStorage.getItem(MOSAIC_STORAGE_KEY);
+      if(raw){
+        const state = JSON.parse(raw);
+        if(Array.isArray(state.ideas) && Array.isArray(state.songs)){
+          ideas = state.ideas;
+          songs = state.songs;
+          ideaSeq = Number(state.ideaSeq) || Math.max(0, ...ideas.map(i => Number(String(i.id || "").match(/idea-(\d+)/)?.[1]) || 0));
+          songSeq = Number(state.songSeq) || Math.max(0, ...songs.map(s => Number(String(s.id || "").match(/song-(\d+)/)?.[1]) || 0));
+          lastTouchedSongId = state.lastTouchedSongId || null;
+          restored = true;
+        }
+      }
+    } catch(err){
+      console.error("Mosaic could not load its saved state", err);
+    }
+    await hydrateMediaUrls();
+    persistenceReady = true;
+    lastSavedSnapshot = restored ? JSON.stringify(buildAppState()) : "";
+    if(!restored) saveAppState(true);
+    return restored;
+  }
+
+  async function persistIdeaMedia(idea, blob){
+    if(!idea || !blob || !idea.visual) return;
+    const key = "media-" + idea.id;
+    idea.visual.mediaKey = key;
+    await putMediaBlob(key, blob);
+  }
+
+  function installAutosave(){
+    setInterval(() => saveAppState(false), 900);
+    document.addEventListener("visibilitychange", () => {
+      if(document.visibilityState === "hidden") saveAppState(true);
+    });
+    window.addEventListener("beforeunload", () => saveAppState(true));
+  }
+
   // ---------- navigation ----------
   const COMPOSE_SCREEN_IDS = new Set(["composeLyrics", "composeChords", "composeAudio", "composeVideo", "composeTab", "composeUpload"]);
   let navStack = [];
@@ -2141,12 +2283,14 @@
       box.className = "";
       box.innerHTML = `
         <div class="detail-body-wave" id="audioDetailWave"></div>
-        <audio controls class="audio-player" src="${v.url}"></audio>
+        ${v.url ? `<audio controls class="audio-player" src="${v.url}"></audio>` : `<p style="font-size:12px;color:rgba(244,241,232,.65);">Media is unavailable on this device.</p>`}
       `;
       buildWave(document.getElementById("audioDetailWave"), v.peaks);
     } else if(v.kind === "video"){
       box.className = "";
-      box.innerHTML = `<video controls playsinline webkit-playsinline class="video-preview" style="max-width:100%;" src="${v.url}"></video>`;
+      box.innerHTML = v.url
+        ? `<video controls playsinline webkit-playsinline class="video-preview" style="max-width:100%;" src="${v.url}"></video>`
+        : `<p style="font-size:12px;color:rgba(244,241,232,.65);">Media is unavailable on this device.</p>`;
     } else if(v.kind === "lyric"){
       box.className = "";
       box.innerHTML = `<textarea class="lyric-edit" id="lyricEditArea" placeholder="Start typing…"></textarea>`;
@@ -2846,17 +2990,25 @@
     document.getElementById("uploadFileInput").value = "";
   }
 
-  function plantUploadIdea(){
+  async function plantUploadIdea(){
     const title = document.getElementById("composeUploadTitle").value.trim() || "Untitled idea";
-    if(!uploadState.blobUrl || !uploadState.kind){ showToast("Choose a file first"); return; }
+    if(!uploadState.blobUrl || !uploadState.kind || !uploadState.file){ showToast("Choose a file first"); return; }
     const mood = composeState.mood || "reflective";
     const tags = composeState.tags.size ? [...composeState.tags] : [uploadState.kind];
     const visual = uploadState.kind === "audio"
       ? { kind:"audio", url:uploadState.blobUrl, peaks:uploadState.peaks }
       : { kind:"video", url:uploadState.blobUrl };
     const idea = mkIdea(uploadState.kind, title, mood, tags, visual);
+    try{
+      await persistIdeaMedia(idea, uploadState.file);
+    } catch(err){
+      console.error(err);
+      showToast("That file could not be saved locally");
+      return;
+    }
     ideas.push(idea);
     resetUploadState(false); // ownership of the blob URL transfers to the idea — don't revoke it
+    saveAppState(true);
     finishPlantingIdea(idea);
   }
 
@@ -2883,14 +3035,22 @@
     document.getElementById("audioLiveWave").innerHTML = "";
   }
 
-  function plantAudioIdea(){
+  async function plantAudioIdea(){
     const title = document.getElementById("composeAudioTitle").value.trim() || "Untitled idea";
-    if(!audioRecordState.blobUrl){ showToast("Record something first"); return; }
+    if(!audioRecordState.blobUrl || !audioRecordState.blob){ showToast("Record something first"); return; }
     const mood = composeState.mood || "reflective";
     const tags = composeState.tags.size ? [...composeState.tags] : ["audio"];
     const idea = mkIdea("audio", title, mood, tags, { kind:"audio", url:audioRecordState.blobUrl, peaks:audioRecordState.peaks });
+    try{
+      await persistIdeaMedia(idea, audioRecordState.blob);
+    } catch(err){
+      console.error(err);
+      showToast("That recording could not be saved locally");
+      return;
+    }
     ideas.push(idea);
     resetAudioRecordState(false); // ownership of the blob URL transfers to the idea — don't revoke it
+    saveAppState(true);
     finishPlantingIdea(idea);
   }
 
@@ -3036,14 +3196,22 @@
     startVideoPreview();
   }
 
-  function plantVideoIdea(){
+  async function plantVideoIdea(){
     const title = document.getElementById("composeVideoTitle").value.trim() || "Untitled idea";
-    if(!videoRecordState.blobUrl){ showToast("Record something first"); return; }
+    if(!videoRecordState.blobUrl || !videoRecordState.blob){ showToast("Record something first"); return; }
     const mood = composeState.mood || "reflective";
     const tags = composeState.tags.size ? [...composeState.tags] : ["video"];
     const idea = mkIdea("video", title, mood, tags, { kind:"video", url:videoRecordState.blobUrl });
+    try{
+      await persistIdeaMedia(idea, videoRecordState.blob);
+    } catch(err){
+      console.error(err);
+      showToast("That recording could not be saved locally");
+      return;
+    }
     ideas.push(idea);
     resetVideoRecordState(false); // ownership of the blob URL transfers to the idea — don't revoke it
+    saveAppState(true);
     finishPlantingIdea(idea);
   }
 
@@ -3235,9 +3403,12 @@
     document.getElementById("deleteIdeaOverlay").classList.remove("show");
     if(!idea) return;
 
-    // release any blob URL this idea was holding (audio/video recordings or uploads)
+    // release the active URL and remove the durable media blob for this idea
     if(idea.visual && idea.visual.url){
       try{ URL.revokeObjectURL(idea.visual.url); } catch(err){}
+    }
+    if(idea.visual && idea.visual.mediaKey){
+      deleteMediaBlob(idea.visual.mediaKey).catch(err => console.error("Could not remove stored media", err));
     }
     // detach from every song that referenced it — songs themselves stay
     songs.forEach(s => { s.ideaIds = s.ideaIds.filter(id => id !== idea.id); });
@@ -3596,8 +3767,21 @@
     toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
   }
 
-  attachChordListenButton("chordInputListen", "chordInputField");
-  renderDashboard();
+  async function initializeMosaic(){
+    await loadAppState();
+    attachChordListenButton("chordInputListen", "chordInputField");
+    renderDashboard();
+    installAutosave();
+  }
+
+  initializeMosaic().catch(err => {
+    console.error("Mosaic startup failed", err);
+    persistenceReady = true;
+    attachChordListenButton("chordInputListen", "chordInputField");
+    renderDashboard();
+    installAutosave();
+    showToast("Mosaic opened, but local saving is unavailable");
+  });
 </script>
 
 </body>
