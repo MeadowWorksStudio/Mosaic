@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mosaic — Meadow Works</title>
+<title>Mosaic v0.20 — Meadow Works</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -19,7 +19,64 @@
     --slate:#4A4A4A;
     --line: rgba(31,58,46,0.12);
     --shadow: 0 18px 40px rgba(20,39,32,0.22);
+    --splash-bg-start:#F4F1E8;
+    --splash-bg-end:#E4DDCA;
+    --splash-text:#1F3A2E;
+    --splash-muted:rgba(31,58,46,.68);
+    --splash-faint:rgba(31,58,46,.46);
+    --splash-accent:#8B672C;
   }
+
+
+  :root[data-theme="dark"]{
+    --forest:#E6EBDD;
+    --forest-deep:#0E1B16;
+    --meadow:#9BB293;
+    --harvest:#D2AC63;
+    --harvest-dark:#B8914B;
+    --cream:#17251F;
+    --cream-soft:#1D2E26;
+    --slate:#D8DDD5;
+    --line:rgba(230,235,221,0.12);
+    --shadow:0 18px 40px rgba(0,0,0,0.34);
+    --splash-bg-start:#1F3A2E;
+    --splash-bg-end:#142720;
+    --splash-text:#F4F1E8;
+    --splash-muted:rgba(244,241,232,.72);
+    --splash-faint:rgba(244,241,232,.48);
+    --splash-accent:#D2AC63;
+  }
+  :root[data-theme="dark"] .field-input,
+  :root[data-theme="dark"] textarea,
+  :root[data-theme="dark"] select{ color:var(--slate); background:#21352B; }
+  :root[data-theme="dark"] .settings-card{ background:#1D2E26; }
+  :root[data-theme="dark"] .setting-note{ color:#AEB9AF; }
+
+  .icon-button{
+    width:38px;height:38px;border-radius:50%;border:1px solid var(--line);
+    background:var(--cream-soft);color:var(--forest);display:flex;align-items:center;justify-content:center;
+    cursor:pointer;font-size:18px;flex-shrink:0;
+  }
+  .settings-group{ margin-bottom:22px; }
+  .settings-group > h3{ font-size:18px; margin-bottom:10px; }
+  .settings-card{ background:var(--cream-soft); border:1px solid var(--line); border-radius:18px; padding:16px; }
+  .setting-row{ display:flex; align-items:center; justify-content:space-between; gap:14px; padding:11px 0; border-bottom:1px solid var(--line); }
+  .setting-row:last-child{ border-bottom:none; }
+  .setting-copy{ min-width:0; flex:1; }
+  .setting-label{ display:block; font-size:13px; font-weight:700; color:var(--forest); margin-bottom:3px; }
+  .setting-note{ display:block; font-size:11.5px; line-height:1.4; color:#7B847D; }
+  .settings-card .field-input, .settings-card select{ width:100%; margin-top:7px; }
+  .settings-card select{ border:1px solid var(--line); border-radius:12px; padding:11px 12px; font:inherit; color:var(--slate); background:var(--cream); }
+  .switch{ position:relative; width:48px; height:28px; flex:0 0 48px; }
+  .switch input{ opacity:0; width:0; height:0; }
+  .switch-slider{ position:absolute; inset:0; border-radius:99px; background:#B9C0B9; transition:.2s; cursor:pointer; }
+  .switch-slider::after{ content:""; position:absolute; width:22px; height:22px; left:3px; top:3px; border-radius:50%; background:white; transition:.2s; box-shadow:0 2px 6px rgba(0,0,0,.18); }
+  .switch input:checked + .switch-slider{ background:var(--meadow); }
+  .switch input:checked + .switch-slider::after{ transform:translateX(20px); }
+  .splash-tagline-main{ font-family:'Fraunces',serif; font-size:18px; color:var(--splash-text); margin:0 0 8px; }
+  .splash-tagline-sub{ font-size:13px; color:var(--splash-muted); line-height:1.5; margin:0; max-width:280px; }
+  .planted-flash{ animation:plantedPulse .55s ease; }
+  @keyframes plantedPulse{ 0%{transform:scale(1)} 45%{transform:scale(1.035)} 100%{transform:scale(1)} }
 
   *{ box-sizing:border-box; }
   html,body{ margin:0; padding:0; width:100%; height:100%; overflow:hidden; }
@@ -114,11 +171,11 @@
 
   /* ---------- SPLASH ---------- */
   #splash{
-    background: linear-gradient(160deg, var(--forest) 0%, var(--forest-deep) 100%);
+    background: linear-gradient(160deg, var(--splash-bg-start) 0%, var(--splash-bg-end) 100%);
     align-items:center;
     justify-content:space-between;
     text-align:center;
-    color:var(--cream);
+    color:var(--splash-text);
     padding:64px 40px 56px;
   }
   .splash-top, .splash-middle, .splash-bottom{
@@ -133,27 +190,27 @@
     font-size:13px;
     letter-spacing:.22em;
     text-transform:uppercase;
-    color:var(--harvest);
+    color:var(--splash-accent);
     margin-bottom:6px;
   }
   .splash-sub{
     font-size:11px;
     letter-spacing:.18em;
     text-transform:uppercase;
-    color:rgba(244,241,232,0.55);
+    color:var(--splash-faint);
   }
   .mosaic-word{
     font-family:'Fraunces', serif;
     font-weight:500;
     font-size:56px;
     letter-spacing:.02em;
-    color:var(--cream);
+    color:var(--splash-text);
     margin:0 0 14px;
   }
   .mosaic-tagline{
     font-size:14px;
     font-style:italic;
-    color:rgba(244,241,232,0.72);
+    color:var(--splash-muted);
     max-width:260px;
     margin:0 auto;
     line-height:1.5;
@@ -166,9 +223,12 @@
     font-size:10px;
     letter-spacing:.1em;
     text-transform:uppercase;
-    color:rgba(244,241,232,0.35);
+    color:var(--splash-faint);
     margin-top:18px;
   }
+  #splash .sprout{ color:var(--splash-accent); }
+  #splash .btn-primary{ background:var(--splash-accent); color:#fff; box-shadow:0 8px 18px rgba(20,39,32,.16); }
+  :root[data-theme="dark"] #splash .btn-primary{ color:#142720; }
   .btn{
     font-family:'Inter',sans-serif;
     font-weight:600;
@@ -871,9 +931,10 @@
       <div class="splash-sub">presents</div>
     </div>
     <div class="splash-middle">
-      <svg class="sprout" viewBox="0 0 24 24" fill="none" style="margin-bottom:24px;"><path d="M12 21V11" stroke="#C59D52" stroke-width="1.4" stroke-linecap="round"/><path d="M12 11C12 11 5 11.5 5 5C11.5 5 12 11 12 11Z" stroke="#C59D52" stroke-width="1.4"/><path d="M12 14C12 14 19 14.4 19 8.5C13 8.5 12 14 12 14Z" stroke="#C59D52" stroke-width="1.4"/></svg>
+      <svg class="sprout" viewBox="0 0 24 24" fill="none" style="margin-bottom:24px;"><path d="M12 21V11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M12 11C12 11 5 11.5 5 5C11.5 5 12 11 12 11Z" stroke="currentColor" stroke-width="1.4"/><path d="M12 14C12 14 19 14.4 19 8.5C13 8.5 12 14 12 14Z" stroke="currentColor" stroke-width="1.4"/></svg>
       <h1 class="mosaic-word">Mosaic</h1>
-      <p class="mosaic-tagline">Every idea deserves room to grow.</p>
+      <p class="splash-tagline-main">Plant ideas. Grow songs.</p>
+      <p class="splash-tagline-sub">Every great song begins with a single idea.</p>
     </div>
     <div class="splash-bottom">
       <button class="btn btn-primary" onclick="goTo('dashboard')">Begin</button>
@@ -883,15 +944,16 @@
 
   <!-- DASHBOARD -->
   <div class="screen" id="dashboard">
-    <div class="app-header" style="justify-content:flex-start;">
+    <div class="app-header">
       <div>
         <div class="eyebrow" style="color:var(--meadow);">Mosaic</div>
       </div>
+      <button class="icon-button" type="button" onclick="openSettings()" aria-label="Open preferences">&#9881;</button>
     </div>
     <div class="scroll-area">
       <div class="greeting">
-        <h2 id="greetingText">Good evening, Richard</h2>
-        <p>Your meadow, as you left it.</p>
+        <h2 id="greetingText">Good evening</h2>
+        <p id="greetingSubtext">Your meadow, as you left it.</p>
       </div>
 
       <div class="continue-card" id="continueCard"></div>
@@ -1381,6 +1443,97 @@
     </div>
   </div>
 
+
+  <!-- SETTINGS -->
+  <div class="screen" id="settings">
+    <div class="app-header">
+      <div class="back" onclick="goBack()">&#8592;</div>
+      <div class="eyebrow">Preferences</div>
+      <div style="width:38px;"></div>
+    </div>
+    <div class="scroll-area">
+      <div style="padding:4px 0 22px;">
+        <h2 style="font-size:30px;">Make Mosaic yours.</h2>
+        <p style="font-size:13px; line-height:1.6; margin:7px 0 0;">Keep the experience personal while the ideas stay at the center.</p>
+      </div>
+
+      <section class="settings-group">
+        <h3>Profile</h3>
+        <div class="settings-card">
+          <label class="setting-label" for="prefDisplayName">Display name <span style="font-weight:400;color:var(--meadow);">(optional)</span></label>
+          <input class="field-input" id="prefDisplayName" placeholder="How Mosaic should greet you" oninput="updatePreference('displayName', this.value)">
+          <label class="setting-label" for="prefArtistName" style="margin-top:14px;">Artist or band</label>
+          <input class="field-input" id="prefArtistName" placeholder="Optional" oninput="updatePreference('artistName', this.value)">
+          <label class="setting-label" for="prefStudioName" style="margin-top:14px;">Studio</label>
+          <input class="field-input" id="prefStudioName" placeholder="Optional" oninput="updatePreference('studioName', this.value)">
+        </div>
+      </section>
+
+      <section class="settings-group">
+        <h3>Experience</h3>
+        <div class="settings-card">
+          <div class="setting-row">
+            <div class="setting-copy"><span class="setting-label">Greeting</span><span class="setting-note">Choose the style used on the home screen.</span></div>
+            <select id="prefGreeting" style="width:142px;margin:0;" onchange="updatePreference('greetingStyle', this.value)">
+              <option value="time">Time of day</option><option value="welcome">Welcome back</option><option value="none">None</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <div class="setting-copy"><span class="setting-label">Inspiration message</span><span class="setting-note">Show a quiet reminder beneath your greeting.</span></div>
+            <label class="switch"><input id="prefInspiration" type="checkbox" onchange="updatePreference('showInspiration', this.checked)"><span class="switch-slider"></span></label>
+          </div>
+        </div>
+      </section>
+
+      <section class="settings-group">
+        <h3>Appearance</h3>
+        <div class="settings-card">
+          <div class="setting-row">
+            <div class="setting-copy"><span class="setting-label">Theme</span><span class="setting-note">Light, dark, or follow your device.</span></div>
+            <select id="prefTheme" style="width:128px;margin:0;" onchange="updatePreference('theme', this.value)">
+              <option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="settings-group">
+        <h3>Recording</h3>
+        <div class="settings-card">
+          <div class="setting-row">
+            <div class="setting-copy"><span class="setting-label">Audio quality</span><span class="setting-note">Used for new recordings when supported.</span></div>
+            <select id="prefAudioQuality" style="width:122px;margin:0;" onchange="updatePreference('audioQuality', this.value)">
+              <option value="standard">Standard</option><option value="high">High</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <div class="setting-copy"><span class="setting-label">Video quality</span><span class="setting-note">Lower quality uses less device storage.</span></div>
+            <select id="prefVideoQuality" style="width:122px;margin:0;" onchange="updatePreference('videoQuality', this.value)">
+              <option value="standard">Standard</option><option value="high">High</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section class="settings-group">
+        <h3>Library</h3>
+        <div class="settings-card">
+          <div class="setting-row"><div class="setting-copy"><span class="setting-label">Ideas planted</span><span class="setting-note">Fragments currently stored in this browser.</span></div><strong id="settingsIdeaCount">0</strong></div>
+          <div class="setting-row"><div class="setting-copy"><span class="setting-label">Songs growing</span><span class="setting-note">Songs currently taking shape.</span></div><strong id="settingsSongCount">0</strong></div>
+          <div class="setting-row"><div class="setting-copy"><span class="setting-label">Last saved</span><span class="setting-note">Mosaic saves automatically on this device.</span></div><strong id="settingsLastSaved" style="font-size:12px;">Just now</strong></div>
+        </div>
+      </section>
+
+      <section class="settings-group">
+        <h3>About</h3>
+        <div class="settings-card">
+          <div class="setting-row"><div class="setting-copy"><span class="setting-label">Mosaic</span><span class="setting-note">Plant ideas. Grow songs.</span></div><strong>v0.20</strong></div>
+          <div class="setting-row"><div class="setting-copy"><span class="setting-label">By Meadow Works</span><span class="setting-note">Every great song begins with a single idea.</span></div></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
 </div>
@@ -1473,6 +1626,13 @@
   let mediaDbPromise = null;
   let persistenceReady = false;
   let lastSavedSnapshot = "";
+  let lastSavedAt = null;
+  const defaultPreferences = {
+    displayName:"", artistName:"", studioName:"",
+    greetingStyle:"time", showInspiration:true, theme:"system",
+    audioQuality:"standard", videoQuality:"standard"
+  };
+  let preferences = { ...defaultPreferences };
 
   function openMediaDb(){
     if(mediaDbPromise) return mediaDbPromise;
@@ -1531,7 +1691,8 @@
 
   function buildAppState(){
     return {
-      version: 1,
+      version: 2,
+      preferences: { ...preferences },
       ideaSeq,
       songSeq,
       lastTouchedSongId,
@@ -1548,6 +1709,8 @@
       if(force || snapshot !== lastSavedSnapshot){
         localStorage.setItem(MOSAIC_STORAGE_KEY, snapshot);
         lastSavedSnapshot = snapshot;
+        lastSavedAt = new Date();
+        renderSettingsStatus();
       }
     } catch(err){
       console.error("Mosaic could not save its app state", err);
@@ -1576,6 +1739,7 @@
         if(Array.isArray(state.ideas) && Array.isArray(state.songs)){
           ideas = state.ideas;
           songs = state.songs;
+          preferences = { ...defaultPreferences, ...(state.preferences || {}) };
           ideaSeq = Number(state.ideaSeq) || Math.max(0, ...ideas.map(i => Number(String(i.id || "").match(/idea-(\d+)/)?.[1]) || 0));
           songSeq = Number(state.songSeq) || Math.max(0, ...songs.map(s => Number(String(s.id || "").match(/song-(\d+)/)?.[1]) || 0));
           lastTouchedSongId = state.lastTouchedSongId || null;
@@ -2398,6 +2562,62 @@
     renderDetailChordChips(idea);
   }
 
+
+  function resolvedTheme(){
+    if(preferences.theme === "system") return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    return preferences.theme;
+  }
+
+  function applyTheme(){
+    document.documentElement.dataset.theme = resolvedTheme();
+  }
+
+  function updatePreference(key, value){
+    preferences[key] = typeof value === "string" ? value.trimStart() : value;
+    applyTheme();
+    renderDashboardGreeting();
+    renderSettingsStatus();
+    saveAppState(true);
+  }
+
+  function renderDashboardGreeting(){
+    const hour = new Date().getHours();
+    const name = (preferences.displayName || "").trim();
+    let greeting = "";
+    if(preferences.greetingStyle === "welcome") greeting = "Welcome back";
+    else if(preferences.greetingStyle === "time") greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+    const heading = document.getElementById("greetingText");
+    const sub = document.getElementById("greetingSubtext");
+    if(heading){
+      heading.style.display = preferences.greetingStyle === "none" ? "none" : "";
+      heading.textContent = greeting + (name ? ", " + name : "");
+    }
+    if(sub){
+      sub.style.display = preferences.showInspiration ? "" : "none";
+      sub.textContent = "Every great song begins with a single idea.";
+    }
+  }
+
+  function renderSettingsStatus(){
+    const byId = id => document.getElementById(id);
+    if(byId("prefDisplayName")) byId("prefDisplayName").value = preferences.displayName || "";
+    if(byId("prefArtistName")) byId("prefArtistName").value = preferences.artistName || "";
+    if(byId("prefStudioName")) byId("prefStudioName").value = preferences.studioName || "";
+    if(byId("prefGreeting")) byId("prefGreeting").value = preferences.greetingStyle;
+    if(byId("prefInspiration")) byId("prefInspiration").checked = !!preferences.showInspiration;
+    if(byId("prefTheme")) byId("prefTheme").value = preferences.theme;
+    if(byId("prefAudioQuality")) byId("prefAudioQuality").value = preferences.audioQuality;
+    if(byId("prefVideoQuality")) byId("prefVideoQuality").value = preferences.videoQuality;
+    if(byId("settingsIdeaCount")) byId("settingsIdeaCount").textContent = ideas.length;
+    if(byId("settingsSongCount")) byId("settingsSongCount").textContent = songs.length;
+    if(byId("settingsLastSaved")) byId("settingsLastSaved").textContent = lastSavedAt ? lastSavedAt.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"}) : "Saved locally";
+  }
+
+  function openSettings(){
+    renderSettingsStatus();
+    goTo("settings");
+  }
+
   // ---------- dashboard ----------
   function renderContinueWorking(){
     const card = document.getElementById("continueCard");
@@ -2428,9 +2648,7 @@
   }
 
   function renderDashboard(){
-    const hour = new Date().getHours();
-    const g = hour < 12 ? "Good morning, Richard" : hour < 18 ? "Good afternoon, Richard" : "Good evening, Richard";
-    document.getElementById("greetingText").textContent = g;
+    renderDashboardGreeting();
 
     renderContinueWorking();
 
@@ -2441,8 +2659,8 @@
       row.innerHTML = `
         <div class="empty-state" style="width:100%;">
           <svg class="sprout" viewBox="0 0 24 24" fill="none"><path d="M12 21V11" stroke="#6D8467" stroke-width="1.4" stroke-linecap="round"/><path d="M12 11C12 11 5 11.5 5 5C11.5 5 12 11 12 11Z" stroke="#6D8467" stroke-width="1.4"/><path d="M12 14C12 14 19 14.4 19 8.5C13 8.5 12 14 12 14Z" stroke="#6D8467" stroke-width="1.4"/></svg>
-          <h4>Your meadow is waiting.</h4>
-          <p>Plant your first idea.</p>
+          <h4>&#127793; Nothing planted yet.</h4>
+          <p>Every great song begins with a single idea.<br>Plant one below.</p>
         </div>`;
     } else {
       row.style.display = "flex";
@@ -2546,8 +2764,8 @@
       wrap.innerHTML = `
         <div class="empty-state">
           <svg class="sprout" viewBox="0 0 24 24" fill="none"><path d="M12 21V11" stroke="#6D8467" stroke-width="1.4" stroke-linecap="round"/><path d="M12 11C12 11 5 11.5 5 5C11.5 5 12 11 12 11Z" stroke="#6D8467" stroke-width="1.4"/><path d="M12 14C12 14 19 14.4 19 8.5C13 8.5 12 14 12 14Z" stroke="#6D8467" stroke-width="1.4"/></svg>
-          <h4>Your meadow is waiting.</h4>
-          <p>Plant your first idea.</p>
+          <h4>&#127793; Nothing planted yet.</h4>
+          <p>Every great song begins with a single idea.<br>Plant one below.</p>
         </div>`;
       return;
     }
@@ -2845,7 +3063,8 @@
     audioRecordState.stream = stream;
     audioRecordState.chunks = [];
     const mimeType = (window.MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported("audio/webm")) ? "audio/webm" : "";
-    const mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+    const audioBitsPerSecond = preferences.audioQuality === "high" ? 192000 : 96000;
+    const mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType, audioBitsPerSecond }) : new MediaRecorder(stream, { audioBitsPerSecond });
     audioRecordState.mediaRecorder = mediaRecorder;
 
     mediaRecorder.ondataavailable = (e) => { if(e.data && e.data.size > 0) audioRecordState.chunks.push(e.data); };
@@ -3137,7 +3356,8 @@
     videoRecordState.chunks = [];
 
     const mimeType = (window.MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported("video/webm")) ? "video/webm" : "";
-    const mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+    const videoBitsPerSecond = preferences.videoQuality === "high" ? 5000000 : 2200000;
+    const mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType, videoBitsPerSecond }) : new MediaRecorder(stream, { videoBitsPerSecond });
     videoRecordState.mediaRecorder = mediaRecorder;
 
     mediaRecorder.ondataavailable = (e) => { if(e.data && e.data.size > 0) videoRecordState.chunks.push(e.data); };
@@ -3505,6 +3725,7 @@
   let pendingSongLinkId = null; // set while a quick-capture was started from inside a song, so the new idea auto-attaches
 
   function finishPlantingIdea(idea){
+    showPlantedConfirmation();
     if(pendingSongLinkId){
       const songId = pendingSongLinkId;
       const song = songs.find(s => s.id === songId);
@@ -3766,6 +3987,15 @@
 
   // ---------- toast ----------
   let toastTimer;
+  function showPlantedConfirmation(){
+    const activeButton = document.querySelector(".screen.active .btn-primary");
+    if(activeButton){
+      activeButton.classList.remove("planted-flash");
+      void activeButton.offsetWidth;
+      activeButton.classList.add("planted-flash");
+    }
+    showToast("🌱 Planted");
+  }
   function showToast(msg){
     const t = document.getElementById("toast");
     t.textContent = msg;
@@ -3776,8 +4006,13 @@
 
   async function initializeMosaic(){
     await loadAppState();
+    applyTheme();
+    if(window.matchMedia){
+      window.matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => { if(preferences.theme === "system") applyTheme(); });
+    }
     attachChordListenButton("chordInputListen", "chordInputField");
     renderDashboard();
+    renderSettingsStatus();
     installAutosave();
   }
 
