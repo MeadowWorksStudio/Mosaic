@@ -925,7 +925,7 @@
     z-index:6;
     white-space:nowrap;
   }
-  .toast.show{ opacity:1; transform:translate(-50%, 0); }
+  .toast.show{ opacity:1; transform:translate(-50%, 0); pointer-events:auto; }
 </style>
 </head>
 <body>
@@ -1442,7 +1442,7 @@
       <div class="overlay" id="deleteIdeaOverlay">
         <div class="sheet">
           <h3>Delete this idea?</h3>
-          <p style="font-size:13px; color:var(--slate); margin:0 0 18px; line-height:1.5;">This can't be undone. If it's part of any song, it'll be removed from there too — the song itself stays.</p>
+          <p style="font-size:13px; color:var(--slate); margin:0 0 18px; line-height:1.5;">You’ll have 8 seconds to undo this. If it’s part of any song, it’ll be removed from there too — the song itself stays.</p>
           <button type="button" class="btn" style="width:100%; background:#c0453f; color:#fff; margin-bottom:10px;" onclick="deleteIdeaConfirmed()">Delete Idea</button>
           <button class="btn btn-ghost" style="width:100%; color:var(--forest); border-color:var(--line);" onclick="cancelDeleteIdea()">Cancel</button>
         </div>
@@ -1536,7 +1536,7 @@
             <button type="button" class="library-action primary" onclick="exportMosaicBackup()">Export Backup</button>
             <button type="button" class="library-action" onclick="document.getElementById('backupImportInput').click()">Import Backup</button>
           </div>
-          <input id="backupImportInput" type="file" accept="application/json,.json,.mosaic" hidden onchange="importMosaicBackup(this.files && this.files[0]); this.value=''">
+          <input id="backupImportInput" type="file" accept=".json,.mosaic,.mosaic.json,application/json,text/plain" hidden onchange="handleBackupFileSelection(this)">
           <div class="save-alert" id="saveFailureAlert"><strong>Your latest changes may not be saved.</strong><br><span id="saveFailureMessage">Keep Mosaic open and export a backup.</span></div>
         </div>
       </section>
@@ -1572,7 +1572,7 @@
     <div class="scroll-area">
       <div style="padding:6px 0 20px;"><h2 style="font-size:30px;">How Mosaic has grown.</h2></div>
       <section class="settings-group"><div class="settings-card">
-        <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.31 — Foundation</span><span class="setting-note">Release notes, diagnostics, versioned backups, integrity checks, and import summaries.</span></div></div>
+        <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.31.2 — Import Hotfix</span><span class="setting-note">Release notes, diagnostics, versioned backups, integrity checks, and import summaries.</span></div></div>
         <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.30 — Library Safety</span><span class="setting-note">Backup and restore, undo delete, storage awareness, migration readiness, and media restore fixes.</span></div></div>
         <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.20 — Foundations</span><span class="setting-note">Preferences, themes, personalized greetings, and Mosaic's growth-centered voice.</span></div></div>
         <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.10 — Prototype</span><span class="setting-note">Initial idea capture, playback, song workspace, matching, and dashboard.</span></div></div>
@@ -1924,8 +1924,8 @@
         format:"mosaic-backup",
         backupVersion:3,
         exportedAt:new Date().toISOString(),
-        appVersion:"0.31",
-        releaseName:"Foundation",
+        appVersion:"0.31.2",
+        releaseName:"Import Hotfix",
         platform:navigator.userAgent,
         state:buildAppState(),
         media
@@ -1934,7 +1934,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       const stamp = new Date().toISOString().slice(0,10);
-      a.href = url; a.download = `Mosaic_Backup_v0.31_${stamp}.mosaic.json`;
+      a.href = url; a.download = `Mosaic_Backup_v0.31.2_${stamp}.mosaic.json`;
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
       maintenance.lastBackupAt = new Date().toISOString(); saveAppState(true); renderSettingsStatus(); showToast("Backup exported");
@@ -1944,54 +1944,118 @@
     }
   }
 
+  let backupImportInProgress = false;
+
+  async function handleBackupFileSelection(input){
+    const file = input && input.files && input.files[0];
+    try{ await importMosaicBackup(file); }
+    finally{ if(input) input.value = ""; }
+  }
+
+  async function readBackupText(file){
+    if(!file) throw new Error("No backup file was selected.");
+    if(file.size === 0) throw new Error("The selected backup file is empty.");
+    let text;
+    if(typeof file.text === "function") text = await file.text();
+    else text = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result || ""));
+      reader.onerror = () => reject(reader.error || new Error("The browser could not read this file."));
+      reader.readAsText(file);
+    });
+    return String(text || "").replace(/^\uFEFF/, "").trim();
+  }
+
+  function normalizeBackupPayload(parsed){
+    if(!parsed || typeof parsed !== "object") throw new Error("This file does not contain a Mosaic backup.");
+    // Current versioned format.
+    if(parsed.format === "mosaic-backup" && parsed.state) return parsed;
+    // Compatibility with early backups that stored state at the top level.
+    if(Array.isArray(parsed.ideas) && Array.isArray(parsed.songs)){
+      return { format:"mosaic-backup", backupVersion:Number(parsed.backupVersion || 1), appVersion:parsed.appVersion || "legacy", state:parsed, media:parsed.media || {} };
+    }
+    throw new Error("This file is not a recognized Mosaic backup.");
+  }
+
   async function importMosaicBackup(file){
-    if(!file) return;
+    if(!file || backupImportInProgress) return;
+    backupImportInProgress = true;
+    const previous = {
+      ideas, songs, preferences, accountMigration, maintenance,
+      ideaSeq, songSeq, lastTouchedSongId
+    };
     try{
-      const parsed = JSON.parse(await file.text());
-      if(parsed?.format !== "mosaic-backup" || !parsed.state || !Array.isArray(parsed.state.ideas) || !Array.isArray(parsed.state.songs)) throw new Error("Not a valid Mosaic backup");
-      if(Number(parsed.backupVersion || 1) > 3) throw new Error("This backup was created by a newer version of Mosaic");
-      if(!confirm("Importing this backup will replace the library currently stored on this device. Continue?")) return;
+      showToast("Reading backup…");
+      const text = await readBackupText(file);
+      let raw;
+      try{ raw = JSON.parse(text); }
+      catch(parseError){ throw new Error("The backup file is not valid JSON or may be incomplete."); }
+      const parsed = normalizeBackupPayload(raw);
       const state = parsed.state;
-      ideas.forEach(i => { if(i?.visual?.url) try{ URL.revokeObjectURL(i.visual.url); }catch(err){} });
-      ideas = state.ideas.map(normalizeMediaIdea); songs = state.songs;
+      if(!Array.isArray(state.ideas) || !Array.isArray(state.songs)) throw new Error("The backup is missing its ideas or songs library.");
+      const backupVersion = Number(parsed.backupVersion || 1);
+      if(!Number.isFinite(backupVersion) || backupVersion < 1) throw new Error("The backup format version is invalid.");
+      if(backupVersion > 3) throw new Error("This backup was created by a newer version of Mosaic and cannot be imported here.");
+      if(!confirm(`Import ${state.ideas.length} idea${state.ideas.length===1?"":"s"} and ${state.songs.length} song${state.songs.length===1?"":"s"}? This will replace the library currently stored on this device.`)) return;
+
+      const nextIdeas = state.ideas.map(i => normalizeMediaIdea(JSON.parse(JSON.stringify(i))));
+      const nextSongs = JSON.parse(JSON.stringify(state.songs));
+      ideas = nextIdeas; songs = nextSongs;
       preferences = { ...defaultPreferences, ...(state.preferences || {}) };
       accountMigration = { completed:false, completedAt:null, accountId:null, ...(state.accountMigration || {}) };
       maintenance = { lastBackupAt:null, lastImportAt:null, lastIntegrityCheckAt:null, lastIntegrityReport:null, ...(state.maintenance || {}) };
       ideaSeq = Number(state.ideaSeq) || Math.max(0, ...ideas.map(i => Number(String(i.id || "").match(/idea-(\d+)/)?.[1]) || 0));
       songSeq = Number(state.songSeq) || Math.max(0, ...songs.map(x => Number(String(x.id || "").match(/song-(\d+)/)?.[1]) || 0));
       lastTouchedSongId = state.lastTouchedSongId || null;
-      const media = parsed.media || {};
+
+      const media = parsed.media && typeof parsed.media === "object" ? parsed.media : {};
       let restoredMediaCount = 0;
+      let failedMediaCount = 0;
       for(const [originalKey, stored] of Object.entries(media)){
-        const record = typeof stored === "string" ? { dataUrl:stored } : (stored || {});
-        const idea = ideas.find(i => i.id === record.ideaId) || ideas.find(i => i?.visual?.mediaKey === originalKey) || ideas.find(i => ("media-" + i.id) === originalKey);
-        const key = idea?.visual?.mediaKey || originalKey;
-        if(idea && !idea.visual.mediaKey) idea.visual.mediaKey = key;
-        if(idea && record.kind && (record.kind === "audio" || record.kind === "video")) idea.visual.kind = record.kind;
-        if(!record.dataUrl) continue;
-        const mediaBlob = dataUrlToBlob(record.dataUrl);
-        if(idea) idea.visual.mimeType = mediaBlob.type || record.mimeType || idea.visual.mimeType;
-        await putMediaBlob(key, mediaBlob);
-        restoredMediaCount++;
+        try{
+          const record = typeof stored === "string" ? { dataUrl:stored } : (stored || {});
+          const idea = ideas.find(i => i.id === record.ideaId) || ideas.find(i => i?.visual?.mediaKey === originalKey) || ideas.find(i => ("media-" + i.id) === originalKey);
+          const key = idea?.visual?.mediaKey || originalKey;
+          if(!key || !record.dataUrl) { failedMediaCount++; continue; }
+          if(idea && !idea.visual.mediaKey) idea.visual.mediaKey = key;
+          if(idea && (record.kind === "audio" || record.kind === "video")) idea.visual.kind = record.kind;
+          const mediaBlob = dataUrlToBlob(record.dataUrl);
+          if(!mediaBlob.size) throw new Error("Empty media item");
+          if(idea) idea.visual.mimeType = mediaBlob.type || record.mimeType || idea.visual.mimeType;
+          await putMediaBlob(key, mediaBlob);
+          restoredMediaCount++;
+        } catch(mediaError){
+          failedMediaCount++;
+          console.warn("Mosaic skipped one media item during import", mediaError);
+        }
       }
-      await cleanupOrphanedMedia();
+
+      ideas.forEach(i => { if(i?.visual?.url) try{ URL.revokeObjectURL(i.visual.url); }catch(err){} });
       const hydratedMediaCount = await hydrateMediaUrls();
       saveFailure = null;
-      saveAppState(true); applyTheme(); renderSettingsStatus(); renderDashboard();
-      goTo("dashboard", false);
-      const expectedMediaCount = ideas.filter(i => i?.visual?.kind === "audio" || i?.visual?.kind === "video").length;
-      const audioCount = ideas.filter(i => i?.visual?.kind === "audio").length;
-      const videoCount = ideas.filter(i => i?.visual?.kind === "video").length;
-      const missingCount = Math.max(0, expectedMediaCount - hydratedMediaCount);
       maintenance.lastImportAt = new Date().toISOString();
       await runIntegrityCheck(false);
       saveAppState(true);
+      await cleanupOrphanedMedia();
+      applyTheme(); renderSettingsStatus(); renderDashboard();
+      goTo("dashboard", false);
+
+      const expectedMediaCount = ideas.filter(i => i?.visual?.kind === "audio" || i?.visual?.kind === "video").length;
+      const audioCount = ideas.filter(i => i?.visual?.kind === "audio").length;
+      const videoCount = ideas.filter(i => i?.visual?.kind === "video").length;
+      const missingCount = Math.max(failedMediaCount, expectedMediaCount - hydratedMediaCount);
       showImportSummary({ ideas:ideas.length, songs:songs.length, audio:audioCount, video:videoCount, missing:missingCount });
-      if(missingCount) showToast(`Backup restored with ${missingCount} missing media item${missingCount === 1 ? "" : "s"}`);
-      else showToast(restoredMediaCount ? "Backup and media restored" : "Backup restored");
+      showToast(missingCount ? `Imported with ${missingCount} media warning${missingCount===1?"":"s"}` : (restoredMediaCount ? "Backup and media restored" : "Backup restored"));
     } catch(err){
+      ideas = previous.ideas; songs = previous.songs; preferences = previous.preferences;
+      accountMigration = previous.accountMigration; maintenance = previous.maintenance;
+      ideaSeq = previous.ideaSeq; songSeq = previous.songSeq; lastTouchedSongId = previous.lastTouchedSongId;
       console.error("Backup import failed", err);
-      showToast("That backup could not be restored");
+      const message = err && err.message ? err.message : "An unknown import error occurred.";
+      alert(`Mosaic could not import this backup.\n\n${message}\n\nYour current library has not been replaced.`);
+      showToast("Backup import failed");
+    } finally{
+      backupImportInProgress = false;
     }
   }
 
