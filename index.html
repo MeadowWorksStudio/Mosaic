@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mosaic v0.38.5 — Contact Us</title>
+<title>Mosaic v0.38.9 — Help & Getting Started</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -380,6 +380,9 @@
   .idea-card h4{ font-family:'Inter',sans-serif; font-size:13px; font-weight:600; color:var(--forest); margin:0 0 4px; }
   .idea-card p{ font-size:11px; color:#8b8b8b; margin:0; line-height:1.35; }
   .idea-card-date{ margin-top:7px !important; color:var(--meadow) !important; font-weight:600; }
+  .sample-badge{display:inline-flex;align-items:center;gap:4px;margin:0 0 7px;padding:3px 7px;border:1px solid rgba(197,157,82,.55);border-radius:999px;background:rgba(197,157,82,.12);color:#8a6423;font-size:9px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;line-height:1;}
+  .sample-badge.compact{margin:0 0 0 7px;vertical-align:middle;}
+  :root[data-theme="dark"] .sample-badge{background:rgba(197,157,82,.16);border-color:rgba(232,213,174,.45);color:#E8D5AE;}
   .library-row-actions{ margin-left:auto; display:flex; align-items:center; align-self:stretch; }
   .library-delete-btn{
     width:34px; height:34px; border:0; border-radius:10px; background:transparent; color:#9b5b55;
@@ -1038,7 +1041,7 @@
 </style>
 
 <style id="v0384-dark-mode-balance">
-  /* v0.38.5: contact and support details */
+  /* v0.38.9: in-app help and Meadow Works guidance */
   :root[data-theme="dark"]{
     --forest:#E7EEE8;
     --forest-deep:#0E1712;
@@ -1125,6 +1128,55 @@
   :root[data-theme="dark"] .library-action.primary{background:var(--harvest);color:#172018;border-color:var(--harvest)}
   :root[data-theme="dark"] .overlay{background:rgba(0,0,0,.66)}
 </style>
+
+<style id="v0386-help-center">
+  .help-brand{background:var(--forest);color:#fff;border-radius:24px;padding:24px 22px;margin:4px 0 18px;position:relative;overflow:hidden}
+  .help-brand::after{content:"MW";position:absolute;right:-4px;bottom:-25px;font-family:'Fraunces',serif;font-size:96px;line-height:1;color:rgba(255,255,255,.06);letter-spacing:-.12em}
+  .mw-mark{width:54px;height:54px;border:1px solid rgba(255,255,255,.32);border-radius:14px;display:grid;grid-template-rows:1fr 1fr;align-items:center;justify-items:center;padding:6px;margin-bottom:16px;background:rgba(255,255,255,.06)}
+  .mw-mark span{font-family:'Fraunces',serif;font-size:24px;line-height:.8}
+  .mw-mark span:last-child{color:#E8D5AE}
+  .help-brand h2{color:#fff;margin:0 0 8px;font-size:29px}
+  .help-brand p{color:rgba(255,255,255,.8);font-size:13px;line-height:1.62;margin:0;max-width:310px;position:relative;z-index:1}
+  .help-philosophy{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 20px}
+  .help-principle{background:rgba(35,67,54,.07);border:1px solid var(--line);border-radius:14px;padding:12px 9px;text-align:center}
+  .help-principle strong{display:block;color:var(--forest);font-size:11px;line-height:1.25}
+  .help-principle span{display:block;color:var(--meadow);font-size:10px;margin-top:4px}
+  .help-card{background:#fff;border:1px solid var(--line);border-radius:17px;margin-bottom:10px;overflow:hidden}
+  .help-card summary{list-style:none;display:flex;align-items:center;gap:12px;padding:15px 16px;cursor:pointer;font-weight:700;color:var(--forest)}
+  .help-card summary::-webkit-details-marker{display:none}
+  .help-card summary::after{content:"+";margin-left:auto;color:var(--harvest);font-size:20px;font-weight:400}
+  .help-card[open] summary::after{content:"−"}
+  .help-card[open] summary{border-bottom:1px solid var(--line)}
+  .help-icon{width:34px;height:34px;flex:0 0 34px;border-radius:11px;background:rgba(35,67,54,.08);display:flex;align-items:center;justify-content:center;font-size:17px}
+  .help-content{padding:14px 16px 17px;color:var(--slate);font-size:12.5px;line-height:1.65}
+  .help-content p{margin:0 0 10px}
+  .help-content p:last-child{margin-bottom:0}
+  .help-steps{margin:0;padding-left:20px}
+  .help-steps li{margin:7px 0}
+  .help-tip{margin-top:12px;padding:11px 12px;border-left:3px solid var(--harvest);background:rgba(183,139,69,.09);border-radius:0 10px 10px 0}
+  .help-contact{display:block;text-decoration:none;color:inherit;background:rgba(35,67,54,.06);border:1px solid var(--line);border-radius:16px;padding:15px 16px;margin:18px 0 4px}
+  .help-contact strong{display:block;color:var(--forest);margin-bottom:4px}
+  .help-contact span{font-size:12px;color:var(--meadow);word-break:break-word}
+  :root[data-theme="dark"] .help-card{background:#18261F;border-color:rgba(231,238,232,.12)}
+  :root[data-theme="dark"] .help-card summary{color:#F1EBDD;background:#18261F}
+  :root[data-theme="dark"] .help-card[open] summary{border-bottom-color:rgba(231,238,232,.12)}
+  :root[data-theme="dark"] .help-content{color:#C4CEC6;background:#14211B}
+  :root[data-theme="dark"] .help-content strong{color:#F1EBDD}
+  :root[data-theme="dark"] .help-principle{background:#18261F;border-color:rgba(231,238,232,.12)}
+  :root[data-theme="dark"] .help-principle strong{color:#F1EBDD}
+  :root[data-theme="dark"] .help-principle span{color:#AEB9AF}
+  :root[data-theme="dark"] .help-icon{background:#22362C;color:#D2A65A}
+  :root[data-theme="dark"] .help-tip{background:rgba(210,166,90,.10);color:#D7DED8}
+  :root[data-theme="dark"] .help-contact{background:#18261F;border-color:rgba(231,238,232,.12)}
+  :root[data-theme="dark"] .help-contact strong{color:#F1EBDD}
+  :root[data-theme="dark"] .help-contact span{color:#AEB9AF}
+  :root[data-theme="dark"] .help-brand{background:#142720;color:#F1EBDD;border:1px solid rgba(232,213,174,.18);box-shadow:0 12px 28px rgba(0,0,0,.22)}
+  :root[data-theme="dark"] .help-brand h2{color:#F1EBDD}
+  :root[data-theme="dark"] .help-brand p{color:#C9D2CB}
+  :root[data-theme="dark"] .help-brand .eyebrow{color:#E8D5AE !important}
+  :root[data-theme="dark"] .help-brand::after{color:rgba(232,213,174,.08)}
+</style>
+
 </head>
 <body>
 
@@ -1784,6 +1836,7 @@
           <div class="setting-row"><div class="setting-copy"><span class="setting-label">Device storage</span><span class="setting-note" id="settingsStorageText">Checking available storage…</span><div class="storage-meter"><div class="storage-meter-fill" id="settingsStorageFill"></div></div></div></div>
           <div class="setting-row" role="button" tabindex="0" onclick="openLibraryHealth()" style="cursor:pointer;"><div class="setting-copy"><span class="setting-label">Library health</span><span class="setting-note">Check ideas, songs, media, and references.</span></div><strong id="settingsHealthStatus" style="font-size:12px;">Check</strong></div>
           <div class="setting-row" role="button" tabindex="0" onclick="requestAccountMigration()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();requestAccountMigration();}" style="cursor:pointer;"><div class="setting-copy"><span class="setting-label">Account migration</span><span class="setting-note" id="settingsMigrationText">Your local library is ready to move into a future Mosaic account—no manual export required.</span></div><strong id="settingsMigrationStatus" style="font-size:12px;">Ready</strong></div>
+          <div class="setting-row" id="sampleContentRow"><div class="setting-copy"><span class="setting-label">Sample content</span><span class="setting-note" id="settingsSampleText">Example ideas and songs help demonstrate Mosaic.</span></div><button type="button" class="library-action" id="clearSamplesBtn" style="width:auto;padding:9px 12px;" onclick="clearSampleContent()">Clear Samples</button></div>
           <div class="library-actions">
             <button type="button" class="library-action primary" onclick="exportMosaicBackup()">Export Backup</button>
             <button type="button" class="library-action" onclick="document.getElementById('backupImportInput').click()">Import Backup</button>
@@ -1796,8 +1849,9 @@
       <section class="settings-group">
         <h3>About</h3>
         <div class="settings-card">
-          <div class="setting-row"><div class="setting-copy"><span class="setting-label">Mosaic</span><span class="setting-note">Capture now. Organize later. Rediscover often.</span></div><strong>v0.38.5</strong></div>
-          <div class="setting-row" role="button" tabindex="0" onclick="goTo('releaseNotes')" style="cursor:pointer;"><div class="setting-copy"><span class="setting-label">What's new</span><span class="setting-note">Release notes for v0.38.5 Contact Us.</span></div><strong>›</strong></div>
+          <div class="setting-row"><div class="setting-copy"><span class="setting-label">Mosaic</span><span class="setting-note">Capture now. Organize later. Rediscover often.</span></div><strong>v0.38.9</strong></div>
+          <div class="setting-row" role="button" tabindex="0" onclick="goTo('helpCenter')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goTo('helpCenter');}" style="cursor:pointer;"><div class="setting-copy"><span class="setting-label">Help &amp; Getting Started</span><span class="setting-note">Learn how to capture, organize, build, rediscover, and protect your ideas.</span></div><strong>›</strong></div>
+          <div class="setting-row" role="button" tabindex="0" onclick="goTo('releaseNotes')" style="cursor:pointer;"><div class="setting-copy"><span class="setting-label">What's new</span><span class="setting-note">Release notes for v0.38.9 Welcome Contrast.</span></div><strong>›</strong></div>
           <div class="setting-row" role="button" tabindex="0" onclick="goTo('versionHistory')" style="cursor:pointer;"><div class="setting-copy"><span class="setting-label">Version history</span><span class="setting-note">See how Mosaic has grown.</span></div><strong>›</strong></div>
           <div class="setting-row"><div class="setting-copy"><span class="setting-label">Meadow Works Studio</span><span class="setting-note">Designed and developed with musicians in mind.</span></div></div>
           <a class="setting-row" href="mailto:meadowworksstudio@gmail.com?subject=Mosaic%20Support" style="cursor:pointer;text-decoration:none;color:inherit;">
@@ -1810,15 +1864,59 @@
     </div>
   </div>
 
+
+  <!-- HELP & GETTING STARTED -->
+  <div class="screen" id="helpCenter">
+    <div class="app-header"><div class="back" onclick="goBack()">&#8592;</div><div class="eyebrow">Help &amp; Getting Started</div><button type="button" class="home-jump" onclick="goHome()">⌂</button></div>
+    <div class="scroll-area">
+      <div class="help-brand">
+        <div class="mw-mark" aria-label="Meadow Works"><span>M</span><span>W</span></div>
+        <div class="eyebrow" style="color:#E8D5AE;margin-bottom:6px;">Meadow Works Studio</div>
+        <h2>Welcome to Mosaic.</h2>
+        <p>Every great song begins with a single idea. Mosaic helps you catch lyrics, riffs, recordings, videos, chords, tabs, and notes before inspiration fades.</p>
+      </div>
+
+      <div class="help-philosophy">
+        <div class="help-principle"><strong>Capture now.</strong><span>Keep the spark.</span></div>
+        <div class="help-principle"><strong>Organize later.</strong><span>No pressure.</span></div>
+        <div class="help-principle"><strong>Rediscover often.</strong><span>Find hidden gems.</span></div>
+      </div>
+
+      <section class="settings-group"><h3>Start here</h3>
+        <details class="help-card" open><summary><span class="help-icon">✦</span>What is Mosaic?</summary><div class="help-content"><p>Mosaic is a private, capture-first notebook for musical fragments. An idea does not need to be a complete song—or even have a title—to be worth saving.</p><p>Capture first. When the moment is right, add tags, mark favorites, connect ideas to songs, and revisit forgotten pieces through Rediscover.</p></div></details>
+        <details class="help-card"><summary><span class="help-icon">＋</span>Capture an idea</summary><div class="help-content"><ol class="help-steps"><li>Tap the large <strong>＋</strong> button.</li><li>Choose Lyrics, Chords, Audio, Video, Tab, or Upload.</li><li>Add only what you have. Mood, tags, and song connections can wait.</li><li>Save the idea to your library.</li></ol><div class="help-tip"><strong>Tip:</strong> A rough ten-second recording is often more valuable than an idea you planned to document later.</div></div></details>
+        <details class="help-card"><summary><span class="help-icon">⌕</span>Find and organize ideas</summary><div class="help-content"><p>Open <strong>See All Ideas</strong> to search by title, text, date, mood, or tag. Use Filter &amp; Sort to narrow the library by idea type, favorites, song assignment, or tags.</p><p>Tags are flexible. Create whatever fits your process—such as <em>Needs Lyrics</em>, <em>Acoustic</em>, <em>Dark</em>, or <em>Verse Idea</em>.</p></div></details>
+      </section>
+
+      <section class="settings-group"><h3>Grow the idea</h3>
+        <details class="help-card"><summary><span class="help-icon">▦</span>Build a song</summary><div class="help-content"><ol class="help-steps"><li>Open Songs and create a new song.</li><li>Connect existing ideas to it.</li><li>Arrange fragments as the song takes shape.</li><li>Keep one idea connected to multiple songs when it inspires more than one direction.</li></ol></div></details>
+        <details class="help-card"><summary><span class="help-icon">✦</span>Use Rediscover</summary><div class="help-content"><p>Rediscover surfaces ideas you may have overlooked. Choose Surprise Me, Forgotten, Favorites, Unassigned, or On This Day.</p><p>It is not a task list. It is a quiet invitation to hear an old fragment with fresh ears.</p></div></details>
+      </section>
+
+      <section class="settings-group"><h3>Protect your library</h3>
+        <details class="help-card"><summary><span class="help-icon">⇩</span>Backup and restore</summary><div class="help-content"><p>Mosaic currently stores your library in this browser on this device. Open <strong>Settings → Library</strong> and choose <strong>Export Backup</strong> regularly.</p><p>Use <strong>Import Backup</strong> to restore a Mosaic backup. Imported audio and video are reconnected to their ideas automatically when supported by the device.</p><div class="help-tip"><strong>Important:</strong> Keep at least one recent backup somewhere outside this browser.</div></div></details>
+        <details class="help-card"><summary><span class="help-icon">✓</span>Library Health</summary><div class="help-content"><p>Library Health checks ideas, songs, media, and references. It can identify missing media and confirm whether your stored library looks healthy.</p></div></details>
+      </section>
+
+      <section class="settings-group"><h3>Common questions</h3>
+        <details class="help-card"><summary><span class="help-icon">?</span>Does Mosaic need the internet?</summary><div class="help-content"><p>The current browser version is designed to work locally after it is opened. Recording permissions and browser capabilities vary by device.</p></div></details>
+        <details class="help-card"><summary><span class="help-icon">∞</span>Can one idea belong to multiple songs?</summary><div class="help-content"><p>Yes. A riff, lyric, or recording can remain in the idea library while being connected to more than one song.</p></div></details>
+        <details class="help-card"><summary><span class="help-icon">⌂</span>Where is my data stored?</summary><div class="help-content"><p>For this version, your ideas and media are stored locally in the browser. They are not automatically synced to an account or another device.</p></div></details>
+      </section>
+
+      <a class="help-contact" href="mailto:meadowworksstudio@gmail.com?subject=Mosaic%20Support"><strong>Still need help?</strong><span>Contact Meadow Works Studio at meadowworksstudio@gmail.com</span></a>
+      <div style="text-align:center;padding:12px 0 24px;color:var(--meadow);font-size:11px;letter-spacing:.08em;text-transform:uppercase;">Thoughtful software for creative minds</div>
+    </div>
+  </div>
+
   <!-- RELEASE NOTES -->
   <div class="screen" id="releaseNotes">
     <div class="app-header"><div class="back" onclick="goBack()">&#8592;</div><div class="eyebrow">What's New</div><div style="width:38px;"></div></div>
     <div class="scroll-area">
-      <div style="padding:6px 0 20px;"><h2 style="font-size:30px;">v0.38.5 Contact Us</h2><p style="font-size:13px;line-height:1.6;margin-top:7px;">Capture without interruption, organize later with flexible tags and filters, connect ideas to songs, and rediscover forgotten sparks.</p></div>
-      <section class="settings-group"><h3>New</h3><div class="settings-card"><p class="setting-note" style="font-size:13px;line-height:1.8;">• Added a Contact us row in Settings<br>• Added the Meadow Works Studio support email<br>• Tapping the address opens the device’s default email app<br>• Updated the About section with Mosaic’s current tagline</p></div></section>
-      <section class="settings-group"><h3>Contact</h3><div class="settings-card"><p class="setting-note" style="font-size:13px;line-height:1.8;">Questions, ideas, and bug reports can now be sent to <strong>meadowworksstudio@gmail.com</strong> directly from Settings.</p></div></section>
-      <section class="settings-group"><h3>Notes</h3><div class="settings-card"><p class="setting-note" style="font-size:13px;line-height:1.8;">The mail link uses the device’s configured email application. Mosaic does not send messages or collect contact information itself.</p></div></section>
-      <section class="settings-group"><h3>Known limitations</h3><div class="settings-card"><p class="setting-note" style="font-size:13px;line-height:1.8;">Libraries remain stored on this device until account sync is introduced. Export backups regularly.</p></div></section>
+      <div style="padding:6px 0 20px;"><h2 style="font-size:30px;">v0.38.9 Help &amp; Getting Started</h2><p style="font-size:13px;line-height:1.6;margin-top:7px;">A welcoming in-app guide that explains Mosaic without taking users away from their creative workspace.</p></div>
+      <section class="settings-group"><h3>New</h3><div class="settings-card"><p class="setting-note" style="font-size:13px;line-height:1.8;">• Clearly labeled all built-in starter ideas and songs as Sample<br>• Added Settings → Library → Clear Samples<br>• Clear Samples removes only starter content and leaves user-created ideas and songs untouched<br>• Sample controls disappear automatically after the examples are removed</p></div></section>
+      <section class="settings-group"><h3>Branding</h3><div class="settings-card"><p class="setting-note" style="font-size:13px;line-height:1.8;">The guide uses the established Meadow Works forest, harvest gold, cream, serif typography, MW monogram, and “Thoughtful software for creative minds” voice.</p></div></section>
+      <section class="settings-group"><h3>Access</h3><div class="settings-card"><p class="setting-note" style="font-size:13px;line-height:1.8;">Sample labels appear on starter cards throughout Mosaic. To remove them, open <strong>Settings → Library → Clear Samples</strong>.</p></div></section>
     </div>
   </div>
 
@@ -1828,6 +1926,7 @@
     <div class="scroll-area">
       <div style="padding:6px 0 20px;"><h2 style="font-size:30px;">How Mosaic has grown.</h2></div>
       <section class="settings-group"><div class="settings-card">
+        <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.38.9 — Welcome Contrast</span><span class="setting-note">Improves the dark-mode contrast of the Welcome to Mosaic panel while preserving the Meadow Works branding.</span></div></div>
         <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.38.5 — Contact Us</span><span class="setting-note">Adds Meadow Works Studio contact details and a direct support email link in Settings.</span></div></div>
         <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.38.4 — Dark Mode Balance</span><span class="setting-note">True dark cards and controls, stronger contrast, unified Meadow Works branding, flexible tags, favorites, filtering, sorting, Rediscover, and song connections.</span></div></div>
         <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.37 — Media Engine</span><span class="setting-note">Verified backup media restoration, fresh playback URLs, exact post-import health checks, and corrected backup version metadata.</span></div></div>
@@ -1925,10 +2024,11 @@
   ideas[0].createdAt = daysAgoIso(5);
   ideas[1].createdAt = daysAgoIso(2);
   ideas[2].createdAt = daysAgoIso(1);
+  ideas.forEach(idea => idea.isSample = true);
 
   let songs = [
-    { id:"song-midnight", title:"Midnight Drive", ideaIds:["idea-1","idea-3"], createdAt: daysAgoIso(6) },
-    { id:"song-slowburn", title:"Slow Burn", ideaIds:["idea-2"], createdAt: daysAgoIso(3) },
+    { id:"song-midnight", title:"Midnight Drive", ideaIds:["idea-1","idea-3"], createdAt: daysAgoIso(6), isSample:true },
+    { id:"song-slowburn", title:"Slow Burn", ideaIds:["idea-2"], createdAt: daysAgoIso(3), isSample:true },
   ];
 
   let activeIdeaId = null;
@@ -2221,8 +2321,8 @@
         format:"mosaic-backup",
         backupVersion:3,
         exportedAt:new Date().toISOString(),
-        appVersion:"0.38.5",
-        releaseName:"Contact Us",
+        appVersion:"0.38.7",
+        releaseName:"Help & Getting Started",
         platform:navigator.userAgent,
         state:buildAppState(),
         media
@@ -2440,6 +2540,11 @@
         if(Array.isArray(state.ideas) && Array.isArray(state.songs)){
           ideas = state.ideas;
           songs = state.songs;
+          // Carry the sample designation forward for libraries created by earlier prototypes.
+          const legacySampleIdeas = new Map([["idea-1","Morning Riff"],["idea-2","Verse — Change of Heart"],["idea-3","Drop C Sketch"]]);
+          ideas.forEach(idea => { if(idea.isSample == null && legacySampleIdeas.get(idea.id) === idea.title) idea.isSample = true; });
+          const legacySampleSongs = new Map([["song-midnight","Midnight Drive"],["song-slowburn","Slow Burn"]]);
+          songs.forEach(song => { if(song.isSample == null && legacySampleSongs.get(song.id) === song.title) song.isSample = true; });
           preferences = { ...defaultPreferences, ...(state.preferences || {}) };
           accountMigration = { completed:false, completedAt:null, accountId:null, ...(state.accountMigration || {}) };
           maintenance = { lastBackupAt:null, lastImportAt:null, lastIntegrityCheckAt:null, lastIntegrityReport:null, ...(state.maintenance || {}) };
@@ -3308,6 +3413,17 @@
   }
 
   function renderSettingsStatus(){
+    const sampleIdeas = ideas.filter(i => i.isSample).length;
+    const sampleSongs = songs.filter(s => s.isSample).length;
+    const sampleRow = document.getElementById("sampleContentRow");
+    const sampleText = document.getElementById("settingsSampleText");
+    const sampleBtn = document.getElementById("clearSamplesBtn");
+    if(sampleRow){
+      const hasSamples = sampleIdeas + sampleSongs > 0;
+      sampleRow.style.display = hasSamples ? "flex" : "none";
+      if(sampleText) sampleText.textContent = `${sampleIdeas} sample idea${sampleIdeas===1?"":"s"} and ${sampleSongs} sample song${sampleSongs===1?"":"s"} are clearly labeled.`;
+      if(sampleBtn) sampleBtn.disabled = !hasSamples;
+    }
     const byId = id => document.getElementById(id);
     if(byId("prefDisplayName")) byId("prefDisplayName").value = preferences.displayName || "";
     if(byId("prefArtistName")) byId("prefArtistName").value = preferences.artistName || "";
@@ -3423,6 +3539,27 @@
     alert(`Import Complete\n\n${details}\n\n${summary.missing ? "Review Library Health for details." : "No problems detected."}`);
   }
 
+  async function clearSampleContent(){
+    const sampleIdeas = ideas.filter(i => i.isSample);
+    const sampleSongs = songs.filter(s => s.isSample);
+    if(!sampleIdeas.length && !sampleSongs.length){ showToast("No sample content remains"); return; }
+    const confirmed = confirm(`Remove ${sampleIdeas.length} sample idea${sampleIdeas.length===1?"":"s"} and ${sampleSongs.length} sample song${sampleSongs.length===1?"":"s"}? Your own content will not be changed.`);
+    if(!confirmed) return;
+    for(const idea of sampleIdeas){
+      const key = idea?.visual?.mediaKey;
+      if(key){ try{ await deleteMediaBlob(key); }catch(err){ console.warn("Could not remove sample media", err); } }
+      if(idea?.visual?.url){ try{ URL.revokeObjectURL(idea.visual.url); }catch(err){} }
+    }
+    const sampleIdeaIds = new Set(sampleIdeas.map(i => i.id));
+    ideas = ideas.filter(i => !i.isSample);
+    songs = songs.filter(s => !s.isSample).map(song => ({ ...song, ideaIds:(song.ideaIds || []).filter(id => !sampleIdeaIds.has(id)) }));
+    if(lastTouchedSongId && !songs.some(s => s.id === lastTouchedSongId)) lastTouchedSongId = null;
+    saveAppState(true);
+    renderDashboard();
+    renderSettingsStatus();
+    showToast("Sample content cleared");
+  }
+
   function openSettings(){
     renderSettingsStatus();
     goTo("settings");
@@ -3476,6 +3613,7 @@
       row.style.display = "flex";
       row.innerHTML = ideas.slice().reverse().map(idea => `
         <div class="idea-card" onclick="openIdeaById('${idea.id}')">
+          ${idea.isSample ? '<span class="sample-badge">Sample</span>' : ''}
           <div class="idea-tag">${ideaTypes[idea.type].icon}</div>
           <h4>${idea.title}</h4>
           <p class="idea-card-date">${formatRelativeDate(idea.createdAt)}</p>
@@ -3488,7 +3626,7 @@
       <div class="song-item" onclick="openSongWorkspace('${s.id}')">
         <div class="song-dot"></div>
         <div class="meta">
-          <h4>${s.title}</h4>
+          <h4>${s.title}${s.isSample ? '<span class="sample-badge compact">Sample</span>' : ''}</h4>
           <p>${s.ideaIds.length} ideas connected${s.createdAt ? " · " + formatRelativeDate(s.createdAt) : ""}</p>
           ${songSummaryBadgesHtml(s)}
         </div>
@@ -3607,7 +3745,7 @@
         <div class="song-idea-row" style="cursor:pointer;" onclick="openIdeaById('${idea.id}')">
           <div class="idea-tag">${meta.icon}</div>
           <div class="meta">
-            <h4>${idea.title}</h4>
+            <h4>${idea.title}${idea.isSample ? '<span class="sample-badge compact">Sample</span>' : ''}</h4>
             <div class="song-idea-tags">
               ${idea.mood ? `<span class="mini-mood">${idea.mood}</span>` : ""}
               ${tagChips}
@@ -3667,7 +3805,7 @@
       <div class="song-item" style="margin-bottom:10px;" onclick="openSongWorkspace('${s.id}')">
         <div class="song-dot"></div>
         <div class="meta">
-          <h4>${s.title}</h4>
+          <h4>${s.title}${s.isSample ? '<span class="sample-badge compact">Sample</span>' : ''}</h4>
           <p>${s.ideaIds.length} ideas connected${s.createdAt ? " · " + formatRelativeDate(s.createdAt) : ""}</p>
           ${songSummaryBadgesHtml(s)}
         </div>
