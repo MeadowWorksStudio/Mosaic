@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mosaic v0.38.9 — Help & Getting Started</title>
+<title>Mosaic v0.39.0 — Idea Export</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -991,6 +991,24 @@
   .spark-mode.active{background:var(--forest);color:var(--cream);border-color:var(--forest)}
   .organize-summary{background:rgba(109,132,103,.09);border:1px solid rgba(109,132,103,.25);border-radius:16px;padding:13px;margin-bottom:14px;font-size:12px;color:var(--forest)}
 
+
+  /* ---------- IDEA EXPORT / MULTI-SELECT ---------- */
+  .selection-bar{display:none;align-items:center;gap:8px;margin:0 0 12px;padding:10px 11px;border:1px solid var(--line);border-radius:14px;background:var(--cream-soft)}
+  .selection-bar.show{display:flex}
+  .selection-count{flex:1;font-size:11.5px;font-weight:700;color:var(--forest)}
+  .selection-btn{border:1px solid var(--line);background:var(--cream);color:var(--forest);border-radius:10px;padding:8px 10px;font:700 11px Inter,sans-serif;cursor:pointer}
+  .selection-btn.primary{background:var(--forest);color:var(--cream);border-color:var(--forest)}
+  .idea-select-box{width:22px;height:22px;flex:0 0 22px;border:1.5px solid var(--line);border-radius:7px;background:var(--cream);display:flex;align-items:center;justify-content:center;color:transparent;font-size:14px;font-weight:900}
+  .song-idea-row.selected-for-export{border-color:var(--harvest);background:rgba(183,139,69,.08)}
+  .song-idea-row.selected-for-export .idea-select-box{background:var(--forest);border-color:var(--forest);color:#fff}
+  .export-detail-btn{width:100%;margin-top:9px;background:transparent;border:1px solid var(--line);color:var(--forest);border-radius:100px;padding:12px 18px;font:700 12.5px Inter,sans-serif;cursor:pointer}
+  :root[data-theme="dark"] .selection-bar{background:var(--cream-soft)}
+  :root[data-theme="dark"] .selection-btn{background:#132019;color:var(--slate)}
+  :root[data-theme="dark"] .selection-btn.primary{background:var(--harvest);color:#172018;border-color:var(--harvest)}
+  :root[data-theme="dark"] .idea-select-box{background:#132019}
+  :root[data-theme="dark"] .song-idea-row.selected-for-export{background:rgba(211,174,104,.10);border-color:var(--harvest)}
+  :root[data-theme="dark"] .song-idea-row.selected-for-export .idea-select-box{background:var(--harvest);color:#172018;border-color:var(--harvest)}
+  :root[data-theme="dark"] .export-detail-btn{color:var(--slate);border-color:var(--line)}
 </style>
 
 <style id="v0383-simplified-branding">
@@ -1313,6 +1331,12 @@
       <div class="filter-toolbar">
         <input type="text" id="ideaSearchInput" class="field-input" placeholder="Search ideas…" oninput="renderAllIdeasList()">
         <button type="button" class="compact-btn" onclick="toggleIdeaFilters()">Filter / Sort</button>
+        <button type="button" class="compact-btn" id="ideaSelectModeBtn" onclick="toggleIdeaSelectionMode()">Select</button>
+      </div>
+      <div class="selection-bar" id="ideaSelectionBar">
+        <span class="selection-count" id="ideaSelectionCount">0 selected</span>
+        <button type="button" class="selection-btn" onclick="selectAllVisibleIdeas()">Select all</button>
+        <button type="button" class="selection-btn primary" onclick="exportSelectedIdeas()">Export</button>
       </div>
       <div class="filter-panel" id="ideaFilterPanel">
         <div class="filter-grid">
@@ -1703,6 +1727,7 @@
 
       <div class="detail-footer">
         <button class="btn btn-primary" onclick="openAddToSong()">Add to Song</button>
+        <button class="export-detail-btn" onclick="exportActiveIdea()">Export Idea</button>
       </div>
 
       <div class="overlay" id="addToSongOverlay">
@@ -1841,6 +1866,7 @@
             <button type="button" class="library-action primary" onclick="exportMosaicBackup()">Export Backup</button>
             <button type="button" class="library-action" onclick="document.getElementById('backupImportInput').click()">Import Backup</button>
           </div>
+          <button type="button" class="library-action" style="width:100%;margin-top:10px;" onclick="exportAllIdeas()">Export All Ideas</button>
           <input id="backupImportInput" type="file" accept=".json,.mosaic,.mosaic.json,application/json,text/plain" hidden onchange="handleBackupFileSelection(this)">
           <div class="save-alert" id="saveFailureAlert"><strong>Your latest changes may not be saved.</strong><br><span id="saveFailureMessage">Keep Mosaic open and export a backup.</span></div>
         </div>
@@ -1849,9 +1875,9 @@
       <section class="settings-group">
         <h3>About</h3>
         <div class="settings-card">
-          <div class="setting-row"><div class="setting-copy"><span class="setting-label">Mosaic</span><span class="setting-note">Capture now. Organize later. Rediscover often.</span></div><strong>v0.38.9</strong></div>
+          <div class="setting-row"><div class="setting-copy"><span class="setting-label">Mosaic</span><span class="setting-note">Capture now. Organize later. Rediscover often.</span></div><strong>v0.39.0</strong></div>
           <div class="setting-row" role="button" tabindex="0" onclick="goTo('helpCenter')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goTo('helpCenter');}" style="cursor:pointer;"><div class="setting-copy"><span class="setting-label">Help &amp; Getting Started</span><span class="setting-note">Learn how to capture, organize, build, rediscover, and protect your ideas.</span></div><strong>›</strong></div>
-          <div class="setting-row" role="button" tabindex="0" onclick="goTo('releaseNotes')" style="cursor:pointer;"><div class="setting-copy"><span class="setting-label">What's new</span><span class="setting-note">Release notes for v0.38.9 Welcome Contrast.</span></div><strong>›</strong></div>
+          <div class="setting-row" role="button" tabindex="0" onclick="goTo('releaseNotes')" style="cursor:pointer;"><div class="setting-copy"><span class="setting-label">What's new</span><span class="setting-note">Release notes for v0.39.0 Idea Export.</span></div><strong>›</strong></div>
           <div class="setting-row" role="button" tabindex="0" onclick="goTo('versionHistory')" style="cursor:pointer;"><div class="setting-copy"><span class="setting-label">Version history</span><span class="setting-note">See how Mosaic has grown.</span></div><strong>›</strong></div>
           <div class="setting-row"><div class="setting-copy"><span class="setting-label">Meadow Works Studio</span><span class="setting-note">Designed and developed with musicians in mind.</span></div></div>
           <a class="setting-row" href="mailto:meadowworksstudio@gmail.com?subject=Mosaic%20Support" style="cursor:pointer;text-decoration:none;color:inherit;">
@@ -1913,7 +1939,7 @@
   <div class="screen" id="releaseNotes">
     <div class="app-header"><div class="back" onclick="goBack()">&#8592;</div><div class="eyebrow">What's New</div><div style="width:38px;"></div></div>
     <div class="scroll-area">
-      <div style="padding:6px 0 20px;"><h2 style="font-size:30px;">v0.38.9 Help &amp; Getting Started</h2><p style="font-size:13px;line-height:1.6;margin-top:7px;">A welcoming in-app guide that explains Mosaic without taking users away from their creative workspace.</p></div>
+      <div style="padding:6px 0 20px;"><h2 style="font-size:30px;">v0.39.0 Idea Export</h2><p style="font-size:13px;line-height:1.6;margin-top:7px;">Take your ideas with you. Export one idea, a selected group, or your entire library as portable files.</p></div>
       <section class="settings-group"><h3>New</h3><div class="settings-card"><p class="setting-note" style="font-size:13px;line-height:1.8;">• Clearly labeled all built-in starter ideas and songs as Sample<br>• Added Settings → Library → Clear Samples<br>• Clear Samples removes only starter content and leaves user-created ideas and songs untouched<br>• Sample controls disappear automatically after the examples are removed</p></div></section>
       <section class="settings-group"><h3>Branding</h3><div class="settings-card"><p class="setting-note" style="font-size:13px;line-height:1.8;">The guide uses the established Meadow Works forest, harvest gold, cream, serif typography, MW monogram, and “Thoughtful software for creative minds” voice.</p></div></section>
       <section class="settings-group"><h3>Access</h3><div class="settings-card"><p class="setting-note" style="font-size:13px;line-height:1.8;">Sample labels appear on starter cards throughout Mosaic. To remove them, open <strong>Settings → Library → Clear Samples</strong>.</p></div></section>
@@ -1926,6 +1952,7 @@
     <div class="scroll-area">
       <div style="padding:6px 0 20px;"><h2 style="font-size:30px;">How Mosaic has grown.</h2></div>
       <section class="settings-group"><div class="settings-card">
+        <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.39.0 — Idea Export</span><span class="setting-note">Adds single, multi-select, and full-library idea export with portable ZIP packages and native media files.</span></div></div>
         <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.38.9 — Welcome Contrast</span><span class="setting-note">Improves the dark-mode contrast of the Welcome to Mosaic panel while preserving the Meadow Works branding.</span></div></div>
         <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.38.5 — Contact Us</span><span class="setting-note">Adds Meadow Works Studio contact details and a direct support email link in Settings.</span></div></div>
         <div class="setting-row"><div class="setting-copy"><span class="setting-label">v0.38.4 — Dark Mode Balance</span><span class="setting-note">True dark cards and controls, stronger contrast, unified Meadow Works branding, flexible tags, favorites, filtering, sorting, Rediscover, and song connections.</span></div></div>
@@ -1959,6 +1986,8 @@
 
 <script>
   // ---------- state ----------
+  const MOSAIC_APP_VERSION = "0.39.0";
+  const MOSAIC_RELEASE_NAME = "Idea Export";
   const ideaTypes = {
     audio:  { label:"Audio idea",  icon:"&#127908;" },
     video:  { label:"Video idea",  icon:"&#128249;" },
@@ -2032,6 +2061,8 @@
   ];
 
   let activeIdeaId = null;
+  let ideaSelectionMode = false;
+  let selectedIdeaIds = new Set();
 
   function mkIdea(type, title, mood, tags, visualOverride){
     ideaSeq++;
@@ -2301,6 +2332,175 @@
     return idea;
   }
 
+  function safeExportName(value, fallback){
+    const cleaned = String(value || fallback || "Idea")
+      .replace(/[\\/:*?"<>|\x00-\x1F]/g, "-")
+      .replace(/\s+/g, " ").trim()
+      .replace(/[. ]+$/g, "");
+    return (cleaned || fallback || "Idea").slice(0, 90);
+  }
+
+  function exportDateStamp(){ return new Date().toISOString().replace(/[:.]/g,"-").slice(0,19); }
+
+  function mimeExtension(mimeType, kind){
+    const mime = String(mimeType || "").toLowerCase();
+    const map = {
+      "audio/webm":"webm", "audio/ogg":"ogg", "audio/mpeg":"mp3", "audio/mp4":"m4a", "audio/wav":"wav", "audio/x-wav":"wav",
+      "video/webm":"webm", "video/mp4":"mp4", "video/quicktime":"mov", "video/x-m4v":"m4v"
+    };
+    if(map[mime]) return map[mime];
+    if(mime.includes("webm")) return "webm";
+    if(mime.includes("mp4")) return kind === "audio" ? "m4a" : "mp4";
+    if(mime.includes("mpeg")) return "mp3";
+    if(mime.includes("ogg")) return "ogg";
+    if(mime.includes("wav")) return "wav";
+    return kind === "video" ? "video" : "audio";
+  }
+
+  function tabIdeaToText(idea){
+    const steps = Array.isArray(idea?.visual?.data) ? idea.visual.data : [];
+    if(!steps.length) return "";
+    const names = (typeof STRING_NAMES !== "undefined" && STRING_NAMES.length) ? STRING_NAMES : ["e","B","G","D","A","E"];
+    return names.map(s => s + "|" + steps.map(step => {
+      if(!step || step[s] === undefined || step[s] === null) return "---";
+      const fret = String(step[s]);
+      return fret.length === 1 ? `-${fret}-` : `${fret}-`;
+    }).join("") + "|").join("\n");
+  }
+
+  function ideaHumanText(idea){
+    const songsUsing = songs.filter(song => (song.ideaIds || []).includes(idea.id)).map(song => song.title);
+    const lines = [
+      "Mosaic Idea Export",
+      "==================",
+      `Title: ${idea.title || "Untitled idea"}`,
+      `Type: ${ideaTypes[idea.type]?.label || idea.type || "Idea"}`,
+      `Created: ${idea.createdAt ? new Date(idea.createdAt).toLocaleString("en-US") : "Unknown"}`,
+      `Last edited: ${idea.updatedAt ? new Date(idea.updatedAt).toLocaleString("en-US") : "Not recorded"}`,
+      `Mood: ${idea.mood || ""}`,
+      `Tags: ${(idea.tags || []).map(t => "#" + t).join(" ")}`,
+      `Favorite: ${idea.favorite ? "Yes" : "No"}`,
+      `Used in songs: ${songsUsing.join(", ") || "None"}`,
+      "",
+      "Notes",
+      "-----",
+      idea.notes || "",
+    ];
+    if(idea.visual?.kind === "lyric") lines.push("", "Lyrics", "------", idea.visual.data || "");
+    if(idea.visual?.kind === "chords") lines.push("", "Chords", "------", (idea.visual.data || []).join(" → "));
+    if(idea.visual?.kind === "tab") lines.push("", "Tab", "---", tabIdeaToText(idea));
+    lines.push("", `Exported from Mosaic v${MOSAIC_APP_VERSION}`, "A Meadow Works product.");
+    return lines.join("\n");
+  }
+
+  function crc32Table(){
+    if(crc32Table.cache) return crc32Table.cache;
+    const table = new Uint32Array(256);
+    for(let n=0;n<256;n++){
+      let c=n;
+      for(let k=0;k<8;k++) c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);
+      table[n]=c>>>0;
+    }
+    crc32Table.cache=table;
+    return table;
+  }
+
+  function crc32Bytes(bytes){
+    const table=crc32Table(); let c=0xFFFFFFFF;
+    for(let i=0;i<bytes.length;i++) c=table[(c^bytes[i])&0xFF]^(c>>>8);
+    return (c^0xFFFFFFFF)>>>0;
+  }
+
+  function dosDateTime(date){
+    const d=date || new Date();
+    const time=((d.getHours()&31)<<11)|((d.getMinutes()&63)<<5)|((Math.floor(d.getSeconds()/2))&31);
+    const year=Math.max(1980,d.getFullYear());
+    const day=((year-1980)<<9)|((d.getMonth()+1)<<5)|d.getDate();
+    return {time, date:day};
+  }
+
+  function le16(v){ return new Uint8Array([v&255,(v>>>8)&255]); }
+  function le32(v){ return new Uint8Array([v&255,(v>>>8)&255,(v>>>16)&255,(v>>>24)&255]); }
+
+  async function buildStoreZip(files){
+    const encoder=new TextEncoder();
+    const localParts=[]; const centralParts=[]; let offset=0; let count=0;
+    const stamp=dosDateTime(new Date());
+    for(const file of files){
+      const nameBytes=encoder.encode(file.name.replace(/^\/+/,""));
+      const blob=file.blob instanceof Blob ? file.blob : new Blob([file.blob ?? ""],{type:file.type || "application/octet-stream"});
+      const bytes=new Uint8Array(await blob.arrayBuffer());
+      const crc=crc32Bytes(bytes); const size=blob.size;
+      const localHeader=new Blob([
+        le32(0x04034b50),le16(20),le16(0),le16(0),le16(stamp.time),le16(stamp.date),le32(crc),le32(size),le32(size),le16(nameBytes.length),le16(0),nameBytes
+      ]);
+      localParts.push(localHeader, blob);
+      const centralHeader=new Blob([
+        le32(0x02014b50),le16(20),le16(20),le16(0),le16(0),le16(stamp.time),le16(stamp.date),le32(crc),le32(size),le32(size),le16(nameBytes.length),le16(0),le16(0),le16(0),le16(0),le32(0),le32(offset),nameBytes
+      ]);
+      centralParts.push(centralHeader);
+      offset += localHeader.size + size; count++;
+    }
+    const centralBlob=new Blob(centralParts); const centralOffset=offset;
+    const end=new Blob([le32(0x06054b50),le16(0),le16(0),le16(count),le16(count),le32(centralBlob.size),le32(centralOffset),le16(0)]);
+    return new Blob([...localParts,centralBlob,end],{type:"application/zip"});
+  }
+
+  function downloadBlob(blob, filename){
+    const url=URL.createObjectURL(blob); const a=document.createElement("a");
+    a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1500);
+  }
+
+  async function buildIdeaExportFiles(idea, folderName){
+    normalizeMediaIdea(idea);
+    const folder=safeExportName(folderName || idea.title || idea.id, idea.id) + "/";
+    const files=[{name:folder+"idea.txt", blob:new Blob([ideaHumanText(idea)],{type:"text/plain;charset=utf-8"})}];
+    if(idea.visual?.kind === "lyric") files.push({name:folder+"lyrics.txt",blob:new Blob([idea.visual.data || ""],{type:"text/plain;charset=utf-8"})});
+    if(idea.visual?.kind === "chords") files.push({name:folder+"chords.txt",blob:new Blob([(idea.visual.data || []).join(" → ")],{type:"text/plain;charset=utf-8"})});
+    if(idea.visual?.kind === "tab") files.push({name:folder+"tab.txt",blob:new Blob([tabIdeaToText(idea)],{type:"text/plain;charset=utf-8"})});
+    const key=idea.visual?.mediaKey;
+    if(key){
+      const media=await getMediaBlob(key);
+      if(media){
+        const kind=idea.visual.kind === "video" ? "video" : "audio";
+        const ext=mimeExtension(media.type || idea.visual.mimeType, kind);
+        files.push({name:folder+`recording.${ext}`,blob:media});
+      }
+    }
+    return files;
+  }
+
+  async function exportIdeasByIds(ids, label){
+    const chosen=ids.map(id=>ideas.find(i=>i.id===id)).filter(Boolean);
+    if(!chosen.length){ showToast("Choose at least one idea to export"); return; }
+    try{
+      showToast(chosen.length===1 ? "Preparing idea export…" : `Preparing ${chosen.length} ideas…`);
+      const files=[];
+      const manifest={format:"mosaic-idea-export",exportVersion:1,appVersion:MOSAIC_APP_VERSION,exportedAt:new Date().toISOString(),ideaCount:chosen.length,ideas:[]};
+      for(let index=0;index<chosen.length;index++){
+        const idea=chosen[index];
+        const folder=`${String(index+1).padStart(3,"0")} - ${safeExportName(idea.title,idea.id)}`;
+        files.push(...await buildIdeaExportFiles(idea,folder));
+        manifest.ideas.push({id:idea.id,title:idea.title,type:idea.type,createdAt:idea.createdAt,mood:idea.mood||"",tags:idea.tags||[],folder});
+      }
+      files.unshift({name:"README.txt",blob:new Blob([
+        `Mosaic Idea Export\n==================\n\nThis ZIP contains ${chosen.length} exported idea${chosen.length===1?"":"s"} from Mosaic.\nEach idea folder contains a human-readable idea.txt file plus its lyrics, chords, tab, or original stored recording when available.\n\nThis is an export for people and other tools. It is separate from Mosaic's Backup feature, which is designed to restore the app itself.\n\nExported ${new Date().toLocaleString("en-US")}\nMosaic v${MOSAIC_APP_VERSION} · A Meadow Works product.\n`
+      ],{type:"text/plain;charset=utf-8"})});
+      files.push({name:"manifest.json",blob:new Blob([JSON.stringify(manifest,null,2)],{type:"application/json"})});
+      const zip=await buildStoreZip(files);
+      const base=safeExportName(label || (chosen.length===1 ? chosen[0].title : "Mosaic Ideas"),"Mosaic Ideas");
+      downloadBlob(zip,`${base}_${exportDateStamp()}.zip`);
+      showToast(chosen.length===1 ? "Idea exported" : `${chosen.length} ideas exported`);
+    }catch(err){ console.error("Idea export failed",err); showToast("Idea export could not be created"); }
+  }
+
+  function exportActiveIdea(){ if(activeIdeaId) exportIdeasByIds([activeIdeaId], ideas.find(i=>i.id===activeIdeaId)?.title || "Mosaic Idea"); }
+  function exportAllIdeas(){
+    if(!ideas.length){ showToast("There are no ideas to export"); return; }
+    exportIdeasByIds(ideas.map(i=>i.id),"Mosaic All Ideas");
+  }
+
   async function exportMosaicBackup(){
     try{
       saveAppState(true);
@@ -2321,8 +2521,8 @@
         format:"mosaic-backup",
         backupVersion:3,
         exportedAt:new Date().toISOString(),
-        appVersion:"0.38.7",
-        releaseName:"Help & Getting Started",
+        appVersion:MOSAIC_APP_VERSION,
+        releaseName:MOSAIC_RELEASE_NAME,
         platform:navigator.userAgent,
         state:buildAppState(),
         media
@@ -2331,7 +2531,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       const stamp = new Date().toISOString().slice(0,10);
-      a.href = url; a.download = `Mosaic_Backup_v0.38.1_${stamp}.mosaic.json`;
+      a.href = url; a.download = `Mosaic_Backup_v${MOSAIC_APP_VERSION}_${stamp}.mosaic.json`;
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
       maintenance.lastBackupAt = new Date().toISOString(); saveAppState(true); renderSettingsStatus(); showToast("Backup exported");
@@ -3706,12 +3906,51 @@
 
   function openAllIdeas(){
     document.getElementById("ideaSearchInput").value = "";
+    ideaSelectionMode = false;
+    selectedIdeaIds.clear();
+    syncIdeaSelectionUi();
     renderAllIdeasList();
     goTo("allIdeas");
   }
 
   function openIdeaCaptureFromLibrary(){
     goTo("capture");
+  }
+
+  function syncIdeaSelectionUi(){
+    const btn=document.getElementById("ideaSelectModeBtn");
+    const bar=document.getElementById("ideaSelectionBar");
+    const count=document.getElementById("ideaSelectionCount");
+    if(btn) btn.textContent=ideaSelectionMode ? "Cancel" : "Select";
+    if(bar) bar.classList.toggle("show",ideaSelectionMode);
+    if(count) count.textContent=`${selectedIdeaIds.size} selected`;
+  }
+
+  function toggleIdeaSelectionMode(){
+    ideaSelectionMode=!ideaSelectionMode;
+    if(!ideaSelectionMode) selectedIdeaIds.clear();
+    syncIdeaSelectionUi(); renderAllIdeasList();
+  }
+
+  function toggleIdeaSelection(id){
+    if(selectedIdeaIds.has(id)) selectedIdeaIds.delete(id); else selectedIdeaIds.add(id);
+    syncIdeaSelectionUi(); renderAllIdeasList();
+  }
+
+  function visibleIdeaIds(){
+    return [...document.querySelectorAll("#allIdeasList [data-idea-id]")].map(el=>el.dataset.ideaId).filter(Boolean);
+  }
+
+  function selectAllVisibleIdeas(){
+    const ids=visibleIdeaIds();
+    const allSelected=ids.length>0 && ids.every(id=>selectedIdeaIds.has(id));
+    ids.forEach(id=>allSelected?selectedIdeaIds.delete(id):selectedIdeaIds.add(id));
+    syncIdeaSelectionUi(); renderAllIdeasList();
+  }
+
+  function exportSelectedIdeas(){
+    if(!selectedIdeaIds.size){ showToast("Choose at least one idea to export"); return; }
+    exportIdeasByIds([...selectedIdeaIds], selectedIdeaIds.size===1 ? "Mosaic Idea" : "Mosaic Selected Ideas");
   }
 
   function renderAllIdeasList(){
@@ -3742,7 +3981,8 @@
       const meta = ideaTypes[idea.type];
       const tagChips = (idea.tags || []).map(t => `<span class="mini-tag">#${t}</span>`).join("");
       return `
-        <div class="song-idea-row" style="cursor:pointer;" onclick="openIdeaById('${idea.id}')">
+        <div class="song-idea-row ${ideaSelectionMode && selectedIdeaIds.has(idea.id) ? 'selected-for-export' : ''}" data-idea-id="${idea.id}" style="cursor:pointer;" onclick="${ideaSelectionMode ? `toggleIdeaSelection('${idea.id}')` : `openIdeaById('${idea.id}')`}">
+          ${ideaSelectionMode ? `<div class="idea-select-box">✓</div>` : ''}
           <div class="idea-tag">${meta.icon}</div>
           <div class="meta">
             <h4>${idea.title}${idea.isSample ? '<span class="sample-badge compact">Sample</span>' : ''}</h4>
@@ -3752,9 +3992,9 @@
             </div>
             <div class="idea-date-line">${formatRelativeDate(idea.createdAt)}</div>
           </div>
-          <div class="library-row-actions">
+          ${ideaSelectionMode ? '' : `<div class="library-row-actions">
             <button type="button" class="library-delete-btn" title="Delete idea" aria-label="Delete ${idea.title}" onclick="event.stopPropagation(); deleteIdeaFromLibrary('${idea.id}')">🗑️</button>
-          </div>
+          </div>`}
         </div>
       `;
     }).join("");
